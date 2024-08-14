@@ -10,6 +10,14 @@ variable "BUILDKIT_TARGET" {
   default = "binaries"
 }
 
+variable "GOBUILDFLAGS" {
+  default = null
+}
+
+variable "TEST_COVERAGE" {
+  default = null
+}
+
 group "default" {
   targets = ["tests"]
 }
@@ -33,6 +41,8 @@ target "tests-base" {
 
 target "tests" {
   inherits = ["tests-base"]
-  output = ["type=docker"]
-  tags = ["buildkit-bench"]
+  target = "tests"
+  args = {
+    GOBUILDFLAGS = TEST_COVERAGE == "1" ? "-cover" : null
+  }
 }
