@@ -1,0 +1,27 @@
+name: ci
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'master'
+  pull_request:
+
+env:
+  SETUP_BUILDX_VERSION: "latest"
+  SETUP_BUILDKIT_IMAGE: "moby/buildkit:latest"
+  BUILDKIT_REPO: "moby/buildkit"
+
+jobs:
+  test:
+    uses: ./.github/workflows/.test.yml
+    secrets: inherit
+    with:
+      revisions: |
+        master
+        v0.15.1
+        v0.14.1
