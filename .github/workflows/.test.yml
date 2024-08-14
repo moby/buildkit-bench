@@ -16,7 +16,7 @@ jobs:
   init:
     runs-on: ubuntu-24.04
     outputs:
-      commits: ${{ steps.set.outputs.commits }}
+      includes: ${{ steps.set.outputs.includes }}
     steps:
       -
         name: Checkout
@@ -27,8 +27,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            let commits = [];
-            await core.group(`Convert refs to commits`, async () => {
+            let includes = [];
+            await core.group(`Solve commit from ref`, async () => {
               for (const ref of `${{ inputs.refs }}`.trim().split(/\r?\n/)) {
                 const commit = await github.rest.repos.getCommit({
                   owner: 'moby',
@@ -36,12 +36,15 @@ jobs:
                   ref: ref,
                 });
                 core.info(`${ref} -> ${commit.data.sha}`);
-                commits.push(commit.data.sha);
+                includes.push({
+                  ref: ref,
+                  commit: commit.data.sha,
+                });
               }
             });
-            await core.group(`Set commits matrix`, async () => {
-              core.info(JSON.stringify(commits, null, 2));
-              core.setOutput('commits', JSON.stringify(commits));
+            await core.group(`Set includes`, async () => {
+              core.info(JSON.stringify(includes, null, 2));
+              core.setOutput('includes', JSON.stringify(includes ?? []));
             });
 
   prepare:
@@ -51,7 +54,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        commit: ${{ fromJson(needs.init.outputs.commits) }}
+        include: ${{ fromJson(needs.init.outputs.includes) }}
     steps:
       -
         name: Checkout
@@ -64,7 +67,7 @@ jobs:
           driver-opts: image=${{ env.SETUP_BUILDKIT_IMAGE }}
           buildkitd-flags: --debug
       -
-        name: Build
+        name: Build ${{ matrix.ref }}
         uses: docker/bake-action@v5
         with:
           targets: tests-base
