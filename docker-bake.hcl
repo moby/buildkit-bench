@@ -2,7 +2,7 @@ variable "BUILDKIT_REPO" {
   default = "moby/buildkit"
 }
 
-variable "BUILDKIT_REVISION" {
+variable "BUILDKIT_REF" {
   default = "master"
 }
 
@@ -15,7 +15,7 @@ group "default" {
 }
 
 target "buildkit-binaries" {
-  context = "https://github.com/${BUILDKIT_REPO}.git#${BUILDKIT_REVISION}"
+  context = "https://github.com/${BUILDKIT_REPO}.git#${BUILDKIT_REF}"
   target = BUILDKIT_TARGET
   args = {
     BUILDKIT_CONTEXT_KEEP_GIT_DIR = 1

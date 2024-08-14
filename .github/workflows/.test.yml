@@ -4,7 +4,7 @@ name: .test
 on:
   workflow_call:
     inputs:
-      revisions:
+      refs:
         required: true
         type: string
 
@@ -16,7 +16,7 @@ jobs:
   init:
     runs-on: ubuntu-24.04
     outputs:
-      revisions: ${{ steps.set.outputs.revisions }}
+      commits: ${{ steps.set.outputs.commits }}
     steps:
       -
         name: Checkout
@@ -27,10 +27,21 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await core.group(`Set revisions matrix`, async () => {
-              const revisions = `${{ inputs.revisions }}`.trim().split(/\r?\n/);
-              core.info(JSON.stringify(revisions, null, 2));
-              core.setOutput('revisions', JSON.stringify(revisions));
+            let commits = [];
+            await core.group(`Convert refs to commits`, async () => {
+              for (const ref of `${{ inputs.refs }}`.trim().split(/\r?\n/)) {
+                const commit = await github.rest.repos.getCommit({
+                  owner: 'moby',
+                  repo: 'buildkit',
+                  ref: ref,
+                });
+                core.info(`${ref} -> ${commit.data.sha}`);
+                commits.push(commit.data.sha);
+              }
+            });
+            await core.group(`Set commits matrix`, async () => {
+              core.info(JSON.stringify(commits, null, 2));
+              core.setOutput('commits', JSON.stringify(commits));
             });
 
   prepare:
@@ -40,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        revision: ${{ fromJson(needs.init.outputs.revisions) }}
+        commit: ${{ fromJson(needs.init.outputs.commits) }}
     steps:
       -
         name: Checkout
@@ -58,5 +69,7 @@ jobs:
         with:
           targets: tests-base
           set: |
-            buildkit-binaries.cache-from=type=gha,scope=buildkit-${{ matrix.revision }}
-            buildkit-binaries.cache-to=type=gha,scope=buildkit-${{ matrix.revision }}
+            buildkit-binaries.cache-from=type=gha,scope=buildkit-${{ matrix.commit }}
+            buildkit-binaries.cache-to=type=gha,scope=buildkit-${{ matrix.commit }}
+        env:
+          BUILDKIT_REF: ${{ matrix.commit }}
