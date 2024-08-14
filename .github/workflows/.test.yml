@@ -30,14 +30,26 @@ jobs:
             let includes = [];
             await core.group(`Solve commit from ref`, async () => {
               for (const ref of `${{ inputs.refs }}`.trim().split(/\r?\n/)) {
+                let release = undefined;
+                if (ref === 'latest') {
+                  release = await github.rest.repos.getRelease({
+                    owner: 'moby',
+                    repo: 'buildkit',
+                    release_id: ref,
+                  });
+                }
                 const commit = await github.rest.repos.getCommit({
                   owner: 'moby',
                   repo: 'buildkit',
-                  ref: ref,
+                  ref: release ? release.data.tag_name : ref,
                 });
-                core.info(`${ref} -> ${commit.data.sha}`);
+                if (release) {
+                  core.info(`${ref} -> ${release.data.tag_name} -> ${commit.data.sha}`);
+                } else {
+                  core.info(`${ref} -> ${commit.data.sha}`);
+                }
                 includes.push({
-                  ref: ref,
+                  ref: release ? release.data.tag_name : ref,
                   commit: commit.data.sha,
                 });
               }
