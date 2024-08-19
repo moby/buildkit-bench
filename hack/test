@@ -9,6 +9,9 @@ set -eu -o pipefail
 : "${TEST_KEEP_CACHE=}"
 : "${TESTFLAGS=}"
 
+: "${GOBUILDFLAGS=}"
+: "${GO_TEST_COVERPROFILE=}"
+
 testReportsDir="$(pwd)/bin/testreports"
 mkdir -p "$testReportsDir"
 testReportsVol="-v $testReportsDir:/testreports"
