@@ -39,9 +39,13 @@ type Worker interface {
 	Name() string
 }
 
-type Test interface {
+type Runner interface {
 	Name() string
-	Run(t *testing.T, sb Sandbox)
+	Run(tb testing.TB, sb Sandbox)
+}
+
+type Test interface {
+	Runner
 }
 
 type testFunc struct {
@@ -53,13 +57,13 @@ func (f testFunc) Name() string {
 	return f.name
 }
 
-func (f testFunc) Run(t *testing.T, sb Sandbox) {
-	t.Helper()
-	f.run(t, sb)
+func (f testFunc) Run(tb testing.TB, sb Sandbox) {
+	tb.Helper()
+	f.run(tb.(*testing.T), sb)
 }
 
-func TestFuncs(funcs ...func(t *testing.T, sb Sandbox)) []Test {
-	var tests []Test
+func TestFuncs(funcs ...func(t *testing.T, sb Sandbox)) []Runner {
+	var tests []Runner
 	names := map[string]struct{}{}
 	for _, f := range funcs {
 		name := getFunctionName(f)
@@ -70,6 +74,38 @@ func TestFuncs(funcs ...func(t *testing.T, sb Sandbox)) []Test {
 		tests = append(tests, testFunc{name: name, run: f})
 	}
 	return tests
+}
+
+type Bench interface {
+	Runner
+}
+
+type benchFunc struct {
+	name string
+	run  func(b *testing.B, sb Sandbox)
+}
+
+func (f benchFunc) Name() string {
+	return f.name
+}
+
+func (f benchFunc) Run(tb testing.TB, sb Sandbox) {
+	tb.Helper()
+	f.run(tb.(*testing.B), sb)
+}
+
+func BenchFuncs(funcs ...func(b *testing.B, sb Sandbox)) []Runner {
+	var benchs []Runner
+	names := map[string]struct{}{}
+	for _, f := range funcs {
+		name := getFunctionName(f)
+		if _, ok := names[name]; ok {
+			panic("duplicate bench: " + name)
+		}
+		names[name] = struct{}{}
+		benchs = append(benchs, benchFunc{name: name, run: f})
+	}
+	return benchs
 }
 
 var defaultWorkers []Worker
@@ -89,7 +125,20 @@ type testConf struct {
 	matrix map[string]map[string]interface{}
 }
 
-func Run(t *testing.T, testCases []Test, opt ...TestOpt) {
+func RunTest(tb testing.TB, testFunc func(tb testing.TB, sb Sandbox)) {
+	switch t := tb.(type) {
+	case *testing.T:
+		Run(t, TestFuncs(func(t *testing.T, sb Sandbox) {
+			testFunc(t, sb)
+		}))
+	case *testing.B:
+		Run(t, BenchFuncs(func(b *testing.B, sb Sandbox) {
+			testFunc(b, sb)
+		}))
+	}
+}
+
+func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 	var tc testConf
 	for _, o := range opt {
 		o(&tc)
@@ -104,27 +153,43 @@ func Run(t *testing.T, testCases []Test, opt ...TestOpt) {
 	}
 
 	for _, br := range list {
-		for _, tc := range testCases {
+		for _, runner := range runners {
 			for _, mv := range matrix {
-				fn := tc.Name()
+				fn := runner.Name()
 				name := fn + "/ref=" + br.Name() + mv.functionSuffix()
-				func(fn, testName string, br Worker, tc Test, mv matrixValue) {
-					ok := t.Run(testName, func(t *testing.T) {
+				func(fn, testName string, br Worker, runner Runner, mv matrixValue) {
+					ok := runTest(tb, testName, func(tb testing.TB) {
 						ctx := appcontext.Context()
-						require.NoError(t, sandboxLimiter.Acquire(context.TODO(), 1))
+						require.NoError(tb, sandboxLimiter.Acquire(context.TODO(), 1))
 						defer sandboxLimiter.Release(1)
 
 						ctx, cancel := context.WithCancelCause(ctx)
 						defer cancel(errors.WithStack(context.Canceled))
 
 						sb, _, err := newSandbox(ctx, br, mv)
-						require.NoError(t, err)
-						tc.Run(t, sb)
+						require.NoError(tb, err)
+						runner.Run(tb, sb)
 					})
-					require.True(t, ok)
-				}(fn, name, br, tc, mv)
+					require.True(tb, ok)
+				}(fn, name, br, runner, mv)
 			}
 		}
+	}
+}
+
+func runTest(tb testing.TB, name string, f func(tb testing.TB)) bool {
+	switch t := tb.(type) {
+	case *testing.T:
+		return t.Run(name, func(t *testing.T) {
+			f(t)
+		})
+	case *testing.B:
+		return t.Run(name, func(b *testing.B) {
+			f(b)
+		})
+	default:
+		tb.Fatalf("unsupported testing.TB type: %T", tb)
+		return false
 	}
 }
 

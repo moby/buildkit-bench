@@ -11,7 +11,7 @@ import (
 )
 
 func TestDaemonVersion(t *testing.T) {
-	runTest(t, func(t *testing.T, sb testutil.Sandbox) {
+	testutil.RunTest(t, func(tb testing.TB, sb testutil.Sandbox) {
 		buildkitdPath := path.Join(sb.BinsDir(), sb.Name(), "buildkitd")
 
 		output, err := exec.Command(buildkitdPath, "--version").Output()
@@ -23,5 +23,12 @@ func TestDaemonVersion(t *testing.T) {
 		t.Log("repo:", versionParts[1])
 		t.Log("version:", versionParts[2])
 		t.Log("commit:", versionParts[3])
+	})
+}
+
+func BenchmarkDaemonVersion(b *testing.B) {
+	testutil.RunTest(b, func(tb testing.TB, sb testutil.Sandbox) {
+		buildkitdPath := path.Join(sb.BinsDir(), sb.Name(), "buildkitd")
+		require.NoError(b, exec.Command(buildkitdPath, "--version").Run())
 	})
 }
