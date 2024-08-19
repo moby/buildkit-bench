@@ -13,21 +13,16 @@ env:
   SETUP_BUILDKIT_IMAGE: "moby/buildkit:latest"
 
 jobs:
-  init:
+  prepare:
     runs-on: ubuntu-24.04
-    outputs:
-      includes: ${{ steps.set.outputs.includes }}
     steps:
       -
-        name: Checkout
-        uses: actions/checkout@v4
-      -
-        name: Set outputs
-        id: set
+        name: Export BuildKit refs and Bake overrides
         uses: actions/github-script@v7
         with:
           script: |
-            let includes = [];
+            let buildkitRefs = [];
+            let bakeOverrides = [];
             await core.group(`Solve commit from ref`, async () => {
               for (const ref of `${{ inputs.refs }}`.trim().split(/\r?\n/)) {
                 let release = undefined;
@@ -45,29 +40,25 @@ jobs:
                 });
                 if (release) {
                   core.info(`${ref} -> ${release.data.tag_name} -> ${commit.data.sha}`);
+                  buildkitRefs.push(release.data.tag_name);
                 } else {
                   core.info(`${ref} -> ${commit.data.sha}`);
+                  buildkitRefs.push(ref);
                 }
-                includes.push({
-                  ref: release ? release.data.tag_name : ref,
-                  commit: commit.data.sha,
-                });
+                const buildkitRef = release ? release.data.tag_name : ref;
+                const bakeTarget = `buildkit-build-${buildkitRef.replace(/[^a-zA-Z0-9_-]+/g, '-')}`;
+                bakeOverrides.push(`${bakeTarget}.cache-from=type=gha,scope=buildkit-${commit.data.sha}`);
+                bakeOverrides.push(`${bakeTarget}.cache-to=type=gha,scope=buildkit-${commit.data.sha}`);
               }
             });
-            await core.group(`Set includes`, async () => {
-              core.info(JSON.stringify(includes, null, 2));
-              core.setOutput('includes', JSON.stringify(includes ?? []));
+            await core.group(`Export BUILDKIT_REFS`, async () => {
+              core.info(JSON.stringify(buildkitRefs, null, 2));
+              core.exportVariable('BUILDKIT_REFS', buildkitRefs.join(','));
             });
-
-  prepare:
-    runs-on: ubuntu-24.04
-    needs:
-      - init
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.init.outputs.includes) }}
-    steps:
+            await core.group(`Export BAKE_OVERRIDES`, async () => {
+              core.info(JSON.stringify(bakeOverrides, null, 2));
+              core.exportVariable('BAKE_OVERRIDES', bakeOverrides.join('\n'));
+            });
       -
         name: Checkout
         uses: actions/checkout@v4
@@ -79,12 +70,10 @@ jobs:
           driver-opts: image=${{ env.SETUP_BUILDKIT_IMAGE }}
           buildkitd-flags: --debug
       -
-        name: Build ${{ matrix.ref }}
+        name: Build base
         uses: docker/bake-action@v5
         with:
           targets: tests-base
+          provenance: false
           set: |
-            buildkit-binaries.cache-from=type=gha,scope=buildkit-${{ matrix.commit }}
-            buildkit-binaries.cache-to=type=gha,scope=buildkit-${{ matrix.commit }}
-        env:
-          BUILDKIT_REF: ${{ matrix.commit }}
+            ${{ env.BAKE_OVERRIDES }}
