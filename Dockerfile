@@ -18,7 +18,7 @@ FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS g
 
 # gobuild is base stage for compiling go/cgo
 FROM golatest AS gobuild-base
-RUN apk add --no-cache file bash clang lld musl-dev pkgconfig git make
+RUN apk add --no-cache file bash clang lld musl-dev pkgconfig git make tree
 COPY --link --from=xx / /
 
 FROM gobuild-base AS registry
@@ -78,7 +78,6 @@ EOF
 FROM scratch AS binaries
 COPY --link --from=gotestsum /out /
 COPY --link --from=registry /out /
-COPY --link --from=buildkit-binaries / /
 
 FROM gobuild-base AS tests-base
 WORKDIR /src
@@ -96,6 +95,8 @@ ENTRYPOINT ["/docker-entrypoint.sh"]
 ENV CGO_ENABLED=0
 ENV GOTESTSUM_FORMAT=standard-verbose
 COPY --link --from=binaries / /usr/bin/
+COPY --link --from=buildkit-binaries / /buildkit-binaries
+RUN tree -nh /buildkit-binaries
 
 # tests prepares an image suitable for running tests
 FROM tests-base AS tests
