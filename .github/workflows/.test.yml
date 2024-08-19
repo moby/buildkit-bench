@@ -106,7 +106,6 @@ jobs:
       - prepare
     env:
       TESTFLAGS: -v --timeout=30m
-      GOTESTSUM_FORMAT: standard-verbose
       TEST_IMAGE_BUILD: 0
       TEST_IMAGE_ID: buildkit-bench
     steps:
@@ -150,11 +149,7 @@ jobs:
           set: |
             ${{ env.BAKE_OVERRIDES }}
             *.output=type=docker,name=${{ env.TEST_IMAGE_ID }}
-        env:
-          TEST_COVERAGE: 1
       -
         name: Test
         run: |
           ./hack/test
-        env:
-          TEST_COVERAGE: 1

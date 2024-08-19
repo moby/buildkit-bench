@@ -2,26 +2,12 @@
 
 set -eu -o pipefail
 
-: "${TEST_COVERAGE=}"
 : "${TEST_IMAGE_BUILD=1}"
 : "${TEST_IMAGE_ID=buildkit-bench}"
-: "${TEST_REPORT_SUFFIX=}"
 : "${TEST_KEEP_CACHE=}"
 : "${TESTFLAGS=}"
 
-: "${GOBUILDFLAGS=}"
-: "${GO_TEST_COVERPROFILE=}"
-
-testReportsDir="$(pwd)/bin/testreports"
-mkdir -p "$testReportsDir"
-testReportsVol="-v $testReportsDir:/testreports"
-gotestsumArgs="--format=standard-verbose --jsonfile=/testreports/go-test-report$TEST_REPORT_SUFFIX.json --junitfile=/testreports/junit-report$TEST_REPORT_SUFFIX.xml"
-gotestArgs="-mod=vendor"
-
-if [ "$TEST_COVERAGE" == "1" ]; then
-  export GOBUILDFLAGS="$GOBUILDFLAGS -cover"
-  export GO_TEST_COVERPROFILE="/testreports/coverage-report$TEST_REPORT_SUFFIX.txt"
-fi
+gotestArgs="-bench -mod=vendor"
 
 if [ "$TEST_IMAGE_BUILD" = "1" ]; then
   docker buildx bake tests --set "*.output=type=docker,name=$TEST_IMAGE_ID"
@@ -35,11 +21,10 @@ if [ "$TEST_KEEP_CACHE" != "1" ]; then
   trap 'docker rm -v $cacheVolume' EXIT
 fi
 
+set -x
 docker run --rm --privileged \
-  -v /tmp $testReportsVol \
+  -v /tmp \
   --volumes-from=$cacheVolume \
-  -e GOTESTSUM_FORMAT \
   -e REGISTRY_MIRROR_DIR=/root/.cache/registry \
-  -e GO_TEST_COVERPROFILE \
   $TEST_IMAGE_ID \
-  gotestsumandcover $gotestsumArgs --packages="${TESTPKGS:-./...}" -- $gotestArgs ${TESTFLAGS:--v}
+  go test $gotestArgs ${TESTFLAGS:--v} ${TESTPKGS:-./...}

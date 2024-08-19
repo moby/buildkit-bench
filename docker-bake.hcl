@@ -10,14 +10,6 @@ variable "BUILDKIT_TARGET" {
   default = "binaries"
 }
 
-variable "GOBUILDFLAGS" {
-  default = null
-}
-
-variable "TEST_COVERAGE" {
-  default = null
-}
-
 # https://github.com/docker/buildx/blob/8411a763d99274c7585553f0354a7fdd0df679eb/bake/bake.go#L35
 function "sanitize_target" {
   params = [in]
@@ -67,7 +59,4 @@ target "tests-base" {
 target "tests" {
   inherits = ["tests-base"]
   target = "tests"
-  args = {
-    GOBUILDFLAGS = TEST_COVERAGE == "1" ? "-cover" : null
-  }
 }
