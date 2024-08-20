@@ -7,6 +7,9 @@ set -eu -o pipefail
 : "${TEST_KEEP_CACHE=}"
 : "${TESTFLAGS=}"
 
+: "${BUILDKIT_REF_RANDOM=}"
+: "${BUILDKIT_RUN_COUNT=1}"
+
 gotestArgs="-mod=vendor"
 
 if [ "$TEST_IMAGE_BUILD" = "1" ]; then
@@ -26,13 +29,8 @@ set -x
 docker run --rm --privileged \
   -v /tmp \
   --volumes-from=$cacheVolume \
+  -e BUILDKIT_REF_RANDOM \
+  -e BUILDKIT_RUN_COUNT \
   -e REGISTRY_MIRROR_DIR=/root/.cache/registry \
   $TEST_IMAGE_ID \
-  go test $gotestArgs ${TESTFLAGS:--v} ${TESTPKGS:-./...}
-
-docker run --rm --privileged \
-  -v /tmp \
-  --volumes-from=$cacheVolume \
-  -e REGISTRY_MIRROR_DIR=/root/.cache/registry \
-  $TEST_IMAGE_ID \
-  go test -bench . -benchmem -count=3 -run ^$ $gotestArgs ${TESTFLAGS:--v} ${TESTPKGS:-./...}
+  go test -bench . -benchmem $gotestArgs ${TESTFLAGS:--v} ${TESTPKGS:-./...}

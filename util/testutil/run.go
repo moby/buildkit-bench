@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -152,26 +153,39 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 		list = []Worker{list[rng.Intn(len(list))]}
 	}
 
+	runCount := 1
+	if v, ok := os.LookupEnv("BUILDKIT_RUN_COUNT"); ok && v != "" {
+		if _, ok := tb.(*testing.B); ok {
+			if count, err := strconv.Atoi(v); err != nil {
+				tb.Fatalf("invalid BUILDKIT_RUN_COUNT value: %v", err)
+			} else {
+				runCount = count
+			}
+		}
+	}
+
 	for _, br := range list {
 		for _, runner := range runners {
 			for _, mv := range matrix {
-				fn := runner.Name()
-				name := fn + "/ref=" + br.Name() + mv.functionSuffix()
-				func(fn, testName string, br Worker, runner Runner, mv matrixValue) {
-					ok := runTest(tb, testName, func(tb testing.TB) {
-						ctx := appcontext.Context()
-						require.NoError(tb, sandboxLimiter.Acquire(context.TODO(), 1))
-						defer sandboxLimiter.Release(1)
+				for rc := 1; rc <= runCount; rc++ {
+					fn := runner.Name()
+					name := fn + "/ref=" + br.Name() + mv.functionSuffix() + "/run=" + strconv.Itoa(rc)
+					func(fn, testName string, br Worker, runner Runner, mv matrixValue) {
+						ok := runTest(tb, testName, func(tb testing.TB) {
+							ctx := appcontext.Context()
+							require.NoError(tb, sandboxLimiter.Acquire(context.TODO(), 1))
+							defer sandboxLimiter.Release(1)
 
-						ctx, cancel := context.WithCancelCause(ctx)
-						defer cancel(errors.WithStack(context.Canceled))
+							ctx, cancel := context.WithCancelCause(ctx)
+							defer cancel(errors.WithStack(context.Canceled))
 
-						sb, _, err := newSandbox(ctx, br, mv)
-						require.NoError(tb, err)
-						runner.Run(tb, sb)
-					})
-					require.True(tb, ok)
-				}(fn, name, br, runner, mv)
+							sb, _, err := newSandbox(ctx, br, mv)
+							require.NoError(tb, err)
+							runner.Run(tb, sb)
+						})
+						require.True(tb, ok)
+					}(fn, name, br, runner, mv)
+				}
 			}
 		}
 	}
