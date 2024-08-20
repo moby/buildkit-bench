@@ -24,22 +24,6 @@ function "sanitize_target" {
   result = regex_replace(in, "[^a-zA-Z0-9_-]+", "-")
 }
 
-# generate named context for each ref
-function "buildkit_build_contexts" {
-  params = [refs]
-  result = { for ref in split(",", refs) :
-    format("buildkit-build-%s", sanitize_target(ref)) => format("target:buildkit-build-%s", sanitize_target(ref))
-  }
-}
-
-# generate COPY instructions for each ref
-function "buildkit_build_copy_froms" {
-  params = [refs]
-  result = join("\n", [for ref in split(",", refs) :
-    format("COPY --link --from=buildkit-build-%s / /%s", sanitize_target(ref), ref)
-  ])
-}
-
 group "default" {
   targets = ["tests"]
 }
@@ -58,10 +42,14 @@ target "buildkit-build" {
 }
 
 target "buildkit-binaries" {
-  contexts = buildkit_build_contexts(BUILDKIT_REFS)
+  contexts = { for ref in split(",", BUILDKIT_REFS) :
+    format("buildkit-build-%s", sanitize_target(ref)) => format("target:buildkit-build-%s", sanitize_target(ref))
+  }
   dockerfile-inline = <<EOT
 FROM scratch
-${buildkit_build_copy_froms(BUILDKIT_REFS)}
+${join("\n", [for ref in split(",", BUILDKIT_REFS) :
+  format("COPY --link --from=buildkit-build-%s / /%s", sanitize_target(ref), ref)
+])}
 EOT
 }
 
