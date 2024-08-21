@@ -1,8 +1,10 @@
 package benchmark
 
+// Forked from https://cs.opensource.google/go/x/tools/+/master:benchmark/parse/parse.go
+// with changes to handle additional metrics reported by ReportMetric.
+
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"io"
 	"strconv"
@@ -20,14 +22,15 @@ const (
 
 // Benchmark is one run of a single benchmark.
 type Benchmark struct {
-	Name              string  // benchmark name
-	N                 int     // number of iterations
-	NsPerOp           float64 // nanoseconds per iteration
-	AllocedBytesPerOp uint64  // bytes allocated per iteration
-	AllocsPerOp       uint64  // allocs per iteration
-	MBPerS            float64 // MB processed per second
-	Measured          int     // which measurements were recorded
-	Ord               int     // ordinal position within a benchmark run
+	Name              string             // benchmark name
+	N                 int                // number of iterations
+	NsPerOp           float64            // nanoseconds per iteration
+	AllocedBytesPerOp uint64             // bytes allocated per iteration
+	AllocsPerOp       uint64             // allocs per iteration
+	MBPerS            float64            // MB processed per second
+	Measured          int                // which measurements were recorded
+	Ord               int                // ordinal position within a benchmark run
+	Extra             map[string]float64 // Extra records additional metrics reported by ReportMetric.
 }
 
 // ParseLine extracts a Benchmark from a single line of testing.B
@@ -77,25 +80,14 @@ func (b *Benchmark) parseMeasurement(quant string, unit string) {
 			b.AllocsPerOp = i
 			b.Measured |= AllocsPerOp
 		}
+	default:
+		if b.Extra == nil {
+			b.Extra = make(map[string]float64)
+		}
+		if f, err := strconv.ParseFloat(quant, 64); err == nil {
+			b.Extra[unit] = f
+		}
 	}
-}
-
-func (b *Benchmark) String() string {
-	buf := new(bytes.Buffer)
-	fmt.Fprintf(buf, "%s %d", b.Name, b.N)
-	if (b.Measured & NsPerOp) != 0 {
-		fmt.Fprintf(buf, " %.2f ns/op", b.NsPerOp)
-	}
-	if (b.Measured & MBPerS) != 0 {
-		fmt.Fprintf(buf, " %.2f MB/s", b.MBPerS)
-	}
-	if (b.Measured & AllocedBytesPerOp) != 0 {
-		fmt.Fprintf(buf, " %d B/op", b.AllocedBytesPerOp)
-	}
-	if (b.Measured & AllocsPerOp) != 0 {
-		fmt.Fprintf(buf, " %d allocs/op", b.AllocsPerOp)
-	}
-	return buf.String()
 }
 
 // Set is a collection of benchmarks from one

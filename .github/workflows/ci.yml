@@ -70,7 +70,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.prepare.outputs.includes) }}
     env:
-      TESTFLAGS: -v --timeout=30m
+      TEST_FLAGS: -v --timeout=30m
       TEST_IMAGE_BUILD: 0
       TEST_IMAGE_ID: buildkit-bench
       BUILDKIT_RUN_COUNT: 3
@@ -104,3 +104,7 @@ jobs:
         name: Test
         run: |
           ./hack/test
+      -
+        name: Result
+        run: |
+          jq . ./bin/gotestoutput.json
