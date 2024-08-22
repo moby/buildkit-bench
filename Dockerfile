@@ -5,7 +5,6 @@ ARG ALPINE_VERSION=3.20
 ARG XX_VERSION=1.4.0
 
 ARG REGISTRY_VERSION=v2.8.3
-ARG GOTESTSUM_VERSION=v1.9.0
 
 # named context for buildkit binaries
 FROM scratch AS buildkit-binaries
@@ -37,46 +36,7 @@ RUN --mount=target=/root/.cache,type=cache <<EOT
   fi
 EOT
 
-FROM gobuild-base AS gotestsum
-ARG GOTESTSUM_VERSION
-ARG TARGETPLATFORM
-RUN --mount=target=/root/.cache,type=cache <<EOT
-  set -ex
-  xx-go install "gotest.tools/gotestsum@${GOTESTSUM_VERSION}"
-  xx-go install "github.com/wadey/gocovmerge@latest"
-  mkdir /out
-  if ! xx-info is-cross; then
-    /go/bin/gotestsum --version
-    mv /go/bin/gotestsum /out
-    mv /go/bin/gocovmerge /out
-  else
-    mv /go/bin/*/gotestsum* /out
-    mv /go/bin/*/gocovmerge* /out
-  fi
-EOT
-COPY --chmod=755 <<"EOF" /out/gotestsumandcover
-#!/bin/sh
-set -x
-if [ -z "$GO_TEST_COVERPROFILE" ]; then
-  exec gotestsum "$@"
-fi
-coverdir="$(dirname "$GO_TEST_COVERPROFILE")"
-mkdir -p "$coverdir/helpers"
-gotestsum "$@" "-coverprofile=$GO_TEST_COVERPROFILE"
-ecode=$?
-go tool covdata textfmt -i=$coverdir/helpers -o=$coverdir/helpers-report.txt
-gocovmerge "$coverdir/helpers-report.txt" "$GO_TEST_COVERPROFILE" > "$coverdir/merged-report.txt"
-mv "$coverdir/merged-report.txt" "$GO_TEST_COVERPROFILE"
-rm "$coverdir/helpers-report.txt"
-for f in "$coverdir/helpers"/*; do
-  rm "$f"
-done
-rmdir "$coverdir/helpers"
-exit $ecode
-EOF
-
 FROM scratch AS binaries
-COPY --link --from=gotestsum /out /
 COPY --link --from=registry /out /
 
 FROM gobuild-base AS tests-base
@@ -93,7 +53,6 @@ RUN apk add --no-cache shadow shadow-uidmap sudo vim iptables ip6tables dnsmasq 
 RUN curl -Ls https://raw.githubusercontent.com/moby/moby/v25.0.1/hack/dind > /docker-entrypoint.sh && chmod 0755 /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 ENV CGO_ENABLED=0
-ENV GOTESTSUM_FORMAT=standard-verbose
 COPY --link --from=binaries / /usr/bin/
 COPY --link --from=buildkit-binaries / /buildkit-binaries
 RUN tree -nh /buildkit-binaries
