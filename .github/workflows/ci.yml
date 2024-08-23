@@ -12,19 +12,63 @@ on:
   pull_request:
 
 env:
+  GO_VERSION: 1.22
   SETUP_BUILDX_VERSION: latest
   SETUP_BUILDKIT_IMAGE: moby/buildkit:latest
 
 jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    outputs:
+      includes: ${{ steps.set.outputs.includes }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      -
+        name: List candidates
+        run: |
+          go run -mod=vendor ./cmd/refcandidates
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REFS: master
+          LAST_DAYS: 7
+          LAST_RELEASES: 3
+          RESULT_FILE: ./bin/candidates.json
+      -
+        name: Set outputs
+        id: set
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const data = JSON.parse(fs.readFileSync('./bin/candidates.json', 'utf8'));
+            let includes = [];
+            for (const [key, value] of Object.entries(data.refs)) {
+              includes.push({name: key, ref: key, commit: value});
+            }
+            for (const [key, value] of Object.entries(data.releases)) {
+              includes.push({name: key, ref: key, commit: value});
+            }
+            for (const [key, value] of Object.entries(data.commits)) {
+              includes.push({name: key, ref: value, commit: value});
+            }
+            core.info(JSON.stringify(includes, null, 2));
+            core.setOutput('includes', JSON.stringify(includes ?? []));
+
   test:
     runs-on: ubuntu-24.04
+    needs:
+      - prepare
     strategy:
       fail-fast: false
       matrix:
-        ref:
-          - master
-          - latest
-          - v0.14.1
+        include: ${{ fromJson(needs.prepare.outputs.includes) }}
     env:
       TESTFLAGS: -v --timeout=30m
       TEST_IMAGE_BUILD: 0
@@ -32,38 +76,13 @@ jobs:
       BUILDKIT_RUN_COUNT: 3
     steps:
       -
-        name: Export BuildKit ref
+        name: Export BuildKit ref for ${{ matrix.name }}
         uses: actions/github-script@v7
         with:
           script: |
             const ref = `${{ matrix.ref }}`;
-            let buildkitRef;
-            await core.group(`Solve commit from ref`, async () => {
-              let release = undefined;
-              if (ref === 'latest') {
-                release = await github.rest.repos.getRelease({
-                  owner: 'moby',
-                  repo: 'buildkit',
-                  release_id: ref,
-                });
-              }
-              const commit = await github.rest.repos.getCommit({
-                owner: 'moby',
-                repo: 'buildkit',
-                ref: release ? release.data.tag_name : ref,
-              });
-              if (release) {
-                core.info(`${ref} -> ${release.data.tag_name} -> ${commit.data.sha}`);
-                buildkitRef = release.data.tag_name;
-              } else {
-                core.info(`${ref} -> ${commit.data.sha}`);
-                buildkitRef = ref;
-              }
-            });
-            await core.group(`Export BUILDKIT_REF`, async () => {
-              core.info(`BUILDKIT_REF=${buildkitRef}`);
-              core.exportVariable('BUILDKIT_REF', buildkitRef);
-            });
+            core.info(`BUILDKIT_REF=${ref}`);
+            core.exportVariable('BUILDKIT_REF', ref);
       -
         name: Checkout
         uses: actions/checkout@v4

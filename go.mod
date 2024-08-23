@@ -3,9 +3,11 @@ module github.com/moby/buildkit-bench
 go 1.21.0
 
 require (
+	github.com/alecthomas/kong v0.9.0
 	github.com/moby/buildkit v0.15.2
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.9.0
+	golang.org/x/mod v0.17.0
 	golang.org/x/sync v0.8.0
 )
 
