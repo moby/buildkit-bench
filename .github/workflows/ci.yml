@@ -20,8 +20,12 @@ jobs:
   test:
     uses: ./.github/workflows/.test.yml
     secrets: inherit
+    strategy:
+      fail-fast: false
+      matrix:
+        ref:
+          - master
+          - latest
+          - v0.14.1
     with:
-      refs: |
-        master
-        latest
-        v0.14.1
+      ref: ${{ matrix.ref }}

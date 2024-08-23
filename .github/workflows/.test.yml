@@ -4,7 +4,7 @@ name: .test
 on:
   workflow_call:
     inputs:
-      refs:
+      ref:
         required: true
         type: string
 
@@ -22,39 +22,37 @@ jobs:
       BUILDKIT_RUN_COUNT: 3
     steps:
       -
-        name: Export BuildKit refs
+        name: Export BuildKit ref
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
-            let buildkitRefs = [];
+            const ref = `${{ inputs.ref }}`;
+            let buildkitRef;
             await core.group(`Solve commit from ref`, async () => {
-              for (const ref of `${{ inputs.refs }}`.trim().split(/\r?\n/)) {
-                let release = undefined;
-                if (ref === 'latest') {
-                  release = await github.rest.repos.getRelease({
-                    owner: 'moby',
-                    repo: 'buildkit',
-                    release_id: ref,
-                  });
-                }
-                const commit = await github.rest.repos.getCommit({
+              let release = undefined;
+              if (ref === 'latest') {
+                release = await github.rest.repos.getRelease({
                   owner: 'moby',
                   repo: 'buildkit',
-                  ref: release ? release.data.tag_name : ref,
+                  release_id: ref,
                 });
-                if (release) {
-                  core.info(`${ref} -> ${release.data.tag_name} -> ${commit.data.sha}`);
-                  buildkitRefs.push(release.data.tag_name);
-                } else {
-                  core.info(`${ref} -> ${commit.data.sha}`);
-                  buildkitRefs.push(ref);
-                }
+              }
+              const commit = await github.rest.repos.getCommit({
+                owner: 'moby',
+                repo: 'buildkit',
+                ref: release ? release.data.tag_name : ref,
+              });
+              if (release) {
+                core.info(`${ref} -> ${release.data.tag_name} -> ${commit.data.sha}`);
+                buildkitRef = release.data.tag_name;
+              } else {
+                core.info(`${ref} -> ${commit.data.sha}`);
+                buildkitRef = ref;
               }
             });
-            await core.group(`Export BUILDKIT_REFS`, async () => {
-              core.info(JSON.stringify(buildkitRefs, null, 2));
-              core.exportVariable('BUILDKIT_REFS', buildkitRefs.join(','));
+            await core.group(`Export BUILDKIT_REF`, async () => {
+              core.info(`BUILDKIT_REF=${buildkitRef}`);
+              core.exportVariable('BUILDKIT_REF', buildkitRef);
             });
       -
         name: Checkout
