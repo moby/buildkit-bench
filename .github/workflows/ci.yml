@@ -38,6 +38,7 @@ jobs:
           script: |
             const ref = `${{ matrix.ref }}`;
             let buildkitRef;
+            let buildkitCommitSha;
             await core.group(`Solve commit from ref`, async () => {
               let release = undefined;
               if (ref === 'latest') {
@@ -52,6 +53,7 @@ jobs:
                 repo: 'buildkit',
                 ref: release ? release.data.tag_name : ref,
               });
+              buildkitCommitSha = commit.data.sha;
               if (release) {
                 core.info(`${ref} -> ${release.data.tag_name} -> ${commit.data.sha}`);
                 buildkitRef = release.data.tag_name;
@@ -63,6 +65,10 @@ jobs:
             await core.group(`Export BUILDKIT_REF`, async () => {
               core.info(`BUILDKIT_REF=${buildkitRef}`);
               core.exportVariable('BUILDKIT_REF', buildkitRef);
+            });
+            await core.group(`Export BUILDKIT_COMMIT_SHA`, async () => {
+              core.info(`BUILDKIT_COMMIT_SHA=${buildkitCommitSha}`);
+              core.exportVariable('BUILDKIT_COMMIT_SHA', buildkitCommitSha);
             });
       -
         name: Checkout
@@ -81,6 +87,8 @@ jobs:
           targets: tests
           set: |
             *.output=type=docker,name=${{ env.TEST_IMAGE_ID }}
+            *.cache-from=type=gha,scope=buildkit-${{ env.BUILDKIT_COMMIT_SHA }}
+            *.cache-to=type=gha,scope=buildkit-${{ env.BUILDKIT_COMMIT_SHA }}
       -
         name: Test
         run: |
