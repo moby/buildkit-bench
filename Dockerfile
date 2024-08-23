@@ -54,7 +54,8 @@ RUN curl -Ls https://raw.githubusercontent.com/moby/moby/v25.0.1/hack/dind > /do
 ENTRYPOINT ["/docker-entrypoint.sh"]
 ENV CGO_ENABLED=0
 COPY --link --from=binaries / /usr/bin/
-COPY --link --from=buildkit-binaries / /buildkit-binaries
+ARG BUILDKIT_REF=master
+COPY --link --from=buildkit-binaries / /buildkit-binaries/$BUILDKIT_REF
 RUN tree -nh /buildkit-binaries
 
 # tests prepares an image suitable for running tests
