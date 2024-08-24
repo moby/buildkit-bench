@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/sethvargo/go-githubactions"
 	"golang.org/x/mod/semver"
 )
 
@@ -57,6 +58,42 @@ func (c *candidates) WriteFile(path string) error {
 	if err := os.WriteFile(path, dt, 0644); err != nil {
 		return errors.Wrap(err, "failed to write candidates to output file")
 	}
+	return nil
+}
+
+func (c *candidates) setGhaOutput(name string) error {
+	type include struct {
+		Name   string `json:"name"`
+		Ref    string `json:"ref"`
+		Commit string `json:"commit"`
+	}
+	var includes []include
+	for ref, sha := range c.res.Refs {
+		includes = append(includes, include{
+			Name:   ref,
+			Ref:    ref,
+			Commit: sha,
+		})
+	}
+	for release, sha := range c.res.Releases {
+		includes = append(includes, include{
+			Name:   release,
+			Ref:    release,
+			Commit: sha,
+		})
+	}
+	for day, sha := range c.res.Commits {
+		includes = append(includes, include{
+			Name:   day,
+			Ref:    sha,
+			Commit: sha,
+		})
+	}
+	dt, err := json.Marshal(includes)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal includes")
+	}
+	githubactions.SetOutput(name, string(dt))
 	return nil
 }
 

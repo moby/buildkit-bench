@@ -14,6 +14,7 @@ var cli struct {
 	LastDays     int    `kong:"name='last-days',default='7',help='Return last merge commit for a number of days.'"`
 	LastReleases int    `kong:"name='last-releases',default='3',help='Return last feature releases.'"`
 	FileOutput   string `kong:"name='file-output',help='File to write the JSON output to.'"`
+	GhaOutput    string `kong:"name='gha-output',help='Set GitHub Actions output parameter to be used as matrix includes.'"`
 }
 
 func run() error {
@@ -28,6 +29,11 @@ func run() error {
 	if cli.FileOutput != "" {
 		if err := c.WriteFile(cli.FileOutput); err != nil {
 			return errors.Wrap(err, "failed to write candidates to output file")
+		}
+	}
+	if cli.GhaOutput != "" {
+		if err := c.setGhaOutput(cli.GhaOutput); err != nil {
+			return errors.Wrap(err, "failed to set GitHub Actions matrix")
 		}
 	}
 	return nil
