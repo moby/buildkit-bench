@@ -25,7 +25,7 @@ WORKDIR /go/src/github.com/docker/distribution
 ARG REGISTRY_VERSION
 ADD --keep-git-dir=true "https://github.com/distribution/distribution.git#$REGISTRY_VERSION" .
 ARG TARGETPLATFORM
-RUN --mount=target=/root/.cache,type=cache <<EOT
+RUN --mount=type=cache,target=/root/.cache <<EOT
   set -ex
   mkdir /out
   export GOPATH="$(pwd)/Godeps/_workspace:$GOPATH"
@@ -36,8 +36,25 @@ RUN --mount=target=/root/.cache,type=cache <<EOT
   fi
 EOT
 
+FROM gobuild-base AS gotestmetrics
+WORKDIR /src
+ENV GOFLAGS=-mod=vendor
+ENV CGO_ENABLED=0
+ARG TARGETPLATFORM
+RUN --mount=type=bind,target=. \
+  --mount=type=cache,target=/root/.cache \
+  --mount=type=cache,target=/go/pkg/mod <<EOT
+  set -ex
+  xx-go build -mod=vendor -ldflags '-extldflags -static' -o /usr/bin/gotestmetrics ./cmd/gotestmetrics
+  xx-verify --static /usr/bin/gotestmetrics
+  if ! xx-info is-cross; then
+    gotestmetrics --help
+  fi
+EOT
+
 FROM scratch AS binaries
 COPY --link --from=registry /out /
+COPY --link --from=gotestmetrics /usr/bin/gotestmetrics /
 
 FROM gobuild-base AS tests-base
 WORKDIR /src

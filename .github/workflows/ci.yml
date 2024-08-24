@@ -15,6 +15,9 @@ env:
   GO_VERSION: 1.22
   SETUP_BUILDX_VERSION: latest
   SETUP_BUILDKIT_IMAGE: moby/buildkit:latest
+  CANDIDATES_REFS: master
+  CANDIDATES_LAST_DAYS: 7
+  CANDIDATES_LAST_RELEASES: 3
 
 jobs:
   prepare:
@@ -33,13 +36,13 @@ jobs:
       -
         name: List candidates
         run: |
-          go run -mod=vendor ./cmd/refcandidates
+          go run -mod=vendor ./cmd/refcandidates \
+            --refs ${{ env.CANDIDATES_REFS }} \
+            --last-days ${{ env.CANDIDATES_LAST_DAYS }} \
+            --last-releases ${{ env.CANDIDATES_LAST_RELEASES }} \
+            --output ./bin/candidates.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REFS: master
-          LAST_DAYS: 7
-          LAST_RELEASES: 3
-          RESULT_FILE: ./bin/candidates.json
       -
         name: Set outputs
         id: set
@@ -70,7 +73,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.prepare.outputs.includes) }}
     env:
-      TESTFLAGS: -v --timeout=30m
+      TEST_FLAGS: -v --timeout=30m
       TEST_IMAGE_BUILD: 0
       TEST_IMAGE_ID: buildkit-bench
       BUILDKIT_RUN_COUNT: 3
@@ -104,3 +107,7 @@ jobs:
         name: Test
         run: |
           ./hack/test
+      -
+        name: Result
+        run: |
+          jq . ./bin/gotestoutput.json
