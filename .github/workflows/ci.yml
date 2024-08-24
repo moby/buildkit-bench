@@ -34,35 +34,16 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       -
-        name: List candidates
+        name: Set includes
+        id: set
         run: |
           go run -mod=vendor ./cmd/refcandidates \
             --refs ${{ env.CANDIDATES_REFS }} \
             --last-days ${{ env.CANDIDATES_LAST_DAYS }} \
             --last-releases ${{ env.CANDIDATES_LAST_RELEASES }} \
-            --output ./bin/candidates.json
+            --gha-output includes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      -
-        name: Set outputs
-        id: set
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const data = JSON.parse(fs.readFileSync('./bin/candidates.json', 'utf8'));
-            let includes = [];
-            for (const [key, value] of Object.entries(data.refs)) {
-              includes.push({name: key, ref: key, commit: value});
-            }
-            for (const [key, value] of Object.entries(data.releases)) {
-              includes.push({name: key, ref: key, commit: value});
-            }
-            for (const [key, value] of Object.entries(data.commits)) {
-              includes.push({name: key, ref: value, commit: value});
-            }
-            core.info(JSON.stringify(includes, null, 2));
-            core.setOutput('includes', JSON.stringify(includes ?? []));
 
   test:
     runs-on: ubuntu-24.04
@@ -78,14 +59,6 @@ jobs:
       TEST_IMAGE_ID: buildkit-bench
       BUILDKIT_RUN_COUNT: 3
     steps:
-      -
-        name: Export BuildKit ref for ${{ matrix.name }}
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const ref = `${{ matrix.ref }}`;
-            core.info(`BUILDKIT_REF=${ref}`);
-            core.exportVariable('BUILDKIT_REF', ref);
       -
         name: Checkout
         uses: actions/checkout@v4
@@ -103,6 +76,8 @@ jobs:
           targets: tests
           set: |
             *.output=type=docker,name=${{ env.TEST_IMAGE_ID }}
+        env:
+          BUILDKIT_REF: ${{ matrix.ref }}
       -
         name: Test
         run: |
