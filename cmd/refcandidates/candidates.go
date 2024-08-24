@@ -80,7 +80,11 @@ func (c *candidates) setReleases(last int) error {
 	}
 	res := make(map[string]string)
 	for _, tag := range filterFeatureReleases(tags, last) {
-		res[tag.Name] = tag.Commit.SHA
+		if containsValue(c.res.Refs, tag.Commit.SHA) {
+			log.Printf("skipping tag %s (%s), already in refs", tag.Name, tag.Commit.SHA)
+		} else {
+			res[tag.Name] = tag.Commit.SHA
+		}
 	}
 	c.res.Releases = res
 	return nil
