@@ -15,13 +15,13 @@ import (
 	"golang.org/x/mod/semver"
 )
 
-type cli struct {
-	Repo         string `kong:"name='repo',env='REPO',default='moby/buildkit',help='GitHub repository name.'"`
-	Token        string `kong:"name='token',env='GITHUB_TOKEN',required,help='GitHub token.'"`
-	Refs         string `kong:"name='refs',env='REFS',default='master',help='Comma-separated list of refs to consider.'"`
-	LastDays     int    `kong:"name='last-days',env='LAST_DAYS',default='7',help='Return last merge commit for a number of days.'"`
-	LastReleases int    `kong:"name='last-releases',env='LAST_RELEASES',default='3',help='Return last feature releases.'"`
-	ResultFile   string `kong:"name='result-file',env='RESULT_FILE',default='./bin/candidates.json',help='File to write the result to.'"`
+var cli struct {
+	Repo         string `kong:"name='repo',default='moby/buildkit',help='GitHub repository name.'"`
+	Token        string `kong:"name='token',env='GITHUB_TOKEN',required,help='GitHub API token.'"`
+	Refs         string `kong:"name='refs',default='master',help='Comma-separated list of refs to consider.'"`
+	LastDays     int    `kong:"name='last-days',default='7',help='Return last merge commit for a number of days.'"`
+	LastReleases int    `kong:"name='last-releases',default='3',help='Return last feature releases.'"`
+	Output       string `kong:"name='output',default='./bin/candidates.json',help='File to write the JSON output to.'"`
 }
 
 type Result struct {
@@ -30,41 +30,27 @@ type Result struct {
 	Commits  map[string]string `json:"commits"`
 }
 
-var (
-	flags cli
-)
-
 func run() error {
-	kong.Parse(&flags,
-		kong.Name("refcandidates"),
-		kong.UsageOnError(),
-		kong.ConfigureHelp(kong.HelpOptions{
-			Compact: true,
-			Summary: true,
-		}))
-
-	log.SetFlags(0)
-
-	client, err := newGitHubClient(flags.Repo, flags.Token)
+	client, err := newGitHubClient(cli.Repo, cli.Token)
 	if err != nil {
 		return errors.Wrap(err, "failed to create GitHub client")
 	}
 
 	var res Result
 
-	refs, err := getRefsCandidates(client, strings.Split(flags.Refs, ","))
+	refs, err := getRefsCandidates(client, strings.Split(cli.Refs, ","))
 	if err != nil {
 		return errors.Wrap(err, "failed to get refs candidates")
 	}
 	res.Refs = refs
 
-	releases, err := getReleasesCandidates(client, flags.LastReleases)
+	releases, err := getReleasesCandidates(client, cli.LastReleases)
 	if err != nil {
 		return errors.Wrap(err, "failed to get releases candidates")
 	}
 	res.Releases = releases
 
-	commits, err := getCommitsCandidates(client, flags.LastDays, refs, releases)
+	commits, err := getCommitsCandidates(client, cli.LastDays, refs, releases)
 	if err != nil {
 		return errors.Wrap(err, "failed to get commits candidates")
 	}
@@ -75,12 +61,12 @@ func run() error {
 		return errors.Wrap(err, "failed to marshal result")
 	}
 
-	if flags.ResultFile != "" {
-		if err := os.MkdirAll(filepath.Dir(flags.ResultFile), 0755); err != nil {
-			return errors.Wrap(err, "failed to create result file directory")
+	if cli.Output != "" {
+		if err := os.MkdirAll(filepath.Dir(cli.Output), 0755); err != nil {
+			return errors.Wrap(err, "failed to create output file directory")
 		}
-		if err := os.WriteFile(flags.ResultFile, dt, 0644); err != nil {
-			return errors.Wrap(err, "failed to write result to file")
+		if err := os.WriteFile(cli.Output, dt, 0644); err != nil {
+			return errors.Wrap(err, "failed to write result to output file")
 		}
 	}
 
@@ -200,8 +186,13 @@ func containsValue(m map[string]string, value string) bool {
 }
 
 func main() {
-	if err := run(); err != nil {
-		log.Printf("error: %+v", err)
-		os.Exit(1)
-	}
+	log.SetFlags(0)
+	ctx := kong.Parse(&cli,
+		kong.Name("refcandidates"),
+		kong.UsageOnError(),
+		kong.ConfigureHelp(kong.HelpOptions{
+			Compact: true,
+			Summary: true,
+		}))
+	ctx.FatalIfErrorf(run())
 }
