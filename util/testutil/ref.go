@@ -45,12 +45,11 @@ func (c *Ref) New(ctx context.Context) (b Backend, cl func() error, err error) {
 func getRefs(dir string) ([]string, error) {
 	var refs []string
 	entries, err := os.ReadDir(dir)
-	if err != nil {
-		return nil, err
-	}
-	for _, entry := range entries {
-		if entry.IsDir() {
-			refs = append(refs, entry.Name())
+	if err == nil {
+		for _, entry := range entries {
+			if entry.IsDir() {
+				refs = append(refs, entry.Name())
+			}
 		}
 	}
 	return refs, nil

@@ -13,7 +13,7 @@ import (
 
 func TestBinary(t *testing.T) {
 	testutil.Run(t, testutil.TestFuncs(
-		testDaemonVersion,
+		testBinaryVersion,
 	))
 }
 
@@ -24,7 +24,7 @@ func BenchmarkBinary(b *testing.B) {
 	))
 }
 
-func testDaemonVersion(t *testing.T, sb testutil.Sandbox) {
+func testBinaryVersion(t *testing.T, sb testutil.Sandbox) {
 	buildkitdPath := path.Join(sb.BinsDir(), sb.Name(), "buildkitd")
 
 	output, err := exec.Command(buildkitdPath, "--version").Output()
@@ -50,5 +50,5 @@ func benchmarkBinarySize(b *testing.B, sb testutil.Sandbox) {
 	fi, err := os.Stat(buildkitdPath)
 	require.NoError(b, err)
 	b.ResetTimer()
-	testutil.ReportMetric(b, float64(fi.Size()), testutil.MetricUnitBytes)
+	testutil.ReportMetric(b, float64(fi.Size()), "bytes")
 }

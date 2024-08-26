@@ -191,6 +191,10 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 	}
 }
 
+func ReportMetric(b *testing.B, value float64, unit string) {
+	b.ReportMetric(value, "bkbench_"+unit)
+}
+
 func runTest(tb testing.TB, name string, f func(tb testing.TB)) bool {
 	switch t := tb.(type) {
 	case *testing.T:

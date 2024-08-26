@@ -10,6 +10,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/mod v0.17.0
 	golang.org/x/sync v0.8.0
+	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools/gotestsum v1.12.0
 )
 
@@ -27,5 +28,4 @@ require (
 	golang.org/x/sys v0.24.0 // indirect
 	golang.org/x/term v0.18.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

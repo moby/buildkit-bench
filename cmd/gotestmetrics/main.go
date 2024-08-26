@@ -10,6 +10,7 @@ var cli struct {
 	Debug bool `kong:"name='debug',env='DEBUG',default='false',help='Enable debug mode.'"`
 
 	Parse parseCmd `kong:"cmd,help='Parse go test output.'"`
+	List  listCmd  `kong:"cmd,help='List tests from configuration.'"`
 }
 
 type Context struct {

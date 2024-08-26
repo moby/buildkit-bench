@@ -6,11 +6,15 @@ set -eu -o pipefail
 : "${TEST_IMAGE_ID=buildkit-bench}"
 : "${TEST_KEEP_CACHE=}"
 : "${TEST_FLAGS=}"
+: "${TEST_BENCH_RUN=1}"
+: "${TEST_BENCH_TIME=1s}"
 
 : "${BUILDKIT_REF_RANDOM=}"
-: "${BUILDKIT_RUN_COUNT=1}"
 
 gotestArgs="-json -mod=vendor"
+if [ -n "$TEST_BENCH_TIME" ]; then
+  gotestArgs="$gotestArgs -benchtime=$TEST_BENCH_TIME"
+fi
 
 if [ "$TEST_IMAGE_BUILD" = "1" ]; then
   docker buildx bake tests --set "*.output=type=docker,name=$TEST_IMAGE_ID"
@@ -34,7 +38,7 @@ docker run --rm --privileged \
   -v $testOutputDir:/testout \
   --volumes-from=$cacheVolume \
   -e BUILDKIT_REF_RANDOM \
-  -e BUILDKIT_RUN_COUNT \
+  -e TEST_BENCH_RUN \
   -e REGISTRY_MIRROR_DIR=/root/.cache/registry \
   $TEST_IMAGE_ID \
-  sh -c "go test -bench . -benchmem $gotestArgs ${TEST_FLAGS:--v} ./... | gotestmetrics parse --output /testout/gotestoutput.json"
+  sh -c "go test -benchmem $gotestArgs ${TEST_FLAGS:--v} ./... | gotestmetrics parse --output /testout/gotestoutput.json"

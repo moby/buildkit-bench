@@ -16,6 +16,26 @@ env:
   SETUP_BUILDKIT_IMAGE: moby/buildkit:latest
 
 jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    outputs:
+      includes: ${{ steps.set.outputs.includes }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      -
+        name: Set includes
+        id: set
+        run: |
+          go run -mod=vendor ./cmd/gotestmetrics \
+            --debug list --gha-output includes
+
   buildkit-binaries:
     uses: ./.github/workflows/.buildkit-binaries.yml
     secrets: inherit
@@ -28,12 +48,16 @@ jobs:
   test:
     runs-on: ubuntu-24.04
     needs:
+      - prepare
       - buildkit-binaries
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.prepare.outputs.includes) }}
     env:
       TEST_FLAGS: -v --timeout=30m
       TEST_IMAGE_BUILD: 0
       TEST_IMAGE_ID: buildkit-bench
-      BUILDKIT_RUN_COUNT: 3
     steps:
       -
         name: Checkout
@@ -73,6 +97,10 @@ jobs:
         name: Test
         run: |
           ./hack/test
+        env:
+          TEST_FLAGS: -bench=${{ matrix.test }} ${{ env.TEST_FLAGS }}
+          TEST_BENCH_RUN: ${{ matrix.count }}
+          TEST_BENCH_TIME: ${{ matrix.benchtime }}
       -
         name: Result
         run: |
