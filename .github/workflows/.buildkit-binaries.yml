@@ -1,0 +1,94 @@
+# reusable workflow
+name: .buildkit-binaries
+
+on:
+  workflow_call:
+    inputs:
+      refs:
+        type: string
+        default: master
+      last_days:
+        type: string
+        default: 7
+      last_releases:
+        type: string
+        default: 3
+      artifact_key:
+        type: string
+        default: buildkit-binaries
+
+env:
+  GO_VERSION: 1.22
+  SETUP_BUILDX_VERSION: latest
+  SETUP_BUILDKIT_IMAGE: moby/buildkit:latest
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    outputs:
+      includes: ${{ steps.set.outputs.includes }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      -
+        name: Set includes
+        id: set
+        run: |
+          go run -mod=vendor ./cmd/refcandidates \
+            --refs ${{ inputs.refs }} \
+            --last-days ${{ inputs.last_days }} \
+            --last-releases ${{ inputs.last_releases }} \
+            --gha-output includes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    runs-on: ubuntu-24.04
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.prepare.outputs.includes) }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: ${{ env.SETUP_BUILDX_VERSION }}
+          driver-opts: image=${{ env.SETUP_BUILDKIT_IMAGE }}
+          buildkitd-flags: --debug
+      -
+        name: Build
+        uses: docker/bake-action@v5
+        with:
+          targets: buildkit-build
+          provenance: false
+          set: |
+            *.output=./bin/buildkit-binaries/${{ matrix.name }}
+            *.cache-from=type=gha,scope=buildkit-binaries-${{ matrix.commit }}
+            *.cache-to=type=gha,scope=buildkit-binaries-${{ matrix.commit }}
+        env:
+          BUILDKIT_REFS: ${{ matrix.ref }}
+      -
+        # https://github.com/actions/upload-artifact/?tab=readme-ov-file#permission-loss
+        name: Tar binaries
+        working-directory: ./bin/buildkit-binaries
+        run: tar -czvf ../binaries-${{ matrix.name }}.tar.gz *
+      -
+        name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_key }}-${{ matrix.name }}
+          path: ./bin/binaries-${{ matrix.name }}.tar.gz
+          if-no-files-found: error
+          retention-days: 1
