@@ -154,10 +154,10 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 	}
 
 	runCount := 1
-	if v, ok := os.LookupEnv("BUILDKIT_RUN_COUNT"); ok && v != "" {
+	if v, ok := os.LookupEnv("TEST_BENCH_RUN"); ok && v != "" {
 		if _, ok := tb.(*testing.B); ok {
 			if count, err := strconv.Atoi(v); err != nil {
-				tb.Fatalf("invalid BUILDKIT_RUN_COUNT value: %v", err)
+				tb.Fatalf("invalid TEST_BENCH_RUN value: %v", err)
 			} else {
 				runCount = count
 			}
