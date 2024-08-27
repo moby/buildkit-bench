@@ -4,6 +4,9 @@ name: .buildkit-binaries
 on:
   workflow_call:
     inputs:
+      repo:
+        type: string
+        default: moby/buildkit
       refs:
         type: string
         default: master
@@ -41,6 +44,7 @@ jobs:
         id: set
         run: |
           go run -mod=vendor ./cmd/refcandidates \
+            --repo ${{ inputs.repo }} \
             --refs ${{ inputs.refs }} \
             --last-days ${{ inputs.last_days }} \
             --last-releases ${{ inputs.last_releases }} \
@@ -78,6 +82,7 @@ jobs:
             *.cache-from=type=gha,scope=buildkit-binaries-${{ matrix.commit }}
             *.cache-to=type=gha,scope=buildkit-binaries-${{ matrix.commit }}
         env:
+          BUILDKIT_REPO: ${{ inputs.repo }}
           BUILDKIT_REFS: ${{ matrix.ref }}
       -
         # https://github.com/actions/upload-artifact/?tab=readme-ov-file#permission-loss
