@@ -136,7 +136,7 @@ func (c *candidates) setCommits(lastDays int) error {
 	for date, commit := range lastCommitByDay(filterMergeCommits(commits)) {
 		if containsValue(c.res.Refs, commit.SHA) {
 			log.Printf("skipping commit %s, already in refs", commit.SHA)
-		} else if containsValue(c.res.Refs, commit.SHA) {
+		} else if containsValue(c.res.Releases, commit.SHA) {
 			log.Printf("skipping commit %s, already in releases", commit.SHA)
 		} else {
 			res[date] = commit.SHA
