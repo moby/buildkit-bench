@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/moby/buildkit-bench/util/github"
 	"github.com/pkg/errors"
 	"github.com/sethvargo/go-githubactions"
 	"golang.org/x/mod/semver"
@@ -23,10 +24,10 @@ type candidates struct {
 		Releases map[string]string `json:"releases"`
 		Commits  map[string]string `json:"commits"`
 	}
-	ghc *GitHubClient
+	ghc *github.Client
 }
 
-func getCandidates(ghc *GitHubClient, refs string, lastDays int, lastReleases int) (*candidates, error) {
+func getCandidates(ghc *github.Client, refs string, lastDays int, lastReleases int) (*candidates, error) {
 	c := &candidates{
 		ghc: ghc,
 	}
@@ -146,8 +147,8 @@ func (c *candidates) setCommits(lastDays int) error {
 	return nil
 }
 
-func filterMergeCommits(commits []GitHubCommit) []GitHubCommit {
-	var mergeCommits []GitHubCommit
+func filterMergeCommits(commits []github.Commit) []github.Commit {
+	var mergeCommits []github.Commit
 	for _, commit := range commits {
 		if len(commit.Parents) > 1 {
 			mergeCommits = append(mergeCommits, commit)
@@ -156,8 +157,8 @@ func filterMergeCommits(commits []GitHubCommit) []GitHubCommit {
 	return mergeCommits
 }
 
-func lastCommitByDay(commits []GitHubCommit) map[string]GitHubCommit {
-	lastCommits := make(map[string]GitHubCommit)
+func lastCommitByDay(commits []github.Commit) map[string]github.Commit {
+	lastCommits := make(map[string]github.Commit)
 	for _, commit := range commits {
 		date := commit.Commit.Committer.Date[:10]
 		if existingCommit, exists := lastCommits[date]; !exists || commit.Commit.Committer.Date > existingCommit.Commit.Committer.Date {
@@ -167,9 +168,9 @@ func lastCommitByDay(commits []GitHubCommit) map[string]GitHubCommit {
 	return lastCommits
 }
 
-func filterFeatureReleases(tags []GitHubTag, last int) []GitHubTag {
-	latestReleases := make(map[string]GitHubTag)
-	zeroReleases := make(map[string]GitHubTag)
+func filterFeatureReleases(tags []github.Tag, last int) []github.Tag {
+	latestReleases := make(map[string]github.Tag)
+	zeroReleases := make(map[string]github.Tag)
 	for _, tag := range tags {
 		if len(latestReleases) == last && len(zeroReleases) == last {
 			break
@@ -184,7 +185,7 @@ func filterFeatureReleases(tags []GitHubTag, last int) []GitHubTag {
 			}
 		}
 	}
-	var res []GitHubTag
+	var res []github.Tag
 	for mm, lt := range latestReleases {
 		res = append(res, lt)
 		if zt, ok := zeroReleases[mm]; ok && zt.Name != lt.Name {

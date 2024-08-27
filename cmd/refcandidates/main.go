@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/alecthomas/kong"
+	"github.com/moby/buildkit-bench/util/github"
 	"github.com/pkg/errors"
 )
 
@@ -18,7 +19,7 @@ var cli struct {
 }
 
 func run() error {
-	client, err := newGitHubClient(cli.Repo, cli.Token)
+	client, err := github.NewClient(cli.Repo, cli.Token)
 	if err != nil {
 		return errors.Wrap(err, "failed to create GitHub client")
 	}
