@@ -14,7 +14,7 @@ type Commit struct {
 	SHA    string `json:"sha"`
 	Commit struct {
 		Committer struct {
-			Date string `json:"date"`
+			Date time.Time `json:"date"`
 		} `json:"committer"`
 		Message string `json:"message"`
 	} `json:"commit"`

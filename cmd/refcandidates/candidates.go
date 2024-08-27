@@ -159,10 +159,10 @@ func filterMergeCommits(commits []github.Commit) []github.Commit {
 
 func lastCommitByDay(commits []github.Commit) map[string]github.Commit {
 	lastCommits := make(map[string]github.Commit)
-	for _, commit := range commits {
-		date := commit.Commit.Committer.Date[:10]
-		if existingCommit, exists := lastCommits[date]; !exists || commit.Commit.Committer.Date > existingCommit.Commit.Committer.Date {
-			lastCommits[date] = commit
+	for _, cm := range commits {
+		day := cm.Commit.Committer.Date.Format("2006-01-02")
+		if existingCommit, exists := lastCommits[day]; !exists || cm.Commit.Committer.Date.After(existingCommit.Commit.Committer.Date) {
+			lastCommits[day] = cm
 		}
 	}
 	return lastCommits
