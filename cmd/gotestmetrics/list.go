@@ -2,13 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"log"
-	"os"
 
 	"github.com/moby/buildkit-bench/util/testutil"
 	"github.com/pkg/errors"
 	"github.com/sethvargo/go-githubactions"
-	"gopkg.in/yaml.v3"
 )
 
 type listCmd struct {
@@ -23,29 +20,21 @@ type listInclude struct {
 }
 
 func (c *listCmd) Run(ctx *Context) error {
-	dt, err := os.ReadFile(c.Config)
+	tc, err := testutil.LoadTestConfig(c.Config)
 	if err != nil {
-		return errors.Wrap(err, "failed to read test config")
-	}
-	var testconfig testutil.TestConfig
-	if err := yaml.Unmarshal(dt, &testconfig); err != nil {
-		return errors.Wrap(err, "failed to decode test config")
-	}
-	if ctx.Debug {
-		b, _ := json.MarshalIndent(testconfig, "", "  ")
-		log.Printf("%s", string(b))
+		return err
 	}
 	if c.GhaOutput != "" {
 		var includes []listInclude
-		for rootName, benchmarks := range testconfig.Runs {
+		for rootName, benchmarks := range tc.Runs {
 			for benchmarkName, benchmark := range benchmarks {
 				count := benchmark.Count
 				if count == 0 {
-					count = testconfig.Defaults.Count
+					count = tc.Defaults.Count
 				}
 				benchtime := benchmark.Benchtime
 				if benchtime == "" {
-					benchtime = testconfig.Defaults.Benchtime
+					benchtime = tc.Defaults.Benchtime
 				}
 				includes = append(includes, listInclude{
 					Test:      rootName + "/" + benchmarkName,
