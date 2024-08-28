@@ -6,6 +6,7 @@ import (
 	"path"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/moby/buildkit-bench/util/testutil"
 	"github.com/stretchr/testify/require"
@@ -41,7 +42,9 @@ func testBinaryVersion(t *testing.T, sb testutil.Sandbox) {
 func benchmarkBinaryVersion(b *testing.B, sb testutil.Sandbox) {
 	for i := 0; i < b.N; i++ {
 		buildkitdPath := path.Join(sb.BinsDir(), sb.Name(), "buildkitd")
+		start := time.Now()
 		require.NoError(b, exec.Command(buildkitdPath, "--version").Run())
+		testutil.ReportMetricDuration(b, time.Since(start))
 	}
 }
 
@@ -49,6 +52,5 @@ func benchmarkBinarySize(b *testing.B, sb testutil.Sandbox) {
 	buildkitdPath := path.Join(sb.BinsDir(), sb.Name(), "buildkitd")
 	fi, err := os.Stat(buildkitdPath)
 	require.NoError(b, err)
-	b.ResetTimer()
-	testutil.ReportMetric(b, float64(fi.Size()), "bytes")
+	testutil.ReportMetric(b, float64(fi.Size()), testutil.MetricBytes)
 }
