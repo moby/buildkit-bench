@@ -38,6 +38,7 @@ type Sandbox interface {
 type Worker interface {
 	New(context.Context) (Backend, func() error, error)
 	Name() string
+	CommitterDate() time.Time
 }
 
 type Runner interface {
@@ -181,6 +182,11 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 
 							sb, _, err := newSandbox(ctx, br, mv)
 							require.NoError(tb, err)
+
+							if b, ok := tb.(*testing.B); ok && !br.CommitterDate().IsZero() {
+								ReportMetric(b, float64(br.CommitterDate().Unix()), metricRefTimestamp)
+							}
+
 							runner.Run(tb, sb)
 						})
 						require.True(tb, ok)
@@ -189,10 +195,6 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 			}
 		}
 	}
-}
-
-func ReportMetric(b *testing.B, value float64, unit string) {
-	b.ReportMetric(value, "bkbench_"+unit)
 }
 
 func runTest(tb testing.TB, name string, f func(tb testing.TB)) bool {

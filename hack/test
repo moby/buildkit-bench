@@ -9,7 +9,9 @@ set -eu -o pipefail
 : "${TEST_BENCH_RUN=1}"
 : "${TEST_BENCH_TIME=1s}"
 
+: "${BUILDKIT_REPO=moby/buildkit}"
 : "${BUILDKIT_REF_RANDOM=}"
+: "${GITHUB_TOKEN=}"
 
 gotestArgs="-json -mod=vendor"
 if [ -n "$TEST_BENCH_TIME" ]; then
@@ -37,8 +39,10 @@ docker run --rm --privileged \
   -v /tmp \
   -v $testOutputDir:/testout \
   --volumes-from=$cacheVolume \
-  -e BUILDKIT_REF_RANDOM \
   -e TEST_BENCH_RUN \
   -e REGISTRY_MIRROR_DIR=/root/.cache/registry \
+  -e BUILDKIT_REPO=$BUILDKIT_REPO \
+  -e BUILDKIT_REF_RANDOM=$BUILDKIT_REF_RANDOM \
+  -e GITHUB_TOKEN \
   $TEST_IMAGE_ID \
   sh -c "go test -benchmem $gotestArgs ${TEST_FLAGS:--v} ./... | gotestmetrics parse --output /testout/gotestoutput.json"
