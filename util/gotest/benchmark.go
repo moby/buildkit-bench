@@ -19,7 +19,13 @@ type Benchmark struct {
 
 type BenchmarkRun struct {
 	benchmark.Benchmark
+	BenchmarkRunInfo
+}
+
+type BenchmarkRunInfo struct {
+	Test    string
 	Run     int
+	Ref     string
 	Threads int
 }
 
@@ -60,60 +66,72 @@ func parseBenchmark(b string) (*Benchmark, bool, error) {
 		Benchmark: *binfo,
 	}
 
+	bri, err := parseBenchmarkRunInfo(binfo.Name)
+	if err != nil {
+		return nil, false, err
+	}
+	if bri.Ref == "" || bri.Run == 0 {
+		return nil, false, nil
+	}
+
+	brun.BenchmarkRunInfo = *bri
+	bb.Name = brun.Test
+	bb.Ref = brun.Ref
+	bb.Runs = []BenchmarkRun{brun}
+	return bb, true, nil
+}
+
+func parseBenchmarkRunInfo(line string) (*BenchmarkRunInfo, error) {
+	bri := &BenchmarkRunInfo{}
 	var attrs []string
-	for _, part := range strings.Split(brun.Name, "/") {
+	for _, part := range strings.Split(line, "/") {
 		if !strings.Contains(part, "=") {
-			if len(bb.Name) > 0 {
-				bb.Name += "/"
+			if len(bri.Test) > 0 {
+				bri.Test += "/"
 			}
-			bb.Name += part
+			bri.Test += part
 		} else {
 			attrs = append(attrs, part)
 		}
 	}
 	if len(attrs) == 0 {
-		return nil, false, nil
+		return bri, nil
 	}
 
 	csvAttrs := strings.Join(attrs, ",")
 	csvReader := csv.NewReader(strings.NewReader(csvAttrs))
 	fields, err := csvReader.Read()
 	if err != nil {
-		return nil, false, errors.Wrapf(err, "failed to read benchmark attributes: %s", csvAttrs)
+		return nil, errors.Wrapf(err, "failed to read benchmark attributes: %s", csvAttrs)
 	}
 
 	for _, field := range fields {
 		key, value, ok := strings.Cut(field, "=")
 		if !ok {
-			return nil, false, errors.Errorf("invalid value %s", field)
+			return nil, errors.Errorf("invalid value %s", field)
 		}
 		switch key {
 		case "ref":
-			bb.Ref = value
+			bri.Ref = value
 		case "run":
 			rkey, rvalue, ok := strings.Cut(value, "-")
 			if !ok {
-				return nil, false, errors.Errorf("invalid benchmark run value %s", value)
+				return nil, errors.Errorf("invalid benchmark run value %s", value)
 			}
 			rr, err := strconv.Atoi(rkey)
 			if err != nil {
-				return nil, false, errors.Wrapf(err, "failed to parse benchmark run count value: %s", rkey)
+				return nil, errors.Wrapf(err, "failed to parse benchmark run count value: %s", rkey)
 			}
-			brun.Run = rr
+			bri.Run = rr
 			rt, err := strconv.Atoi(rvalue)
 			if err != nil {
-				return nil, false, errors.Wrapf(err, "failed to parse benchmark threads value: %s", rkey)
+				return nil, errors.Wrapf(err, "failed to parse benchmark threads value: %s", rkey)
 			}
-			brun.Threads = rt
+			bri.Threads = rt
 		}
 	}
 
-	bb.Runs = append(bb.Runs, brun)
-	if bb.Ref == "" || brun.Run == 0 {
-		return nil, false, nil
-	}
-
-	return bb, true, nil
+	return bri, nil
 }
 
 type BenchmarkInfo struct {
