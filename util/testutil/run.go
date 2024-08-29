@@ -183,10 +183,6 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 							sb, _, err := newSandbox(ctx, br, mv)
 							require.NoError(tb, err)
 
-							if b, ok := tb.(*testing.B); ok && !br.CommitterDate().IsZero() {
-								ReportMetric(b, float64(br.CommitterDate().Unix()), metricRefTimestamp)
-							}
-
 							runner.Run(tb, sb)
 						})
 						require.True(tb, ok)

@@ -8,10 +8,8 @@ import (
 type MetricUnit string
 
 const (
-	MetricBytes MetricUnit = "bytes"
-
-	metricDuration     MetricUnit = "duration"
-	metricRefTimestamp MetricUnit = "ref_timestamp"
+	MetricBytes    MetricUnit = "bytes"
+	MetricDuration MetricUnit = "duration"
 )
 
 func ReportMetric(b *testing.B, value float64, unit MetricUnit) {
@@ -19,5 +17,5 @@ func ReportMetric(b *testing.B, value float64, unit MetricUnit) {
 }
 
 func ReportMetricDuration(b *testing.B, value time.Duration) {
-	ReportMetric(b, float64(value.Nanoseconds()), metricDuration)
+	ReportMetric(b, float64(value.Nanoseconds()), MetricDuration)
 }
