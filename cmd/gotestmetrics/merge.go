@@ -107,10 +107,9 @@ func (c *mergeCmd) writeBenchmarksHTML(benchmarks map[string]gotest.Benchmark) e
 			chart := charts.NewBar() // TODO: chart type should be inferred from test config
 			chart.SetGlobalOptions(
 				charts.WithTitleOpts(opts.Title{Title: bc.Description}),
-				charts.WithXAxisOpts(opts.XAxis{
-					AxisLabel: &opts.AxisLabel{
-						Interval: "0", // Ensure all labels are displayed
-					},
+				charts.WithDataZoomOpts(opts.DataZoom{
+					Type:  "slider",
+					Start: 70,
 				}),
 			)
 			if len(sortedRefs) == 0 {
@@ -130,6 +129,8 @@ func (c *mergeCmd) writeBenchmarksHTML(benchmarks map[string]gotest.Benchmark) e
 	}
 
 	page := components.NewPage()
+	page.PageTitle = "BuildKit Benchmarks"
+	page.Layout = components.PageFlexLayout
 	page.AddCharts(cps...)
 
 	if err := os.MkdirAll(c.Output, 0755); err != nil {
