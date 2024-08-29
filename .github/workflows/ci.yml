@@ -17,6 +17,9 @@ env:
   SETUP_BUILDKIT_IMAGE: moby/buildkit:latest
   BUILDKIT_REPO: moby/buildkit
   BUILDKIT_ARTIFACT_KEY: buildkit-binaries
+  CANDIDATES_REFS: master
+  CANDIDATES_LAST_DAYS: 7
+  CANDIDATES_LAST_RELEASES: 3
 
 jobs:
   # limitation to using envs in a reusable workflow input
@@ -26,6 +29,9 @@ jobs:
     outputs:
       BUILDKIT_REPO: ${{ env.BUILDKIT_REPO }}
       BUILDKIT_ARTIFACT_KEY: ${{ env.BUILDKIT_ARTIFACT_KEY }}
+      CANDIDATES_REFS: ${{ env.CANDIDATES_REFS }}
+      CANDIDATES_LAST_DAYS: ${{ env.CANDIDATES_LAST_DAYS }}
+      CANDIDATES_LAST_RELEASES: ${{ env.CANDIDATES_LAST_RELEASES }}
     steps:
       - run: "true"
 
@@ -56,9 +62,9 @@ jobs:
     secrets: inherit
     with:
       repo: ${{ needs.get-env.outputs.BUILDKIT_REPO }}
-      refs: master
-      last_days: 7
-      last_releases: 3
+      refs: ${{ needs.get-env.outputs.CANDIDATES_REFS }}
+      last_days: ${{ needs.get-env.outputs.CANDIDATES_LAST_DAYS }}
+      last_releases: ${{ needs.get-env.outputs.CANDIDATES_LAST_RELEASES }}
       artifact_key: ${{ needs.get-env.outputs.BUILDKIT_ARTIFACT_KEY }}
 
   test:
