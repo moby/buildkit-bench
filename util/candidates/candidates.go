@@ -31,6 +31,11 @@ type Commit struct {
 	Date time.Time `json:"date"`
 }
 
+type Ref struct {
+	Name   string
+	Commit Commit
+}
+
 func Get(ghc *github.Client, refs string, lastDays int, lastReleases int) (*Candidates, error) {
 	c := &Candidates{
 		ghc: ghc,
@@ -46,6 +51,46 @@ func Get(ghc *github.Client, refs string, lastDays int, lastReleases int) (*Cand
 	}
 	log.Printf("%d ref(s), %d release(s) and %d commit(s) marked as candidates", len(c.Refs), len(c.Releases), len(c.Commits))
 	return c, nil
+}
+
+func Load(f string) (*Candidates, error) {
+	dt, err := os.ReadFile(f)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read candidates")
+	}
+	var c Candidates
+	if err := json.Unmarshal(dt, &c); err != nil {
+		return nil, errors.Wrap(err, "failed to unmarshal candidates")
+	}
+	return &c, nil
+}
+
+func (c *Candidates) List() map[string]Commit {
+	res := make(map[string]Commit)
+	for k, v := range c.Refs {
+		res[k] = v
+	}
+	for k, v := range c.Releases {
+		res[k] = v
+	}
+	for k, v := range c.Commits {
+		res[k] = v
+	}
+	return res
+}
+
+func (c *Candidates) Sorted() []Ref {
+	var sortedCandidates []Ref
+	for ref, cm := range c.List() {
+		sortedCandidates = append(sortedCandidates, Ref{
+			Name:   ref,
+			Commit: cm,
+		})
+	}
+	sort.Slice(sortedCandidates, func(i, j int) bool {
+		return sortedCandidates[i].Commit.Date.Before(sortedCandidates[j].Commit.Date)
+	})
+	return sortedCandidates
 }
 
 func (c *Candidates) WriteFile(path string) error {
