@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -53,4 +54,19 @@ func benchmarkBinarySize(b *testing.B, sb testutil.Sandbox) {
 	fi, err := os.Stat(buildkitdPath)
 	require.NoError(b, err)
 	testutil.ReportMetric(b, float64(fi.Size()), testutil.MetricBytes)
+}
+
+func benchmarkPackageSize(b *testing.B, sb testutil.Sandbox) {
+	var packageSize int64
+	err := filepath.Walk(path.Join(sb.BinsDir(), sb.Name()), func(_ string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			packageSize += info.Size()
+		}
+		return nil
+	})
+	require.NoError(b, err)
+	testutil.ReportMetric(b, float64(packageSize), testutil.MetricBytes)
 }
