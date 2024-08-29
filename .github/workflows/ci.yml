@@ -96,7 +96,7 @@ jobs:
         run: |
           mkdir -p ./bin/buildkit-binaries
           for f in "/tmp/buildkit-binaries"/*.tar.gz; do
-            (set -x ; tar -xzvf "$f" -C ./bin/buildkit-binaries)
+            (set -x ; tar -xzvf "$f" -C ./bin/buildkit-binaries && rm "$f")
           done
           tree -nph ./bin/buildkit-binaries
       -
