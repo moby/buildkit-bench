@@ -38,7 +38,6 @@ type Sandbox interface {
 type Worker interface {
 	New(context.Context) (Backend, func() error, error)
 	Name() string
-	CommitterDate() time.Time
 }
 
 type Runner interface {
