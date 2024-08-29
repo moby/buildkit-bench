@@ -1,4 +1,4 @@
-package main
+package candidates
 
 import (
 	"encoding/json"
@@ -18,17 +18,21 @@ import (
 
 var reSemverRelease = regexp.MustCompile(`^v?(\d+\.\d+\.\d+)$`)
 
-type candidates struct {
-	res struct {
-		Refs     map[string]string `json:"refs"`
-		Releases map[string]string `json:"releases"`
-		Commits  map[string]string `json:"commits"`
-	}
+type Candidates struct {
+	Refs     map[string]Commit `json:"refs"`
+	Releases map[string]Commit `json:"releases"`
+	Commits  map[string]Commit `json:"commits"`
+
 	ghc *github.Client
 }
 
-func getCandidates(ghc *github.Client, refs string, lastDays int, lastReleases int) (*candidates, error) {
-	c := &candidates{
+type Commit struct {
+	SHA  string    `json:"sha"`
+	Date time.Time `json:"date"`
+}
+
+func Get(ghc *github.Client, refs string, lastDays int, lastReleases int) (*Candidates, error) {
+	c := &Candidates{
 		ghc: ghc,
 	}
 	if err := c.setRefs(strings.Split(refs, ",")); err != nil {
@@ -40,15 +44,11 @@ func getCandidates(ghc *github.Client, refs string, lastDays int, lastReleases i
 	if err := c.setCommits(lastDays); err != nil {
 		return nil, errors.Wrap(err, "failed to set commits candidates")
 	}
-	log.Printf("%d ref(s), %d release(s) and %d commit(s) marked as candidates", len(c.res.Refs), len(c.res.Releases), len(c.res.Commits))
+	log.Printf("%d ref(s), %d release(s) and %d commit(s) marked as candidates", len(c.Refs), len(c.Releases), len(c.Commits))
 	return c, nil
 }
 
-func (c *candidates) MarshalJSON() ([]byte, error) {
-	return json.Marshal(c.res)
-}
-
-func (c *candidates) WriteFile(path string) error {
+func (c *Candidates) WriteFile(path string) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		return errors.Wrap(err, "failed to create output file directory")
 	}
@@ -62,32 +62,32 @@ func (c *candidates) WriteFile(path string) error {
 	return nil
 }
 
-func (c *candidates) setGhaOutput(name string) error {
+func (c *Candidates) SetGhaOutput(name string) error {
 	type include struct {
 		Name   string `json:"name"`
 		Ref    string `json:"ref"`
 		Commit string `json:"commit"`
 	}
 	var includes []include
-	for ref, sha := range c.res.Refs {
+	for ref, cm := range c.Refs {
 		includes = append(includes, include{
 			Name:   ref,
 			Ref:    ref,
-			Commit: sha,
+			Commit: cm.SHA,
 		})
 	}
-	for release, sha := range c.res.Releases {
+	for release, cm := range c.Releases {
 		includes = append(includes, include{
 			Name:   release,
 			Ref:    release,
-			Commit: sha,
+			Commit: cm.SHA,
 		})
 	}
-	for day, sha := range c.res.Commits {
+	for day, cm := range c.Commits {
 		includes = append(includes, include{
 			Name:   day,
-			Ref:    sha,
-			Commit: sha,
+			Ref:    cm.SHA,
+			Commit: cm.SHA,
 		})
 	}
 	dt, err := json.Marshal(includes)
@@ -98,60 +98,73 @@ func (c *candidates) setGhaOutput(name string) error {
 	return nil
 }
 
-func (c *candidates) setRefs(refs []string) error {
-	res := make(map[string]string)
+func (c *Candidates) setRefs(refs []string) error {
+	res := make(map[string]Commit)
 	for _, ref := range refs {
-		commit, err := c.ghc.GetCommit(ref)
+		cm, err := c.ghc.GetCommit(ref)
 		if err != nil {
 			return errors.Wrapf(err, "failed to fetch commit for ref %q", ref)
 		}
-		res[ref] = commit.SHA
+		res[ref] = Commit{
+			SHA:  cm.SHA,
+			Date: cm.Commit.Committer.Date,
+		}
 	}
-	c.res.Refs = res
+	c.Refs = res
 	return nil
 }
 
-func (c *candidates) setReleases(last int) error {
+func (c *Candidates) setReleases(last int) error {
 	tags, err := c.ghc.GetTags()
 	if err != nil {
 		return errors.Wrap(err, "failed to fetch tags")
 	}
-	res := make(map[string]string)
+	res := make(map[string]Commit)
 	for _, tag := range filterFeatureReleases(tags, last) {
-		if containsValue(c.res.Refs, tag.Commit.SHA) {
+		if containsCommitSha(c.Refs, tag.Commit.SHA) {
 			log.Printf("skipping tag %s (%s), already in refs", tag.Name, tag.Commit.SHA)
 		} else {
-			res[tag.Name] = tag.Commit.SHA
+			cm, err := c.ghc.GetCommit(tag.Commit.SHA)
+			if err != nil {
+				return errors.Wrapf(err, "failed to fetch commit for tag commit %q", tag.Commit.SHA)
+			}
+			res[tag.Name] = Commit{
+				SHA:  cm.SHA,
+				Date: cm.Commit.Committer.Date,
+			}
 		}
 	}
-	c.res.Releases = res
+	c.Releases = res
 	return nil
 }
 
-func (c *candidates) setCommits(lastDays int) error {
+func (c *Candidates) setCommits(lastDays int) error {
 	commits, err := c.ghc.GetCommits(time.Now().AddDate(0, 0, -lastDays))
 	if err != nil {
 		return errors.Wrap(err, "failed to fetch commits")
 	}
-	res := make(map[string]string)
-	for date, commit := range lastCommitByDay(filterMergeCommits(commits)) {
-		if containsValue(c.res.Refs, commit.SHA) {
-			log.Printf("skipping commit %s, already in refs", commit.SHA)
-		} else if containsValue(c.res.Releases, commit.SHA) {
-			log.Printf("skipping commit %s, already in releases", commit.SHA)
+	res := make(map[string]Commit)
+	for date, cm := range lastCommitByDay(filterMergeCommits(commits)) {
+		if containsCommitSha(c.Refs, cm.SHA) {
+			log.Printf("skipping commit %s, already in refs", cm.SHA)
+		} else if containsCommitSha(c.Releases, cm.SHA) {
+			log.Printf("skipping commit %s, already in releases", cm.SHA)
 		} else {
-			res[date] = commit.SHA
+			res[date] = Commit{
+				SHA:  cm.SHA,
+				Date: cm.Commit.Committer.Date,
+			}
 		}
 	}
-	c.res.Commits = res
+	c.Commits = res
 	return nil
 }
 
 func filterMergeCommits(commits []github.Commit) []github.Commit {
 	var mergeCommits []github.Commit
-	for _, commit := range commits {
-		if len(commit.Parents) > 1 {
-			mergeCommits = append(mergeCommits, commit)
+	for _, cm := range commits {
+		if len(cm.Parents) > 1 {
+			mergeCommits = append(mergeCommits, cm)
 		}
 	}
 	return mergeCommits
@@ -209,12 +222,12 @@ func getPatchVersion(version string) string {
 	return ""
 }
 
-func containsValue(m map[string]string, value string) bool {
+func containsCommitSha(m map[string]Commit, sha string) bool {
 	if m == nil {
 		return false
 	}
-	for _, v := range m {
-		if v == value {
+	for _, cm := range m {
+		if cm.SHA == sha {
 			return true
 		}
 	}

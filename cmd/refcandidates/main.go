@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/alecthomas/kong"
+	"github.com/moby/buildkit-bench/util/candidates"
 	"github.com/moby/buildkit-bench/util/github"
 	"github.com/pkg/errors"
 )
@@ -23,7 +24,7 @@ func run() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create GitHub client")
 	}
-	c, err := getCandidates(client, cli.Refs, cli.LastDays, cli.LastReleases)
+	c, err := candidates.Get(client, cli.Refs, cli.LastDays, cli.LastReleases)
 	if err != nil {
 		return errors.Wrap(err, "failed to get candidates")
 	}
@@ -33,7 +34,7 @@ func run() error {
 		}
 	}
 	if cli.GhaOutput != "" {
-		if err := c.setGhaOutput(cli.GhaOutput); err != nil {
+		if err := c.SetGhaOutput(cli.GhaOutput); err != nil {
 			return errors.Wrap(err, "failed to set GitHub Actions matrix")
 		}
 	}
