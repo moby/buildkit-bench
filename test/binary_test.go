@@ -23,6 +23,7 @@ func BenchmarkBinary(b *testing.B) {
 	testutil.Run(b, testutil.BenchFuncs(
 		benchmarkBinaryVersion,
 		benchmarkBinarySize,
+		benchmarkPackageSize,
 	))
 }
 
