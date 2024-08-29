@@ -48,9 +48,18 @@ jobs:
             --refs ${{ inputs.refs }} \
             --last-days ${{ inputs.last_days }} \
             --last-releases ${{ inputs.last_releases }} \
+            --file-output ./bin/candidates.json \
             --gha-output includes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Upload candidates
+        uses: actions/upload-artifact@v4
+        with:
+          name: candidates
+          path: ./bin/candidates.json
+          if-no-files-found: error
+          retention-days: 1
 
   build:
     runs-on: ubuntu-24.04

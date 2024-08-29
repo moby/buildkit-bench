@@ -17,5 +17,5 @@ func ReportMetric(b *testing.B, value float64, unit MetricUnit) {
 }
 
 func ReportMetricDuration(b *testing.B, value time.Duration) {
-	ReportMetric(b, float64(value.Nanoseconds()), MetricDuration)
+	ReportMetric(b, float64(value.Milliseconds()), MetricDuration)
 }

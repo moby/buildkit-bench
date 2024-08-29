@@ -18,8 +18,8 @@ env:
   BUILDKIT_REPO: moby/buildkit
   BUILDKIT_ARTIFACT_KEY: buildkit-binaries
   CANDIDATES_REFS: master
-  CANDIDATES_LAST_DAYS: 7
-  CANDIDATES_LAST_RELEASES: 3
+  CANDIDATES_LAST_DAYS: 15
+  CANDIDATES_LAST_RELEASES: 6
 
 jobs:
   # limitation to using envs in a reusable workflow input
@@ -96,7 +96,7 @@ jobs:
         run: |
           mkdir -p ./bin/buildkit-binaries
           for f in "/tmp/buildkit-binaries"/*.tar.gz; do
-            (set -x ; tar -xzvf "$f" -C ./bin/buildkit-binaries)
+            (set -x ; tar -xzvf "$f" -C ./bin/buildkit-binaries && rm "$f")
           done
           tree -nph ./bin/buildkit-binaries
       -
@@ -126,4 +126,63 @@ jobs:
       -
         name: Result
         run: |
-          jq . ./bin/gotestoutput.json
+          resultName=$(echo ${{ matrix.test }} | sed 's/\//-/g')
+          resultPath=./bin/gotestoutput-$resultName.json
+          echo "TEST_RESULT_NAME=$resultName" >> $GITHUB_ENV
+          echo "TEST_RESULT_PATH=$resultPath" >> $GITHUB_ENV
+          mv ./bin/gotestoutput.json $resultPath
+          jq . $resultPath
+      -
+        name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results-${{ env.TEST_RESULT_NAME }}
+          path: ${{ env.TEST_RESULT_PATH }}
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    runs-on: ubuntu-24.04
+    needs:
+      - test
+    steps:
+      -
+        name: Download results
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/buildkit-bench/results
+          pattern: bench-results-*
+          merge-multiple: true
+      -
+        name: Download candidates
+        uses: actions/download-artifact@v4
+        with:
+          name: candidates
+          path: /tmp/buildkit-bench
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      -
+        name: Merge and generate graphs
+        run: |
+          go run -mod=vendor ./cmd/gotestmetrics --debug merge \
+            --config ./testconfig.yml \
+            --candidates /tmp/buildkit-bench/candidates.json \
+            --format html \
+            --output ./bin/results \
+            /tmp/buildkit-bench/results
+      -
+        name: Publish
+        uses: crazy-max/ghaction-github-pages@v4
+        if: github.event_name != 'pull_request'
+        with:
+          target_branch: gh-pages
+          build_dir: ./bin/results
+          jekyll: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

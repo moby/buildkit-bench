@@ -4,6 +4,7 @@ go 1.21.0
 
 require (
 	github.com/alecthomas/kong v0.9.0
+	github.com/go-echarts/go-echarts/v2 v2.4.1
 	github.com/moby/buildkit v0.15.2
 	github.com/pkg/errors v0.9.1
 	github.com/sethvargo/go-githubactions v1.2.0
@@ -19,6 +20,7 @@ require (
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.16.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
