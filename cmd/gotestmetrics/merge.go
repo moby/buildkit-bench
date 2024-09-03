@@ -33,6 +33,9 @@ func (c *mergeCmd) Run(ctx *Context) error {
 		b, _ := json.MarshalIndent(benchmarks, "", "  ")
 		log.Printf("%s", string(b))
 	}
+	if err := c.validateBenchmarks(benchmarks); err != nil {
+		return err
+	}
 	switch c.Format {
 	case "json":
 		return c.writeBenchmarksJSON(benchmarks)
@@ -41,6 +44,38 @@ func (c *mergeCmd) Run(ctx *Context) error {
 	default:
 		return errors.Errorf("unsupported format: %s", c.Format)
 	}
+}
+
+func (c *mergeCmd) validateBenchmarks(benchmarks map[string]gotest.Benchmark) error {
+	tc, err := testutil.LoadTestConfig(c.Config)
+	if err != nil {
+		return err
+	}
+	seen := make(map[string]struct{})
+	for _, benchmark := range benchmarks {
+		if _, ok := seen[benchmark.Name]; !ok {
+			seen[benchmark.Name] = struct{}{}
+		}
+		bm, err := tc.BenchmarkConfig(benchmark.Name)
+		if err != nil {
+			return err
+		}
+		for _, run := range benchmark.Runs {
+			for unit := range run.Extra {
+				if _, ok := bm.Metrics[unit]; !ok {
+					return errors.Errorf("unknown metric %q for benchmark %q", unit, benchmark.Name)
+				}
+			}
+		}
+	}
+	for rootName, bms := range tc.Runs {
+		for testName := range bms {
+			if _, ok := seen[rootName+"/"+testName]; !ok {
+				return errors.Errorf("missing benchmark result for %q", rootName+"/"+testName)
+			}
+		}
+	}
+	return nil
 }
 
 func (c *mergeCmd) writeBenchmarksJSON(benchmarks map[string]gotest.Benchmark) error {
