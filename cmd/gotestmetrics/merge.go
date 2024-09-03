@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"math"
 	"os"
 	"path"
 
@@ -122,14 +123,14 @@ func (c *mergeCmd) writeBenchmarksHTML(benchmarks map[string]gotest.Benchmark) e
 			return err
 		}
 
-		metrics := make(map[string]map[string]float64)
+		metrics := make(map[string]map[string][]float64)
 		for _, run := range runs {
 			for unit := range bc.Metrics {
 				if _, ok := metrics[unit]; !ok {
-					metrics[unit] = make(map[string]float64)
+					metrics[unit] = make(map[string][]float64)
 				}
 				if v, ok := run.Extra[unit]; ok {
-					metrics[unit][run.Ref] = v
+					metrics[unit][run.Ref] = append(metrics[unit][run.Ref], v)
 				} else {
 					return errors.Errorf("missing metric %q for run %s", unit, run.Ref)
 				}
@@ -139,7 +140,43 @@ func (c *mergeCmd) writeBenchmarksHTML(benchmarks map[string]gotest.Benchmark) e
 		for unit, values := range metrics {
 			var refs []string
 			var data []opts.BarData
+			var totalValue float64
+			if len(sortedRefs) == 0 {
+				for ref, value := range values {
+					avgv := 0.0
+					for _, v := range value {
+						avgv += v
+					}
+					avgv /= float64(len(value))
+					totalValue += avgv
+					refs = append(refs, ref)
+					data = append(data, opts.BarData{Value: math.Round(avgv*100000) / 100000})
+				}
+			} else {
+				for _, ref := range sortedRefs {
+					value, ok := values[ref.Name]
+					if !ok {
+						return errors.Errorf("%s missing %s value for ref %s", name, unit, ref.Name)
+					}
+					avgv := 0.0
+					for _, v := range value {
+						avgv += v
+					}
+					avgv /= float64(len(value))
+					totalValue += avgv
+					refs = append(refs, ref.Name)
+					data = append(data, opts.BarData{Value: math.Round(avgv*100000) / 100000})
+				}
+			}
+
+			averageValue := totalValue / float64(len(refs))
+			averageData := make([]opts.LineData, len(refs))
+			for i := 0; i < len(refs); i++ {
+				averageData[i] = opts.LineData{Value: averageValue}
+			}
+
 			chart := charts.NewBar() // TODO: chart type should be inferred from test config
+			averageLine := charts.NewLine()
 			chart.SetGlobalOptions(
 				charts.WithTitleOpts(opts.Title{Title: bc.Description}),
 				charts.WithDataZoomOpts(opts.DataZoom{
@@ -147,18 +184,9 @@ func (c *mergeCmd) writeBenchmarksHTML(benchmarks map[string]gotest.Benchmark) e
 					Start: 70,
 				}),
 			)
-			if len(sortedRefs) == 0 {
-				for ref, value := range values {
-					refs = append(refs, ref)
-					data = append(data, opts.BarData{Value: value})
-				}
-			} else {
-				for _, ref := range sortedRefs {
-					refs = append(refs, ref.Name)
-					data = append(data, opts.BarData{Value: values[ref.Name]})
-				}
-			}
 			chart.SetXAxis(refs).AddSeries(bc.Metrics[unit].Description, data)
+			averageLine.SetXAxis(refs).AddSeries("Average", averageData)
+			chart.Overlap(averageLine)
 			cps = append(cps, chart)
 		}
 	}
