@@ -1,10 +1,12 @@
 package testutil
 
 import (
+	"bytes"
 	"context"
 	"maps"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"reflect"
 	"runtime"
 	"sort"
@@ -26,18 +28,35 @@ func init() {
 }
 
 // Backend describes a testing backend.
-type Backend struct{}
+type Backend interface {
+	Address() string
+}
 
 type Sandbox interface {
+	Backend
+
 	Context() context.Context
+	Logs() map[string]*bytes.Buffer
+	PrintLogs(testing.TB)
+	ClearLogs()
 	Value(string) interface{} // chosen matrix value
 	Name() string
 	BinsDir() string
 }
 
+// BackendConfig is used to configure backends created by a worker.
+type BackendConfig struct {
+	Logs         map[string]*bytes.Buffer
+	DaemonConfig []ConfigUpdater
+}
+
 type Worker interface {
-	New(context.Context) (Backend, func() error, error)
+	New(context.Context, *BackendConfig) (Backend, func() error, error)
 	Name() string
+}
+
+type ConfigUpdater interface {
+	UpdateConfigFile(string) string
 }
 
 type Runner interface {
@@ -179,8 +198,14 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 							ctx, cancel := context.WithCancelCause(ctx)
 							defer cancel(errors.WithStack(context.Canceled))
 
-							sb, _, err := newSandbox(ctx, br, mv)
+							sb, closer, err := newSandbox(ctx, br, mv)
 							require.NoError(tb, err)
+							tb.Cleanup(func() { _ = closer() })
+							defer func() {
+								if tb.Failed() {
+									sb.PrintLogs(tb)
+								}
+							}()
 
 							runner.Run(tb, sb)
 						})
@@ -206,6 +231,26 @@ func runTest(tb testing.TB, name string, f func(tb testing.TB)) bool {
 		tb.Fatalf("unsupported testing.TB type: %T", tb)
 		return false
 	}
+}
+
+func writeConfig(updaters []ConfigUpdater) (string, error) {
+	tmpdir, err := os.MkdirTemp("", "bkbench_config")
+	if err != nil {
+		return "", err
+	}
+	if err := os.Chmod(tmpdir, 0711); err != nil {
+		return "", err
+	}
+
+	s := ""
+	for _, upt := range updaters {
+		s = upt.UpdateConfigFile(s)
+	}
+
+	if err := os.WriteFile(filepath.Join(tmpdir, buildkitdConfigFile), []byte(s), 0644); err != nil {
+		return "", err
+	}
+	return filepath.Join(tmpdir, buildkitdConfigFile), nil
 }
 
 func prepareValueMatrix(tc testConf) []matrixValue {
