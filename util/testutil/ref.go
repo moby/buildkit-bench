@@ -10,12 +10,17 @@ import (
 var binsDir = "/buildkit-binaries"
 
 type backend struct {
-	address  string
-	extraEnv []string
+	address      string
+	debugAddress string
+	extraEnv     []string
 }
 
 func (b backend) Address() string {
 	return b.address
+}
+
+func (b backend) DebugAddress() string {
+	return b.debugAddress
 }
 
 func (b backend) ExtraEnv() []string {
@@ -51,7 +56,7 @@ func (c *Ref) New(ctx context.Context, cfg *BackendConfig) (b Backend, cl func()
 	}()
 
 	// Include use of --oci-worker-labels to trigger https://github.com/moby/buildkit/pull/603
-	buildkitdSock, stop, err := runBuildkitd(cfg, []string{
+	buildkitdSock, debugAddress, stop, err := runBuildkitd(cfg, []string{
 		path.Join(binsDir, c.id, "buildkitd"),
 		"--oci-worker=true",
 		"--oci-worker-binary=" + path.Join(binsDir, c.id, "buildkit-runc"),
@@ -66,7 +71,8 @@ func (c *Ref) New(ctx context.Context, cfg *BackendConfig) (b Backend, cl func()
 	deferF.Append(stop)
 
 	return backend{
-		address: buildkitdSock,
+		address:      buildkitdSock,
+		debugAddress: debugAddress,
 	}, cl, nil
 }
 

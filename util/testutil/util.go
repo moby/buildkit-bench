@@ -19,7 +19,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func runBuildkitd(conf *BackendConfig, args []string, logs map[string]*bytes.Buffer, extraEnv []string) (address string, cl func() error, err error) {
+func runBuildkitd(conf *BackendConfig, args []string, logs map[string]*bytes.Buffer, extraEnv []string) (address string, debugAddress string, cl func() error, err error) {
 	deferF := &MultiCloser{}
 	cl = deferF.F()
 
@@ -32,18 +32,18 @@ func runBuildkitd(conf *BackendConfig, args []string, logs map[string]*bytes.Buf
 
 	tmpdir, err := os.MkdirTemp("", "bkbench_buildkitd")
 	if err != nil {
-		return "", nil, err
+		return "", "", nil, err
 	}
 
 	if err := os.MkdirAll(filepath.Join(tmpdir, "tmp"), 0711); err != nil {
-		return "", nil, err
+		return "", "", nil, err
 	}
 
 	deferF.Append(func() error { return os.RemoveAll(tmpdir) })
 
 	cfgfile, err := writeConfig(append(conf.DaemonConfig))
 	if err != nil {
-		return "", nil, err
+		return "", "", nil, err
 	}
 	deferF.Append(func() error {
 		return os.RemoveAll(filepath.Dir(cfgfile))
@@ -52,7 +52,16 @@ func runBuildkitd(conf *BackendConfig, args []string, logs map[string]*bytes.Buf
 	args = append(args, "--config="+cfgfile)
 	address = getBuildkitdAddr(tmpdir)
 
-	args = append(args, "--root", tmpdir, "--addr", address, "--debug")
+	l, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		return "", "", nil, err
+	}
+	debugAddress = l.Addr().String()
+	if err = l.Close(); err != nil {
+		return "", "", nil, err
+	}
+
+	args = append(args, "--root", tmpdir, "--addr", address, "--debug", "--debugaddr", debugAddress)
 	cmd := exec.Command(args[0], args[1:]...) //nolint:gosec // test utility
 	cmd.Env = append(
 		os.Environ(),
@@ -68,12 +77,12 @@ func runBuildkitd(conf *BackendConfig, args []string, logs map[string]*bytes.Buf
 
 	stop, err := startCmd(cmd, logs)
 	if err != nil {
-		return "", nil, err
+		return "", "", nil, err
 	}
 	deferF.Append(stop)
 
 	if err := waitSocket(address, 15*time.Second, cmd); err != nil {
-		return "", nil, err
+		return "", "", nil, err
 	}
 
 	// separated out since it's not required in windows
@@ -81,7 +90,7 @@ func runBuildkitd(conf *BackendConfig, args []string, logs map[string]*bytes.Buf
 		return mountInfo(tmpdir)
 	})
 
-	return address, cl, err
+	return address, debugAddress, cl, err
 }
 
 func startCmd(cmd *exec.Cmd, logs map[string]*bytes.Buffer) (func() error, error) {

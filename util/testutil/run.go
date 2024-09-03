@@ -30,6 +30,7 @@ func init() {
 // Backend describes a testing backend.
 type Backend interface {
 	Address() string
+	DebugAddress() string
 }
 
 type Sandbox interface {
