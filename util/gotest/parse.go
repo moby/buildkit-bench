@@ -39,9 +39,10 @@ func Parse(config ParseConfig) (*ParseResult, *testjson.Execution, error) {
 
 type eventHandler struct {
 	ParseResult
-	log  *log.Logger
-	mu   sync.Mutex
-	errs []string
+	log          *log.Logger
+	mu           sync.Mutex
+	errs         []string
+	benchmarkBuf string
 }
 
 func newEventHandler(logger io.Writer) *eventHandler {
@@ -69,6 +70,18 @@ func (e *eventHandler) Event(event testjson.TestEvent, _ *testjson.Execution) er
 
 	e.mu.Lock()
 	defer e.mu.Unlock()
+
+	// Check if output is an incomplete benchmark. If so, buffer it and wait
+	// for the next event: https://github.com/moby/buildkit-bench/issues/39
+	if strings.HasPrefix(event.Output, "Benchmark") && strings.HasSuffix(event.Output, "\t") {
+		e.benchmarkBuf = event.Output
+		return nil
+	}
+	if e.benchmarkBuf != "" {
+		event.Output = e.benchmarkBuf + event.Output
+		e.benchmarkBuf = ""
+	}
+
 	if ok := e.BenchmarkInfo.update(event.Output); ok {
 		return nil
 	}
