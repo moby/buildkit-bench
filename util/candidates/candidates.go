@@ -227,13 +227,19 @@ func lastCommitByDay(commits []github.Commit) map[string]github.Commit {
 }
 
 func filterFeatureReleases(tags []github.Tag, last int) []github.Tag {
+	var latestRC *github.Tag
 	latestReleases := make(map[string]github.Tag)
 	zeroReleases := make(map[string]github.Tag)
 	for _, tag := range tags {
+		tag := tag
 		if len(latestReleases) == last && len(zeroReleases) == last {
 			break
 		}
 		if semver.IsValid(tag.Name) {
+			if semver.Prerelease(tag.Name) != "" && len(latestReleases) == 0 && len(zeroReleases) == 0 {
+				latestRC = &tag
+				continue
+			}
 			mm := semver.MajorMinor(tag.Name)
 			if getPatchVersion(tag.Name) == "0" {
 				zeroReleases[mm] = tag
@@ -244,6 +250,9 @@ func filterFeatureReleases(tags []github.Tag, last int) []github.Tag {
 		}
 	}
 	var res []github.Tag
+	if latestRC != nil {
+		res = append(res, *latestRC)
+	}
 	for mm, lt := range latestReleases {
 		res = append(res, lt)
 		if zt, ok := zeroReleases[mm]; ok && zt.Name != lt.Name {
