@@ -6,6 +6,7 @@ set -eu -o pipefail
 : "${TEST_IMAGE_ID=buildkit-bench}"
 : "${TEST_KEEP_CACHE=}"
 : "${TEST_FLAGS=}"
+: "${TEST_PKG=}"
 : "${TEST_BENCH_RUN=1}"
 : "${TEST_BENCH_TIME=1s}"
 
@@ -41,4 +42,4 @@ docker run --rm --privileged \
   -e REGISTRY_MIRROR_DIR=/root/.cache/registry \
   -e BUILDKIT_REF_RANDOM=$BUILDKIT_REF_RANDOM \
   $TEST_IMAGE_ID \
-  sh -c "go test -benchmem $gotestArgs ${TEST_FLAGS:--v} ./... | gotestmetrics parse --output /testout/gotestoutput.json"
+  sh -c "go test -benchmem $gotestArgs ${TEST_FLAGS:--v} ${TEST_PKG:-./test/...} | gotestmetrics parse --output /testout/gotestoutput.json"
