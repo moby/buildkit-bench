@@ -8,6 +8,7 @@ require (
 	github.com/containerd/continuity v0.4.3
 	github.com/go-echarts/go-echarts/v2 v2.4.1
 	github.com/gofrs/flock v0.12.1
+	github.com/google/pprof v0.0.0-20240424215950-a892ee059fd6
 	github.com/moby/buildkit v0.15.2
 	github.com/montanaflynn/stats v0.7.1
 	github.com/opencontainers/image-spec v1.1.0
