@@ -2,10 +2,30 @@ package testutil
 
 import (
 	"context"
+	"log"
 	"os"
+	"path"
 )
 
 var binsDir = "/buildkit-binaries"
+
+type backend struct {
+	address      string
+	debugAddress string
+	extraEnv     []string
+}
+
+func (b backend) Address() string {
+	return b.address
+}
+
+func (b backend) DebugAddress() string {
+	return b.debugAddress
+}
+
+func (b backend) ExtraEnv() []string {
+	return b.extraEnv
+}
 
 func init() {
 	if v := os.Getenv("BUILDKIT_BINS_DIR"); v != "" {
@@ -24,7 +44,7 @@ func (c *Ref) Name() string {
 	return c.id
 }
 
-func (c *Ref) New(ctx context.Context) (b Backend, cl func() error, err error) {
+func (c *Ref) New(ctx context.Context, cfg *BackendConfig) (b Backend, cl func() error, err error) {
 	deferF := &MultiCloser{}
 	cl = deferF.F()
 
@@ -35,7 +55,25 @@ func (c *Ref) New(ctx context.Context) (b Backend, cl func() error, err error) {
 		}
 	}()
 
-	return Backend{}, cl, nil
+	// Include use of --oci-worker-labels to trigger https://github.com/moby/buildkit/pull/603
+	buildkitdSock, debugAddress, stop, err := runBuildkitd(cfg, []string{
+		path.Join(binsDir, c.id, "buildkitd"),
+		"--oci-worker=true",
+		"--oci-worker-binary=" + path.Join(binsDir, c.id, "buildkit-runc"),
+		"--containerd-worker=false",
+		"--oci-worker-gc=false",
+		"--oci-worker-labels=org.mobyproject.buildkit.worker.sandbox=true",
+	}, cfg.Logs, nil)
+	if err != nil {
+		printLogs(cfg.Logs, log.Println)
+		return nil, nil, err
+	}
+	deferF.Append(stop)
+
+	return backend{
+		address:      buildkitdSock,
+		debugAddress: debugAddress,
+	}, cl, nil
 }
 
 func getRefs(dir string) []*Ref {
