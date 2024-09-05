@@ -178,7 +178,10 @@ func (c *mergeCmd) writeBenchmarksHTML(benchmarks map[string]gotest.Benchmark) e
 			chart := charts.NewBar() // TODO: chart type should be inferred from test config
 			averageLine := charts.NewLine()
 			chart.SetGlobalOptions(
-				charts.WithTitleOpts(opts.Title{Title: bc.Description}),
+				charts.WithTitleOpts(opts.Title{
+					Title:    bc.Description,
+					Subtitle: name,
+				}),
 				charts.WithDataZoomOpts(opts.DataZoom{
 					Type:  "slider",
 					Start: 70,
