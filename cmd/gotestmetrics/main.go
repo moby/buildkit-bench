@@ -11,7 +11,7 @@ var cli struct {
 
 	Parse parseCmd `kong:"cmd,help='Parse go test output.'"`
 	List  listCmd  `kong:"cmd,help='List tests from configuration.'"`
-	Merge mergeCmd `kong:"cmd,help='Merge benchmark results.'"`
+	Gen   genCmd   `kong:"cmd,help='Generate HTML report from benchmark results.'"`
 }
 
 type Context struct {

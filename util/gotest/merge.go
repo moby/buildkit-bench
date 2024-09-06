@@ -2,6 +2,7 @@ package gotest
 
 import (
 	"encoding/json"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -14,20 +15,34 @@ type Result struct {
 	BenchmarkInfo BenchmarkInfo
 }
 
-func MergeBenchmarks(dir string) (map[string]Benchmark, error) {
-	files, err := os.ReadDir(dir)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to read directory %s", dir)
+func MergeBenchmarks(files []string) (map[string]Benchmark, error) {
+	var allFiles []string
+	for _, pattern := range files {
+		matches, err := filepath.Glob(pattern)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to expand glob pattern %s", pattern)
+		}
+		allFiles = append(allFiles, matches...)
 	}
+	log.Printf("Merging %d benchmark results file(s)", len(allFiles))
+
 	var benchmarks map[string]Benchmark
-	for _, file := range files {
-		if file.IsDir() {
+	for _, file := range allFiles {
+		log.Printf("Loading benchmark results from file %s", file)
+		fi, err := os.Stat(file)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to stat file %s", file)
+		}
+		if fi.IsDir() {
 			continue
 		}
-		fp := filepath.Join(dir, file.Name())
-		result, err := loadResult(fp)
+		result, err := loadResult(file)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to load result from file %s", fp)
+			return nil, errors.Wrapf(err, "failed to load result from file %s", file)
+		}
+		if len(result.Benchmarks) == 0 {
+			log.Printf("No benchmarks found in file %s", file)
+			continue
 		}
 		if benchmarks == nil {
 			benchmarks = result.Benchmarks
