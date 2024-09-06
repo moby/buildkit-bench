@@ -175,6 +175,7 @@ func (c *genCmd) writeHTML(benchmarks map[string]gotest.Benchmark) error {
 					Start: 70,
 				}))
 			}
+			chart.SetGlobalOptions(globalOptions...)
 			chart.SetXAxis(refs).AddSeries(bc.Metrics[unit].Description, data)
 			averageLine.SetXAxis(refs).AddSeries("Average", averageData)
 			chart.Overlap(averageLine)
