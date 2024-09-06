@@ -6,8 +6,9 @@ ARG XX_VERSION=1.4.0
 
 ARG REGISTRY_VERSION=v2.8.3
 
-# named context for buildkit binaries
+# named contexts
 FROM scratch AS buildkit-binaries
+FROM scratch AS tests-results
 
 # xx is a helper for cross-compilation
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
@@ -51,6 +52,22 @@ RUN --mount=type=bind,target=. \
     gotestmetrics --help
   fi
 EOT
+
+FROM gobuild-base AS tests-gen-run
+COPY --link --from=gotestmetrics /usr/bin/gotestmetrics /usr/bin/
+COPY --from=tests-results . /tests-results
+RUN --mount=type=bind,target=. <<EOT
+  set -e
+  args="gen --output /tmp/benchmarks.html"
+  if [ -f /tests-results/candidates.json ]; then
+    args="$args --candidates /tests-results/candidates.json"
+  fi
+  set -x
+  gotestmetrics $args "/tests-results/*.json"
+EOT
+
+FROM scratch AS tests-gen
+COPY --from=tests-gen-run /tmp/benchmarks.html /
 
 FROM scratch AS binaries
 COPY --link --from=registry /out /

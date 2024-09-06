@@ -82,6 +82,15 @@ target "tests" {
   target = "tests"
 }
 
+target "tests-gen" {
+  inherits = ["_common"]
+  contexts = {
+    tests-results = "./bin/results"
+  }
+  target = "tests-gen"
+  output = ["./bin"]
+}
+
 target "validate-vendor" {
   inherits = ["_common"]
   dockerfile = "./hack/dockerfiles/vendor.Dockerfile"
