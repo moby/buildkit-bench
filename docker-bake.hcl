@@ -70,15 +70,15 @@ EOT
 
 target "tests-base" {
   inherits = ["_common"]
-  contexts = {
-    buildkit-binaries = "target:buildkit-binaries"
-  }
   target = "tests-base"
   output = ["type=cacheonly"]
 }
 
 target "tests" {
   inherits = ["tests-base"]
+  contexts = {
+    buildkit-binaries = "target:buildkit-binaries"
+  }
   target = "tests"
 }
 
