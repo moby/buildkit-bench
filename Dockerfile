@@ -67,7 +67,7 @@ RUN --mount=type=bind,target=. <<EOT
 EOT
 
 FROM scratch AS tests-gen
-COPY --from=tests-gen-run /tmp/benchmarks.html /
+COPY --from=tests-gen-run /tmp/benchmarks.html /index.html
 
 FROM scratch AS binaries
 COPY --link --from=registry /out /

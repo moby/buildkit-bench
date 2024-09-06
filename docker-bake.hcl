@@ -88,7 +88,7 @@ target "tests-gen" {
     tests-results = "./bin/results"
   }
   target = "tests-gen"
-  output = ["./bin"]
+  output = ["./bin/gen"]
 }
 
 target "validate-vendor" {
