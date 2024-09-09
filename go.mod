@@ -4,6 +4,7 @@ go 1.21.0
 
 require (
 	github.com/alecthomas/kong v0.9.0
+	github.com/containerd/continuity v0.4.3
 	github.com/go-echarts/go-echarts/v2 v2.4.1
 	github.com/moby/buildkit v0.15.2
 	github.com/montanaflynn/stats v0.7.1
@@ -24,6 +25,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	go.opentelemetry.io/otel v1.21.0 // indirect
@@ -31,4 +33,5 @@ require (
 	golang.org/x/sys v0.24.0 // indirect
 	golang.org/x/term v0.18.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 )
