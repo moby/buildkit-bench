@@ -6,6 +6,7 @@ require (
 	github.com/alecthomas/kong v0.9.0
 	github.com/go-echarts/go-echarts/v2 v2.4.1
 	github.com/moby/buildkit v0.15.2
+	github.com/montanaflynn/stats v0.7.1
 	github.com/pkg/errors v0.9.1
 	github.com/sethvargo/go-githubactions v1.2.0
 	github.com/stretchr/testify v1.9.0

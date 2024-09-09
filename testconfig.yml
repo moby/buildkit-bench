@@ -6,16 +6,19 @@ runs:
   BenchmarkDaemon:
     BenchmarkDaemonVersion:
       description: Run buildkitd --version
-      benchtime: 2s
+      count: 8
       metrics:
         duration:
           description: Time (s)
+          chart: boxplot
     BenchmarkDaemonSize:
       description: Daemon binary size
       count: 1
       metrics:
         bytes:
           description: Size (bytes)
+          chart: bar
+          average: true
 
   BenchmarkPackage:
     BenchmarkPackageSize:
@@ -24,3 +27,5 @@ runs:
       metrics:
         bytes:
           description: Size (bytes)
+          chart: bar
+          average: true

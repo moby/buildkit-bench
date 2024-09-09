@@ -3,16 +3,17 @@ package main
 import (
 	"encoding/json"
 	"log"
-	"math"
 	"os"
 	"path/filepath"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/components"
 	"github.com/go-echarts/go-echarts/v2/opts"
+	"github.com/go-echarts/go-echarts/v2/types"
 	"github.com/moby/buildkit-bench/util/candidates"
 	"github.com/moby/buildkit-bench/util/gotest"
 	"github.com/moby/buildkit-bench/util/testutil"
+	"github.com/montanaflynn/stats"
 	"github.com/pkg/errors"
 )
 
@@ -124,62 +125,28 @@ func (c *genCmd) writeHTML(benchmarks map[string]gotest.Benchmark) error {
 		}
 
 		for unit, values := range metrics {
-			var refs []string
-			var data []opts.BarData
-			var totalValue float64
-			if len(sortedRefs) == 0 {
-				for ref, value := range values {
-					avgv := 0.0
-					for _, v := range value {
-						avgv += v
-					}
-					avgv /= float64(len(value))
-					totalValue += avgv
-					refs = append(refs, ref)
-					data = append(data, opts.BarData{Value: math.Round(avgv*100000) / 100000})
-				}
-			} else {
-				for _, ref := range sortedRefs {
-					value, ok := values[ref.Name]
-					if !ok {
-						return errors.Errorf("%s missing %s value for ref %s", name, unit, ref.Name)
-					}
-					avgv := 0.0
-					for _, v := range value {
-						avgv += v
-					}
-					avgv /= float64(len(value))
-					totalValue += avgv
-					refs = append(refs, ref.Name)
-					data = append(data, opts.BarData{Value: math.Round(avgv*100000) / 100000})
-				}
-			}
-
-			averageValue := totalValue / float64(len(refs))
-			averageData := make([]opts.LineData, len(refs))
-			for i := 0; i < len(refs); i++ {
-				averageData[i] = opts.LineData{Value: averageValue}
-			}
-
-			chart := charts.NewBar() // TODO: chart type should be inferred from test config
-			averageLine := charts.NewLine()
 			globalOptions := []charts.GlobalOpts{
 				charts.WithTitleOpts(opts.Title{
 					Title:    bc.Description,
 					Subtitle: name,
 				}),
 			}
-			if len(refs) > 10 {
-				globalOptions = append(globalOptions, charts.WithDataZoomOpts(opts.DataZoom{
-					Type:  "slider",
-					Start: 70,
-				}))
+			switch bc.Metrics[unit].Chart {
+			case types.ChartBar:
+				chart, err := chartBar(globalOptions, bc.Metrics[unit], sortedRefs, name, unit, values)
+				if err != nil {
+					return err
+				}
+				cps = append(cps, chart)
+			case types.ChartBoxPlot:
+				chart, err := chartBoxPlot(globalOptions, bc.Metrics[unit], sortedRefs, name, unit, values)
+				if err != nil {
+					return err
+				}
+				cps = append(cps, chart)
+			default:
+				return errors.Errorf("unknown chart type %q for metric %q", bc.Metrics[unit].Chart, unit)
 			}
-			chart.SetGlobalOptions(globalOptions...)
-			chart.SetXAxis(refs).AddSeries(bc.Metrics[unit].Description, data)
-			averageLine.SetXAxis(refs).AddSeries("Average", averageData)
-			chart.Overlap(averageLine)
-			cps = append(cps, chart)
 		}
 	}
 
@@ -199,4 +166,115 @@ func (c *genCmd) writeHTML(benchmarks map[string]gotest.Benchmark) error {
 	}
 
 	return nil
+}
+
+func chartBar(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric, sortedRefs []candidates.Ref, name, unit string, values map[string][]float64) (components.Charter, error) {
+	var refs []string
+	var data []opts.BarData
+	var totalValue float64
+	if len(sortedRefs) == 0 {
+		for ref, v := range values {
+			m, err := stats.Median(v)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to calculate median")
+			}
+			totalValue += m
+			refs = append(refs, ref)
+			mr, err := stats.Round(m, 5)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to round median")
+			}
+			data = append(data, opts.BarData{Value: mr})
+		}
+	} else {
+		for _, ref := range sortedRefs {
+			v, ok := values[ref.Name]
+			if !ok {
+				return nil, errors.Errorf("%s missing %s value for ref %s", name, unit, ref.Name)
+			}
+			m, err := stats.Median(v)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to calculate median")
+			}
+			totalValue += m
+			refs = append(refs, ref.Name)
+			mr, err := stats.Round(m, 5)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to round median")
+			}
+			data = append(data, opts.BarData{Value: mr})
+		}
+	}
+
+	chart := charts.NewBar()
+
+	if len(refs) > 10 {
+		globalOpts = append(globalOpts, charts.WithDataZoomOpts(opts.DataZoom{
+			Type:  "slider",
+			Start: 70,
+		}))
+	}
+	chart.SetGlobalOptions(globalOpts...)
+
+	chart.SetXAxis(refs).AddSeries(cfg.Description, data)
+
+	if cfg.Average {
+		averageValue := totalValue / float64(len(refs))
+		averageData := make([]opts.LineData, len(refs))
+		for i := 0; i < len(refs); i++ {
+			averageData[i] = opts.LineData{Value: averageValue}
+		}
+		averageLine := charts.NewLine()
+		averageLine.SetXAxis(refs).AddSeries("Average", averageData)
+		chart.Overlap(averageLine)
+	}
+
+	return chart, nil
+}
+
+func chartBoxPlot(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric, sortedRefs []candidates.Ref, name, unit string, values map[string][]float64) (components.Charter, error) {
+	var refs []string
+	var data []opts.BoxPlotData
+	if len(sortedRefs) == 0 {
+		for ref, v := range values {
+			refs = append(refs, ref)
+			data = append(data, opts.BoxPlotData{Value: createBoxPlotData(v)})
+		}
+	} else {
+		for _, ref := range sortedRefs {
+			v, ok := values[ref.Name]
+			if !ok {
+				return nil, errors.Errorf("%s missing %s value for ref %s", name, unit, ref.Name)
+			}
+			refs = append(refs, ref.Name)
+			data = append(data, opts.BoxPlotData{Value: createBoxPlotData(v)})
+		}
+	}
+
+	chart := charts.NewBoxPlot()
+
+	if len(refs) > 10 {
+		globalOpts = append(globalOpts, charts.WithDataZoomOpts(opts.DataZoom{
+			Type:  "slider",
+			Start: 70,
+		}))
+	}
+	chart.SetGlobalOptions(globalOpts...)
+
+	chart.SetXAxis(refs).AddSeries(cfg.Description, data)
+
+	return chart, nil
+}
+
+func createBoxPlotData(data []float64) []float64 {
+	minv, _ := stats.Min(data)
+	maxv, _ := stats.Max(data)
+	q, _ := stats.Quartile(data)
+	return []float64{
+		minv,
+		q.Q1,
+		q.Q2,
+		q.Q3,
+		maxv,
+	}
 }
