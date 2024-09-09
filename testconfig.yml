@@ -3,6 +3,15 @@ defaults:
   benchtime: 1s
 
 runs:
+  BenchmarkBuild:
+    BenchmarkBuildLocal:
+      description: Local build
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+
   BenchmarkDaemon:
     BenchmarkDaemonVersion:
       description: Run buildkitd --version
