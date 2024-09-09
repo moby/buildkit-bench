@@ -93,12 +93,27 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.prepare.outputs.includes) }}
     env:
-      TEST_FLAGS: -v --timeout=30m
+      TEST_FLAGS: -v --timeout=5h
       TEST_IMAGE_BUILD: 0
       TEST_IMAGE_ID: buildkit-bench
       TEST_RESULTS_DIR: bin/results
       TEST_GEN: 0
     steps:
+      -
+        name: Prepare
+        run: |
+          echo "TEST_BENCH_RUN=${{ matrix.count }}" >> $GITHUB_ENV
+          echo "TEST_BENCH_TIME=${{ matrix.benchtime }}" >> $GITHUB_ENV
+      -
+        name: Override bench run and time
+        if: github.event_name == 'pull_request'
+        run: |
+          if [ "${{ matrix.count }}" -gt 2 ]; then
+            echo "TEST_BENCH_RUN=2" >> $GITHUB_ENV
+          else
+            echo "TEST_BENCH_RUN=${{ matrix.count }}" >> $GITHUB_ENV
+          fi
+          echo "TEST_BENCH_TIME=1s" >> $GITHUB_ENV
       -
         name: Checkout
         uses: actions/checkout@v4
@@ -115,6 +130,18 @@ jobs:
           mkdir -p ./bin/buildkit-binaries
           for f in "/tmp/buildkit-binaries"/*.tar.gz; do
             (set -x ; tar -xzvf "$f" -C ./bin/buildkit-binaries && rm "$f")
+          done
+          tree -nph ./bin/buildkit-binaries
+      -
+        name: Select 2 random candidates
+        if: github.event_name == 'pull_request'
+        run: |
+          dirs=($(ls -d ./bin/buildkit-binaries/*/))
+          cdirs=($(shuf -e "${dirs[@]}" -n 2))
+          for dir in "${dirs[@]}"; do
+            if [[ ! " ${cdirs[@]} " =~ " ${dir} " ]]; then
+              rm -rf "$dir"
+            fi
           done
           tree -nph ./bin/buildkit-binaries
       -
@@ -139,8 +166,6 @@ jobs:
           ./hack/test
         env:
           TEST_BENCH_REGEXP: ${{ matrix.test }}
-          TEST_BENCH_RUN: ${{ matrix.count }}
-          TEST_BENCH_TIME: ${{ matrix.benchtime }}
       -
         name: Result
         run: |
@@ -173,6 +198,7 @@ jobs:
           merge-multiple: true
       -
         name: Download candidates
+        if: github.event_name != 'pull_request'
         uses: actions/download-artifact@v4
         with:
           name: candidates
