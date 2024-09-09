@@ -12,7 +12,12 @@ import (
 func BenchmarkBuild(b *testing.B) {
 	testutil.Run(b, testutil.BenchFuncs(
 		benchmarkBuildLocal,
-	), testutil.WithMirroredImages(testutil.OfficialImages("busybox:latest")))
+		benchmarkBuildRemoteBuildme,
+		benchmarkBuildRemoteBuildx,
+	), testutil.WithMirroredImages(testutil.OfficialImages(
+		"busybox:latest",
+		"golang:1.22-alpine",
+	)))
 }
 
 func benchmarkBuildLocal(b *testing.B, sb testutil.Sandbox) {
@@ -32,6 +37,34 @@ COPY --from=base /etc/bar /bar
 		)
 		start := time.Now()
 		out, err := buildCmd(sb, withArgs("--no-cache", "--local=context="+dir, "--local=dockerfile="+dir))
+		testutil.ReportMetricDuration(b, time.Since(start))
+		require.NoError(b, err, out)
+	}
+}
+
+func benchmarkBuildRemoteBuildme(b *testing.B, sb testutil.Sandbox) {
+	for i := 0; i < b.N; i++ {
+		start := time.Now()
+		out, err := buildCmd(sb, withArgs(
+			"--no-cache",
+			"--opt=context=https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
+			"--opt=build-arg:BUILDKIT_SYNTAX=docker/dockerfile:1.9.0", // pin dockerfile syntax
+		))
+		testutil.ReportMetricDuration(b, time.Since(start))
+		require.NoError(b, err, out)
+	}
+}
+
+func benchmarkBuildRemoteBuildx(b *testing.B, sb testutil.Sandbox) {
+	for i := 0; i < b.N; i++ {
+		start := time.Now()
+		out, err := buildCmd(sb, withArgs(
+			"--no-cache",
+			"--opt=context=https://github.com/docker/buildx.git#v0.16.2",
+			"--opt=target=binaries",
+			"--opt=build-arg:BUILDKIT_SYNTAX=docker/dockerfile:1.9.0", // pin dockerfile syntax
+			"--opt=build-arg:BUILDKIT_CONTEXT_KEEP_GIT_DIR=1",
+		))
 		testutil.ReportMetricDuration(b, time.Since(start))
 		require.NoError(b, err, out)
 	}
