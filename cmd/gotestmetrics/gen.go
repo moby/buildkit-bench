@@ -174,14 +174,16 @@ func (c *genCmd) writeHTML(benchmarks map[string]gotest.Benchmark) error {
 func chartBar(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric, sortedRefs []candidates.Ref, name, unit string, values map[string][]float64) (components.Charter, error) {
 	var refs []string
 	var data []opts.BarData
-	var totalValue float64
+	var allv []float64
+	var total float64
 	if len(sortedRefs) == 0 {
 		for ref, v := range values {
+			allv = append(allv, v...)
 			m, err := stats.Median(v)
 			if err != nil {
 				return nil, errors.Wrap(err, "failed to calculate median")
 			}
-			totalValue += m
+			total += m
 			refs = append(refs, ref)
 			mr, err := stats.Round(m, 5)
 			if err != nil {
@@ -195,11 +197,12 @@ func chartBar(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric, sor
 			if !ok {
 				return nil, errors.Errorf("%s missing %s value for ref %s", name, unit, ref.Name)
 			}
+			allv = append(allv, v...)
 			m, err := stats.Median(v)
 			if err != nil {
 				return nil, errors.Wrap(err, "failed to calculate median")
 			}
-			totalValue += m
+			total += m
 			refs = append(refs, ref.Name)
 			mr, err := stats.Round(m, 5)
 			if err != nil {
@@ -217,19 +220,30 @@ func chartBar(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric, sor
 			Start: 70,
 		}))
 	}
+	minv, err := stats.Min(allv)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to calculate min")
+	}
+	minvr, err := stats.Round(minv*0.9, 0)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to round min")
+	}
+	globalOpts = append(globalOpts, charts.WithYAxisOpts(opts.YAxis{
+		Min: minvr,
+	}))
 	chart.SetGlobalOptions(globalOpts...)
 
 	chart.SetXAxis(refs).AddSeries(cfg.Description, data)
 
 	if cfg.Average {
-		averageValue := totalValue / float64(len(refs))
-		averageData := make([]opts.LineData, len(refs))
+		avgv := total / float64(len(refs))
+		avgdt := make([]opts.LineData, len(refs))
 		for i := 0; i < len(refs); i++ {
-			averageData[i] = opts.LineData{Value: averageValue}
+			avgdt[i] = opts.LineData{Value: avgv}
 		}
-		averageLine := charts.NewLine()
-		averageLine.SetXAxis(refs).AddSeries("Average", averageData)
-		chart.Overlap(averageLine)
+		avgl := charts.NewLine()
+		avgl.SetXAxis(refs).AddSeries("Average", avgdt)
+		chart.Overlap(avgl)
 	}
 
 	return chart, nil
@@ -238,8 +252,10 @@ func chartBar(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric, sor
 func chartBoxPlot(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric, sortedRefs []candidates.Ref, name, unit string, values map[string][]float64) (components.Charter, error) {
 	var refs []string
 	var data []opts.BoxPlotData
+	var allv []float64
 	if len(sortedRefs) == 0 {
 		for ref, v := range values {
+			allv = append(allv, v...)
 			refs = append(refs, ref)
 			data = append(data, opts.BoxPlotData{Value: createBoxPlotData(v)})
 		}
@@ -249,6 +265,7 @@ func chartBoxPlot(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric,
 			if !ok {
 				return nil, errors.Errorf("%s missing %s value for ref %s", name, unit, ref.Name)
 			}
+			allv = append(allv, v...)
 			refs = append(refs, ref.Name)
 			data = append(data, opts.BoxPlotData{Value: createBoxPlotData(v)})
 		}
@@ -262,6 +279,17 @@ func chartBoxPlot(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric,
 			Start: 70,
 		}))
 	}
+	minv, err := stats.Min(allv)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to calculate min")
+	}
+	minvr, err := stats.Round(minv*0.9, 3)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to round min")
+	}
+	globalOpts = append(globalOpts, charts.WithYAxisOpts(opts.YAxis{
+		Min: minvr,
+	}))
 	chart.SetGlobalOptions(globalOpts...)
 
 	chart.SetXAxis(refs).AddSeries(cfg.Description, data)
