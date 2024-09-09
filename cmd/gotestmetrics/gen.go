@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/components"
@@ -118,6 +119,8 @@ func (c *genCmd) writeHTML(benchmarks map[string]gotest.Benchmark) error {
 				}
 				if v, ok := run.Extra[unit]; ok {
 					metrics[unit][run.Ref] = append(metrics[unit][run.Ref], v)
+				} else if unit == "duration" {
+					metrics[unit][run.Ref] = append(metrics[unit][run.Ref], time.Duration(run.NsPerOp).Seconds())
 				} else {
 					return errors.Errorf("missing metric %q for run %s", unit, run.Ref)
 				}

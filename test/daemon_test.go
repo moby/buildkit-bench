@@ -40,8 +40,8 @@ func testDaemonVersion(t *testing.T, sb testutil.Sandbox) {
 }
 
 func benchmarkDaemonVersion(b *testing.B, sb testutil.Sandbox) {
+	buildkitdPath := path.Join(sb.BinsDir(), sb.Name(), "buildkitd")
 	for i := 0; i < b.N; i++ {
-		buildkitdPath := path.Join(sb.BinsDir(), sb.Name(), "buildkitd")
 		start := time.Now()
 		require.NoError(b, exec.Command(buildkitdPath, "--version").Run())
 		testutil.ReportMetricDuration(b, time.Since(start))
