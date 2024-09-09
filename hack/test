@@ -30,9 +30,17 @@ if [ "$TEST_KEEP_CACHE" != "1" ]; then
   trap 'docker rm -v $cacheVolume' EXIT
 fi
 
+dockerConfigMount=""
+if [ "$GITHUB_ACTIONS" = "true" ]; then
+  dockerConfigPath="$HOME/.docker/config.json"
+  if [ -f "$dockerConfigPath" ]; then
+    dockerConfigMount="-v $dockerConfigPath:/root/.docker/config.json:ro"
+  fi
+fi
+
 set -x
 
-docker run --rm --privileged \
+docker run --rm --privileged $dockerConfigMount \
   -v /tmp \
   -v $testOutputDir:/testout \
   --volumes-from=$cacheVolume \
