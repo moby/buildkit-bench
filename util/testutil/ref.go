@@ -55,9 +55,14 @@ func (c *Ref) New(ctx context.Context, cfg *BackendConfig) (b Backend, cl func()
 		}
 	}()
 
+	buildkitdPath := path.Join(binsDir, c.id, "buildkitd")
+	if err := lookupBinary(buildkitdPath); err != nil {
+		return nil, nil, err
+	}
+
 	// Include use of --oci-worker-labels to trigger https://github.com/moby/buildkit/pull/603
 	buildkitdSock, debugAddress, stop, err := runBuildkitd(cfg, []string{
-		path.Join(binsDir, c.id, "buildkitd"),
+		buildkitdPath,
 		"--oci-worker=true",
 		"--oci-worker-binary=" + path.Join(binsDir, c.id, "buildkit-runc"),
 		"--containerd-worker=false",

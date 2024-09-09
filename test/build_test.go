@@ -12,7 +12,7 @@ import (
 func BenchmarkBuild(b *testing.B) {
 	testutil.Run(b, testutil.BenchFuncs(
 		benchmarkBuildLocal,
-	))
+	), testutil.WithMirroredImages(testutil.OfficialImages("busybox:latest")))
 }
 
 func benchmarkBuildLocal(b *testing.B, sb testutil.Sandbox) {
@@ -31,9 +31,8 @@ COPY --from=base /etc/bar /bar
 			fstest.CreateFile("foo", []byte("foo"), 0600),
 		)
 		start := time.Now()
-		out, err := buildCmd(sb, withArgs("--local=context="+dir, "--local=dockerfile="+dir))
+		out, err := buildCmd(sb, withArgs("--no-cache", "--local=context="+dir, "--local=dockerfile="+dir))
 		testutil.ReportMetricDuration(b, time.Since(start))
 		require.NoError(b, err, out)
-		b.Log(out)
 	}
 }

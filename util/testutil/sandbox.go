@@ -50,7 +50,7 @@ func (sb *sandbox) BinsDir() string {
 	return sb.binsDir
 }
 
-func newSandbox(ctx context.Context, r Worker, mv matrixValue) (s Sandbox, cl func() error, err error) {
+func newSandbox(ctx context.Context, r Worker, mirror string, mv matrixValue) (s Sandbox, cl func() error, err error) {
 	cfg := &BackendConfig{
 		Logs: make(map[string]*bytes.Buffer),
 	}
@@ -58,6 +58,9 @@ func newSandbox(ctx context.Context, r Worker, mv matrixValue) (s Sandbox, cl fu
 		if u, ok := v.value.(ConfigUpdater); ok {
 			cfg.DaemonConfig = append(cfg.DaemonConfig, u)
 		}
+	}
+	if mirror != "" {
+		cfg.DaemonConfig = append(cfg.DaemonConfig, withMirrorConfig(mirror))
 	}
 
 	deferF := &MultiCloser{}

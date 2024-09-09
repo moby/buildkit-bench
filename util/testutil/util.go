@@ -19,6 +19,8 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+var errRequirements = errors.Errorf("missing requirements")
+
 func runBuildkitd(conf *BackendConfig, args []string, logs map[string]*bytes.Buffer, extraEnv []string) (address string, debugAddress string, cl func() error, err error) {
 	deferF := &MultiCloser{}
 	cl = deferF.F()
@@ -244,4 +246,12 @@ func (w *lockingWriter) Write(dt []byte) (int, error) {
 	n, err := w.Writer.Write(dt)
 	w.mu.Unlock()
 	return n, err
+}
+
+func lookupBinary(name string) error {
+	_, err := exec.LookPath(name)
+	if err != nil {
+		return errors.Wrapf(errRequirements, "failed to lookup %s binary", name)
+	}
+	return nil
 }
