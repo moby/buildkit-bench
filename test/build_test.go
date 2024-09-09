@@ -12,7 +12,7 @@ import (
 func BenchmarkBuild(b *testing.B) {
 	testutil.Run(b, testutil.BenchFuncs(
 		benchmarkBuildLocal,
-	))
+	), testutil.WithMirroredImages(testutil.OfficialImages("busybox:latest")))
 }
 
 func benchmarkBuildLocal(b *testing.B, sb testutil.Sandbox) {
