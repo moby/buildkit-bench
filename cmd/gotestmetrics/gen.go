@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"time"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
@@ -105,7 +106,13 @@ func (c *genCmd) writeHTML(benchmarks map[string]gotest.Benchmark) error {
 
 	var cps []components.Charter
 
-	for name, runs := range benchmarksRuns {
+	benchmarkKeys := make([]string, 0, len(benchmarksRuns))
+	for k := range benchmarksRuns {
+		benchmarkKeys = append(benchmarkKeys, k)
+	}
+	sort.Strings(benchmarkKeys)
+	for _, name := range benchmarkKeys {
+		runs := benchmarksRuns[name]
 		bc, err := tc.BenchmarkConfig(name)
 		if err != nil {
 			return err
