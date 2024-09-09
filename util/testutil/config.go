@@ -29,6 +29,8 @@ type TestConfigBenchmark struct {
 
 type TestConfigMetric struct {
 	Description string `yaml:"description"`
+	Chart       string `yaml:"chart"`
+	Average     bool   `yaml:"average"`
 }
 
 func LoadTestConfig(f string) (*TestConfig, error) {

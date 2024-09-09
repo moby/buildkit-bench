@@ -198,6 +198,13 @@ jobs:
             *.contexts.tests-results=/tmp/buildkit-bench
             *.output=./bin/report
       -
+        name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: report
+          path: ./bin/report/index.html
+          if-no-files-found: error
+      -
         name: Publish
         uses: crazy-max/ghaction-github-pages@v4
         if: github.event_name != 'pull_request'
