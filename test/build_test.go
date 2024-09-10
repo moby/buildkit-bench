@@ -17,6 +17,7 @@ func BenchmarkBuild(b *testing.B) {
 	), testutil.WithMirroredImages(testutil.OfficialImages(
 		"busybox:latest",
 		"golang:1.22-alpine",
+		"python:latest",
 	)))
 }
 
@@ -49,7 +50,7 @@ COPY --from=base /etc/bar /bar
 // https://github.com/docker/buildx/issues/2479
 func benchmarkBuildLocalSecret(b *testing.B, sb testutil.Sandbox) {
 	dockerfile := []byte(`
-FROM busybox:latest
+FROM python:latest
 RUN --mount=type=secret,id=SECRET cat /run/secrets/SECRET
 `)
 	for i := 0; i < b.N; i++ {
