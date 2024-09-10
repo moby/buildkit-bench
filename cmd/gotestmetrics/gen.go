@@ -140,6 +140,9 @@ func (c *genCmd) writeHTML(benchmarks map[string]gotest.Benchmark) error {
 					Title:    bc.Description,
 					Subtitle: name,
 				}),
+				charts.WithDataZoomOpts(opts.DataZoom{
+					Type: "slider",
+				}),
 			}
 			switch bc.Metrics[unit].Chart {
 			case types.ChartBar:
@@ -221,12 +224,6 @@ func chartBar(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric, sor
 
 	chart := charts.NewBar()
 
-	if len(refs) > 10 {
-		globalOpts = append(globalOpts, charts.WithDataZoomOpts(opts.DataZoom{
-			Type:  "slider",
-			Start: 70,
-		}))
-	}
 	minv, err := stats.Min(allv)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to calculate min")
@@ -280,12 +277,6 @@ func chartBoxPlot(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric,
 
 	chart := charts.NewBoxPlot()
 
-	if len(refs) > 10 {
-		globalOpts = append(globalOpts, charts.WithDataZoomOpts(opts.DataZoom{
-			Type:  "slider",
-			Start: 70,
-		}))
-	}
 	minv, err := stats.Min(allv)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to calculate min")
