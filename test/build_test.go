@@ -12,6 +12,7 @@ import (
 func BenchmarkBuild(b *testing.B) {
 	testutil.Run(b, testutil.BenchFuncs(
 		benchmarkBuildLocal,
+		benchmarkBuildLocalSecret,
 		benchmarkBuildRemoteBuildme,
 		benchmarkBuildRemoteBuildx,
 	), testutil.WithMirroredImages(testutil.OfficialImages(
@@ -36,7 +37,35 @@ COPY --from=base /etc/bar /bar
 			fstest.CreateFile("foo", []byte("foo"), 0600),
 		)
 		start := time.Now()
-		out, err := buildCmd(sb, withArgs("--no-cache", "--local=context="+dir, "--local=dockerfile="+dir))
+		out, err := buildCmd(sb, withDir(dir), withArgs(
+			"--no-cache",
+			"--local=context=.",
+			"--local=dockerfile=.",
+		))
+		testutil.ReportMetricDuration(b, time.Since(start))
+		require.NoError(b, err, out)
+	}
+}
+
+// https://github.com/docker/buildx/issues/2479
+func benchmarkBuildLocalSecret(b *testing.B, sb testutil.Sandbox) {
+	dockerfile := []byte(`
+FROM busybox:latest
+RUN --mount=type=secret,id=SECRET cat /run/secrets/SECRET
+`)
+	for i := 0; i < b.N; i++ {
+		dir := tmpdir(
+			b,
+			fstest.CreateFile("Dockerfile", dockerfile, 0600),
+			fstest.CreateFile("secret.txt", []byte("mysecret"), 0600),
+		)
+		start := time.Now()
+		out, err := buildCmd(sb, withDir(dir), withArgs(
+			"--no-cache",
+			"--local=context=.",
+			"--local=dockerfile=.",
+			"--secret=id=SECRET,src=secret.txt",
+		))
 		testutil.ReportMetricDuration(b, time.Since(start))
 		require.NoError(b, err, out)
 	}
