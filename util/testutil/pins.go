@@ -19,4 +19,10 @@ var pins = map[string]map[string]string{
 		"arm64v8": "sha256:ffadbf655b022c09e1fe1a14d2026cab688978a43d580c6e971ea2790cfaf212",
 		"library": "sha256:48eab5e3505d8c8b42a06fe5f1cf4c346c167cc6a89e772f31cb9e5c301dcf60",
 	},
+	// python 3.12.6-bookworm
+	"python:latest": {
+		"amd64":   "sha256:cd07fcc5721f0d1ae2097291a30315176a997d8819e278827be0e090ba187bd2",
+		"arm64v8": "sha256:d171522f62f530a7044d501539b97ebf093807864d821cf1ca110ade3b1dcff0",
+		"library": "sha256:fcad5ffb670a9f1edc5cc232b2b321e617aaaae1a22c54242964178e408e0057",
+	},
 }
