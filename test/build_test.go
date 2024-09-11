@@ -38,7 +38,6 @@ COPY --from=base /etc/bar /bar
 		)
 		start := time.Now()
 		out, err := buildCmd(sb, withDir(dir), withArgs(
-			"--no-cache",
 			"--local=context=.",
 			"--local=dockerfile=.",
 		))
@@ -61,7 +60,6 @@ RUN --mount=type=secret,id=SECRET cat /run/secrets/SECRET
 		)
 		start := time.Now()
 		out, err := buildCmd(sb, withDir(dir), withArgs(
-			"--no-cache",
 			"--local=context=.",
 			"--local=dockerfile=.",
 			"--secret=id=SECRET,src=secret.txt",
@@ -75,7 +73,6 @@ func benchmarkBuildRemoteBuildme(b *testing.B, sb testutil.Sandbox) {
 	for i := 0; i < b.N; i++ {
 		start := time.Now()
 		out, err := buildCmd(sb, withArgs(
-			"--no-cache",
 			"--opt=context=https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
 			"--opt=build-arg:BUILDKIT_SYNTAX=docker/dockerfile:1.9.0", // pin dockerfile syntax
 		))
