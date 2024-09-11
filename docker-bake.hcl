@@ -2,6 +2,10 @@ variable "BUILDKIT_REPO" {
   default = "moby/buildkit"
 }
 
+variable "BUILDKIT_CACHE_REPO" {
+  default = "moby/buildkit-bench-cache"
+}
+
 variable "BUILDKIT_REFS" {
   default = "master"
 }
@@ -53,6 +57,8 @@ target "buildkit-build" {
   args = {
     BUILDKIT_DEBUG = 1
   }
+  cache-from = ["type=registry,ref=${BUILDKIT_CACHE_REPO}:bkbins-${ref}"]
+  cache-to = ["type=inline"]
 }
 
 target "buildkit-binaries" {
