@@ -63,6 +63,13 @@ jobs:
           driver-opts: image=${{ env.SETUP_BUILDKIT_IMAGE }}
           buildkitd-flags: --debug
       -
+        name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
         name: Build tests base
         uses: docker/bake-action@v5
         with:
