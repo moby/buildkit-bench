@@ -101,8 +101,8 @@ jobs:
           set: |
             *.output=./bin/buildkit-binaries/${{ matrix.name }}
             *.cache-from=type=registry,ref=${{ env.BUILDKIT_CACHE_REPO }}:bkbins-${{ matrix.commit }}
-            *.cache-to=type=registry,ignore-error=true,ref=${{ env.BUILDKIT_CACHE_REPO }}:bkbins-${{ matrix.commit }}
-            *.cache-to=type=registry,ignore-error=true,ref=${{ env.BUILDKIT_CACHE_REPO }}:bkbins-${{ matrix.ref }}
+            *.cache-to=type=registry,ignore-error=true,mode=max,ref=${{ env.BUILDKIT_CACHE_REPO }}:bkbins-${{ matrix.commit }}
+            *.cache-to=type=registry,ignore-error=true,mode=max,ref=${{ env.BUILDKIT_CACHE_REPO }}:bkbins-${{ matrix.ref }}
         env:
           BUILDKIT_REPO: ${{ inputs.repo }}
           BUILDKIT_REFS: ${{ matrix.ref }}
