@@ -18,7 +18,10 @@ set -eu -o pipefail
 : "${BUILDKIT_REF_RANDOM=}"
 
 if [ "$TEST_IMAGE_BUILD" = "1" ]; then
-  docker buildx bake tests --set "*.output=type=docker,name=$TEST_IMAGE_ID"
+  (
+    set -x
+    docker buildx bake tests --set "*.output=type=docker,name=$TEST_IMAGE_ID"
+  )
 fi
 
 testOutputDir="$(pwd)/$TEST_RESULTS_DIR"
@@ -29,7 +32,7 @@ if ! docker container inspect "$cacheVolume" >/dev/null 2>/dev/null; then
   docker create -v /root/.cache -v /root/.cache/registry -v /go/pkg/mod --name "$cacheVolume" alpine
 fi
 if [ "$TEST_KEEP_CACHE" != "1" ]; then
-  trap 'docker rm -v $cacheVolume' EXIT
+  trap 'docker rm -v $cacheVolume >/dev/null' EXIT
 fi
 
 dockerConfigMount=""
@@ -40,19 +43,23 @@ if [ "$GITHUB_ACTIONS" = "true" ]; then
   fi
 fi
 
-set -x
-
-docker run --rm --privileged $dockerConfigMount \
-  -v /tmp \
-  -v $testOutputDir:/testout \
-  --volumes-from=$cacheVolume \
-  -e TEST_BENCH_RUN=$TEST_BENCH_RUN \
-  -e BUILDKIT_REF_RANDOM=$BUILDKIT_REF_RANDOM \
-  -e REGISTRY_MIRROR_DIR=/root/.cache/registry \
-  $TEST_IMAGE_ID \
-  sh -c "go test -bench=${TEST_BENCH_REGEXP:-.} -benchtime=${TEST_BENCH_TIME:-1s} -benchmem -json -mod=vendor ${TEST_FLAGS:--v} ${TEST_PKG:-./test/...} | gotestmetrics parse --output /testout/gotestoutput.json"
+(
+  set -x
+  docker run --rm --privileged $dockerConfigMount \
+    -v /tmp \
+    -v $testOutputDir:/testout \
+    --volumes-from=$cacheVolume \
+    -e TEST_BENCH_RUN=$TEST_BENCH_RUN \
+    -e BUILDKIT_REF_RANDOM=$BUILDKIT_REF_RANDOM \
+    -e REGISTRY_MIRROR_DIR=/root/.cache/registry \
+    $TEST_IMAGE_ID \
+    sh -c "go test -bench=${TEST_BENCH_REGEXP:-.} -benchtime=${TEST_BENCH_TIME:-1s} -benchmem -json -mod=vendor ${TEST_FLAGS:--v} ${TEST_PKG:-./test/...} | gotestmetrics parse --output /testout/gotestoutput.json"
+)
 
 if [ "$TEST_GEN" = "1" ]; then
-  docker buildx bake tests-gen
-  open ./bin/gen/index.html
+  (
+    set -x
+    docker buildx bake tests-gen
+  )
+  printf '%s\e]8;;%s\e\\%s\e]8;;\e\\\n' "Benchmarks HTML report generated at " "file://$(pwd)/bin/gen/index.html" "./bin/gen/index.html"
 fi
