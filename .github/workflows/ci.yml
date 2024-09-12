@@ -133,18 +133,6 @@ jobs:
           done
           tree -nph ./bin/buildkit-binaries
       -
-        name: Select 2 random candidates
-        if: github.event_name == 'pull_request'
-        run: |
-          dirs=($(ls -d ./bin/buildkit-binaries/*/))
-          cdirs=($(shuf -e "${dirs[@]}" -n 2))
-          for dir in "${dirs[@]}"; do
-            if [[ ! " ${cdirs[@]} " =~ " ${dir} " ]]; then
-              rm -rf "$dir"
-            fi
-          done
-          tree -nph ./bin/buildkit-binaries
-      -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
@@ -198,7 +186,6 @@ jobs:
           merge-multiple: true
       -
         name: Download candidates
-        if: github.event_name != 'pull_request'
         uses: actions/download-artifact@v4
         with:
           name: candidates

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"os"
-	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -12,7 +11,6 @@ import (
 
 	"github.com/moby/buildkit-bench/util/github"
 	"github.com/pkg/errors"
-	"github.com/sethvargo/go-githubactions"
 	"golang.org/x/mod/semver"
 )
 
@@ -36,7 +34,7 @@ type Ref struct {
 	Commit Commit
 }
 
-func Get(ghc *github.Client, refs string, lastDays int, lastReleases int) (*Candidates, error) {
+func New(ghc *github.Client, refs string, lastDays int, lastReleases int) (*Candidates, error) {
 	c := &Candidates{
 		ghc: ghc,
 	}
@@ -49,7 +47,6 @@ func Get(ghc *github.Client, refs string, lastDays int, lastReleases int) (*Cand
 	if err := c.setCommits(lastDays); err != nil {
 		return nil, errors.Wrap(err, "failed to set commits candidates")
 	}
-	log.Printf("%d ref(s), %d release(s) and %d commit(s) marked as candidates", len(c.Refs), len(c.Releases), len(c.Commits))
 	return c, nil
 }
 
@@ -93,56 +90,6 @@ func (c *Candidates) Sorted() []Ref {
 	return sortedCandidates
 }
 
-func (c *Candidates) WriteFile(path string) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
-		return errors.Wrap(err, "failed to create output file directory")
-	}
-	dt, err := json.MarshalIndent(c, "", "  ")
-	if err != nil {
-		return errors.Wrap(err, "failed to marshal candidates")
-	}
-	if err := os.WriteFile(path, dt, 0644); err != nil {
-		return errors.Wrap(err, "failed to write candidates to output file")
-	}
-	return nil
-}
-
-func (c *Candidates) SetGhaOutput(name string) error {
-	type include struct {
-		Name   string `json:"name"`
-		Ref    string `json:"ref"`
-		Commit string `json:"commit"`
-	}
-	var includes []include
-	for ref, cm := range c.Refs {
-		includes = append(includes, include{
-			Name:   ref,
-			Ref:    ref,
-			Commit: cm.SHA,
-		})
-	}
-	for release, cm := range c.Releases {
-		includes = append(includes, include{
-			Name:   release,
-			Ref:    release,
-			Commit: cm.SHA,
-		})
-	}
-	for day, cm := range c.Commits {
-		includes = append(includes, include{
-			Name:   day,
-			Ref:    cm.SHA,
-			Commit: cm.SHA,
-		})
-	}
-	dt, err := json.Marshal(includes)
-	if err != nil {
-		return errors.Wrap(err, "failed to marshal includes")
-	}
-	githubactions.SetOutput(name, string(dt))
-	return nil
-}
-
 func (c *Candidates) setRefs(refs []string) error {
 	res := make(map[string]Commit)
 	for _, ref := range refs {
@@ -167,7 +114,7 @@ func (c *Candidates) setReleases(last int) error {
 	res := make(map[string]Commit)
 	for _, tag := range filterFeatureReleases(tags, last) {
 		if containsCommitSha(c.Refs, tag.Commit.SHA) {
-			log.Printf("skipping tag %s (%s), already in refs", tag.Name, tag.Commit.SHA)
+			log.Printf("Skipping tag %s (%s), already in refs", tag.Name, tag.Commit.SHA)
 		} else {
 			cm, err := c.ghc.GetCommit(tag.Commit.SHA)
 			if err != nil {
@@ -191,9 +138,9 @@ func (c *Candidates) setCommits(lastDays int) error {
 	res := make(map[string]Commit)
 	for date, cm := range lastCommitByDay(filterMergeCommits(commits)) {
 		if containsCommitSha(c.Refs, cm.SHA) {
-			log.Printf("skipping commit %s, already in refs", cm.SHA)
+			log.Printf("Skipping commit %s, already in refs", cm.SHA)
 		} else if containsCommitSha(c.Releases, cm.SHA) {
-			log.Printf("skipping commit %s, already in releases", cm.SHA)
+			log.Printf("Skipping commit %s, already in releases", cm.SHA)
 		} else {
 			res[date] = Commit{
 				SHA:  cm.SHA,
