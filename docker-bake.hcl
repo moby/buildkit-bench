@@ -77,6 +77,8 @@ EOT
 target "tests-base" {
   inherits = ["_common"]
   target = "tests-base"
+  cache-from = ["type=registry,ref=${BUILDKIT_CACHE_REPO}:tests-base"]
+  cache-to = ["type=inline"]
   output = ["type=cacheonly"]
 }
 
