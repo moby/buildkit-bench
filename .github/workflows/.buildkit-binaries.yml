@@ -54,6 +54,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       -
+        name: List candidates
+        run: |
+          jq . ./bin/candidates.json
+      -
         name: Upload candidates
         uses: actions/upload-artifact@v4
         with:

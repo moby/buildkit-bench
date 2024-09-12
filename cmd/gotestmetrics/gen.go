@@ -205,7 +205,7 @@ func chartBar(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric, sor
 		for _, ref := range sortedRefs {
 			v, ok := values[ref.Name]
 			if !ok {
-				return nil, errors.Errorf("%s missing %s value for ref %s", name, unit, ref.Name)
+				continue
 			}
 			allv = append(allv, v...)
 			m, err := stats.Median(v)
@@ -267,7 +267,7 @@ func chartBoxPlot(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric,
 		for _, ref := range sortedRefs {
 			v, ok := values[ref.Name]
 			if !ok {
-				return nil, errors.Errorf("%s missing %s value for ref %s", name, unit, ref.Name)
+				continue
 			}
 			allv = append(allv, v...)
 			refs = append(refs, ref.Name)
