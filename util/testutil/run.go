@@ -227,16 +227,24 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 							ctx, cancel := context.WithCancelCause(ctx)
 							defer cancel(errors.WithStack(context.Canceled))
 
-							sb, closer, err := newSandbox(ctx, br, getMirror(), mv)
-							require.NoError(tb, err)
-							tb.Cleanup(func() { _ = closer() })
-							defer func() {
-								if tb.Failed() {
-									sb.PrintLogs(tb)
+							runWithSandbox := func(tb testing.TB) {
+								sb, closer, err := newSandbox(ctx, br, getMirror(), mv)
+								require.NoError(tb, err)
+								tb.Cleanup(func() { _ = closer() })
+								defer func() {
+									if tb.Failed() {
+										sb.PrintLogs(tb)
+									}
+								}()
+								runner.Run(tb, sb)
+							}
+							if b, ok := tb.(*testing.B); ok {
+								for i := 0; i < b.N; i++ {
+									runWithSandbox(b)
 								}
-							}()
-
-							runner.Run(tb, sb)
+							} else {
+								runWithSandbox(tb)
+							}
 						})
 						require.True(tb, ok)
 					}(fn, name, br, runner, mv)
