@@ -6,7 +6,6 @@ import (
 	"path"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/moby/buildkit-bench/util/testutil"
 	"github.com/stretchr/testify/require"
@@ -41,9 +40,11 @@ func testDaemonVersion(t *testing.T, sb testutil.Sandbox) {
 
 func benchmarkDaemonVersion(b *testing.B, sb testutil.Sandbox) {
 	buildkitdPath := path.Join(sb.BinsDir(), sb.Name(), "buildkitd")
-	start := time.Now()
-	require.NoError(b, exec.Command(buildkitdPath, "--version").Run())
-	testutil.ReportMetricDuration(b, time.Since(start))
+	b.ResetTimer()
+	b.StartTimer()
+	err := exec.Command(buildkitdPath, "--version").Run()
+	b.StopTimer()
+	require.NoError(b, err)
 }
 
 func benchmarkDaemonSize(b *testing.B, sb testutil.Sandbox) {
