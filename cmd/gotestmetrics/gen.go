@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
@@ -17,6 +18,7 @@ import (
 	"github.com/moby/buildkit-bench/util/testutil"
 	"github.com/montanaflynn/stats"
 	"github.com/pkg/errors"
+	"github.com/zeebo/xxh3"
 )
 
 type genCmd struct {
@@ -223,6 +225,7 @@ func chartBar(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric, sor
 	}
 
 	chart := charts.NewBar()
+	chart.ChartID = chartIdentity(name, unit)
 
 	minv, err := stats.Min(allv)
 	if err != nil {
@@ -276,6 +279,7 @@ func chartBoxPlot(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric,
 	}
 
 	chart := charts.NewBoxPlot()
+	chart.ChartID = chartIdentity(name, unit)
 
 	minv, err := stats.Min(allv)
 	if err != nil {
@@ -293,6 +297,15 @@ func chartBoxPlot(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric,
 	chart.SetXAxis(refs).AddSeries(cfg.Description, data)
 
 	return chart, nil
+}
+
+func chartIdentity(name, unit string) string {
+	h := xxh3.New()
+	h.WriteString(name)
+	h.Write([]byte{0})
+	h.WriteString(unit)
+	h.Write([]byte{0})
+	return strconv.FormatUint(h.Sum64(), 10)
 }
 
 func createBoxPlotData(data []float64) []float64 {
