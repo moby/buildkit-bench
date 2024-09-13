@@ -38,6 +38,9 @@ func init() {
 type Backend interface {
 	Address() string
 	DebugAddress() string
+	ExtraEnv() []string
+	BuildxDir() string
+	BuilderName() string
 }
 
 type Sandbox interface {
