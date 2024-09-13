@@ -3,6 +3,7 @@
 set -eu -o pipefail
 
 : "${GITHUB_ACTIONS=}"
+: "${GITHUB_EVENT_NAME=}"
 
 : "${TEST_IMAGE_BUILD=1}"
 : "${TEST_IMAGE_ID=buildkit-bench}"
@@ -37,9 +38,16 @@ fi
 
 dockerConfigMount=""
 if [ "$GITHUB_ACTIONS" = "true" ]; then
+  # use GitHub Actions docker config if available to avoid rate limiting
   dockerConfigPath="$HOME/.docker/config.json"
   if [ -f "$dockerConfigPath" ]; then
     dockerConfigMount="-v $dockerConfigPath:/root/.docker/config.json:ro"
+  fi
+  # reduce the number of runs to 2 on PRs
+  if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+    if [ "$TEST_BENCH_RUN" -gt 2 ]; then
+      TEST_BENCH_RUN=2
+    fi
   fi
 fi
 
