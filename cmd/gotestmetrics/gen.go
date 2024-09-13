@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"sort"
@@ -264,7 +265,11 @@ func chartBoxPlot(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric,
 		for ref, v := range values {
 			allv = append(allv, v...)
 			refs = append(refs, ref)
-			data = append(data, opts.BoxPlotData{Value: createBoxPlotData(v)})
+			plotData, err := createBoxPlotData(v)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to create box plot data")
+			}
+			data = append(data, opts.BoxPlotData{Value: plotData})
 		}
 	} else {
 		for _, ref := range sortedRefs {
@@ -274,7 +279,11 @@ func chartBoxPlot(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric,
 			}
 			allv = append(allv, v...)
 			refs = append(refs, ref.Name)
-			data = append(data, opts.BoxPlotData{Value: createBoxPlotData(v)})
+			plotData, err := createBoxPlotData(v)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to create box plot data")
+			}
+			data = append(data, opts.BoxPlotData{Value: plotData})
 		}
 	}
 
@@ -308,15 +317,35 @@ func chartIdentity(name, unit string) string {
 	return strconv.FormatUint(h.Sum64(), 10)
 }
 
-func createBoxPlotData(data []float64) []float64 {
-	minv, _ := stats.Min(data)
-	maxv, _ := stats.Max(data)
-	q, _ := stats.Quartile(data)
-	return []float64{
+func createBoxPlotData(data []float64) ([]float64, error) {
+	minv, err := stats.Min(data)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to calculate min")
+	}
+	maxv, err := stats.Max(data)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to calculate max")
+	}
+	q, err := stats.Quartile(data)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to calculate quartiles")
+	}
+	values := []float64{
 		minv,
 		q.Q1,
 		q.Q2,
 		q.Q3,
 		maxv,
 	}
+	// replace NaN values with the previous or next value
+	for i, v := range values {
+		if math.IsNaN(v) {
+			if i == 0 {
+				values[i] = values[i+1]
+			} else {
+				values[i] = values[i-1]
+			}
+		}
+	}
+	return values, nil
 }
