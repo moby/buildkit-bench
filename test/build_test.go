@@ -3,7 +3,6 @@ package test
 import (
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/containerd/continuity/fs/fstest"
 	"github.com/moby/buildkit-bench/util/testutil"
@@ -40,12 +39,13 @@ COPY --from=base /etc/bar /bar
 		fstest.CreateFile("Dockerfile", dockerfile, 0600),
 		fstest.CreateFile("foo", []byte("foo"), 0600),
 	)
-	start := time.Now()
+	b.ResetTimer()
+	b.StartTimer()
 	out, err := buildCmd(sb, withDir(dir), withArgs(
 		"--local=context=.",
 		"--local=dockerfile=.",
 	))
-	testutil.ReportMetricDuration(b, time.Since(start))
+	b.StopTimer()
 	require.NoError(b, err, out)
 }
 
@@ -60,23 +60,25 @@ RUN --mount=type=secret,id=SECRET cat /run/secrets/SECRET
 		fstest.CreateFile("Dockerfile", dockerfile, 0600),
 		fstest.CreateFile("secret.txt", []byte("mysecret"), 0600),
 	)
-	start := time.Now()
+	b.ResetTimer()
+	b.StartTimer()
 	out, err := buildCmd(sb, withDir(dir), withArgs(
 		"--local=context=.",
 		"--local=dockerfile=.",
 		"--secret=id=SECRET,src=secret.txt",
 	))
-	testutil.ReportMetricDuration(b, time.Since(start))
+	b.StopTimer()
 	require.NoError(b, err, out)
 }
 
 func benchmarkBuildRemoteBuildme(b *testing.B, sb testutil.Sandbox) {
-	start := time.Now()
+	b.ResetTimer()
+	b.StartTimer()
 	out, err := buildCmd(sb, withArgs(
 		"--opt=context=https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
 		"--opt=build-arg:BUILDKIT_SYNTAX=docker/dockerfile:1.9.0", // pin dockerfile syntax
 	))
-	testutil.ReportMetricDuration(b, time.Since(start))
+	b.StopTimer()
 	require.NoError(b, err, out)
 }
 
@@ -97,52 +99,20 @@ func benchmarkBuildBreaker128(b *testing.B, sb testutil.Sandbox) {
 }
 
 func buildBreaker(b *testing.B, sb testutil.Sandbox, n int) {
-	type buildRecord struct {
-		id  int
-		d   time.Duration
-		out string
-		err error
-	}
-
 	var wg sync.WaitGroup
-	records := make(chan buildRecord, 5)
-
 	for i := 0; i < n; i++ {
 		wg.Add(1)
-		i := i
 		go func() {
 			defer wg.Done()
-			start := time.Now()
 			out, err := buildCmd(sb, withArgs(
 				"--opt=context=https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
 				"--opt=build-arg:BUILDKIT_SYNTAX=docker/dockerfile:1.9.0", // pin dockerfile syntax
 			))
-			d := time.Since(start)
-			b.Logf("build %d: %fs", i, d.Seconds())
-			record := buildRecord{
-				id:  i,
-				d:   d,
-				out: out,
-				err: err,
-			}
-			records <- record
 			require.NoError(b, err, out)
 		}()
 	}
-
-	go func() {
-		wg.Wait()
-		close(records)
-	}()
-
-	var avgd time.Duration
-	var totald time.Duration
-	for record := range records {
-		if record.err != nil {
-			b.Fatalf("build %d failed: %v", record.id, record.err)
-		}
-		totald += record.d
-	}
-	avgd = totald / time.Duration(n)
-	testutil.ReportMetricDuration(b, avgd)
+	b.ResetTimer()
+	b.StartTimer()
+	wg.Wait()
+	b.StopTimer()
 }
