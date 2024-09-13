@@ -39,6 +39,28 @@ func withDir(dir string) cmdOpt {
 	}
 }
 
+func buildxCmd(sb testutil.Sandbox, opts ...cmdOpt) *exec.Cmd {
+	cmd := exec.Command("buildx")
+	cmd.Env = append([]string{}, os.Environ()...)
+	for _, opt := range opts {
+		opt(cmd)
+	}
+	if buildxDir := sb.BuildxDir(); buildxDir != "" {
+		cmd.Env = append(cmd.Env, "BUILDX_CONFIG="+buildxDir)
+	}
+	if builderName := sb.BuilderName(); builderName != "" {
+		cmd.Env = append(cmd.Env, "BUILDX_BUILDER="+builderName)
+	}
+	return cmd
+}
+
+func buildxBuildCmd(sb testutil.Sandbox, opts ...cmdOpt) (string, error) {
+	opts = append([]cmdOpt{withArgs("build")}, opts...)
+	cmd := buildxCmd(sb, opts...)
+	out, err := cmd.CombinedOutput()
+	return string(out), err
+}
+
 func buildctlCmd(sb testutil.Sandbox, opts ...cmdOpt) *exec.Cmd {
 	cmd := exec.Command(path.Join(sb.BinsDir(), sb.Name(), "buildctl"))
 	cmd.Args = append(cmd.Args, "--debug")
@@ -52,7 +74,7 @@ func buildctlCmd(sb testutil.Sandbox, opts ...cmdOpt) *exec.Cmd {
 	return cmd
 }
 
-func buildCmd(sb testutil.Sandbox, opts ...cmdOpt) (string, error) {
+func buildctlBuildCmd(sb testutil.Sandbox, opts ...cmdOpt) (string, error) {
 	opts = append([]cmdOpt{withArgs("build", "--frontend=dockerfile.v0")}, opts...)
 	cmd := buildctlCmd(sb, opts...)
 	out, err := cmd.CombinedOutput()

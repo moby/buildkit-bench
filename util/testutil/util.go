@@ -1,7 +1,6 @@
 package testutil
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"fmt"
@@ -21,7 +20,7 @@ import (
 
 var errRequirements = errors.Errorf("missing requirements")
 
-func runBuildkitd(conf *BackendConfig, args []string, logs map[string]*bytes.Buffer, extraEnv []string) (address string, debugAddress string, cl func() error, err error) {
+func runBuildkitd(conf *BackendConfig, tmpdir string, args []string, logs map[string]*bytes.Buffer, extraEnv []string) (address string, debugAddress string, cl func() error, err error) {
 	deferF := &MultiCloser{}
 	cl = deferF.F()
 
@@ -31,17 +30,6 @@ func runBuildkitd(conf *BackendConfig, args []string, logs map[string]*bytes.Buf
 			cl = nil
 		}
 	}()
-
-	tmpdir, err := os.MkdirTemp("", "bkbench_buildkitd")
-	if err != nil {
-		return "", "", nil, err
-	}
-
-	if err := os.MkdirAll(filepath.Join(tmpdir, "tmp"), 0711); err != nil {
-		return "", "", nil, err
-	}
-
-	deferF.Append(func() error { return os.RemoveAll(tmpdir) })
 
 	cfgfile, err := writeConfig(append(conf.DaemonConfig))
 	if err != nil {
@@ -86,11 +74,6 @@ func runBuildkitd(conf *BackendConfig, args []string, logs map[string]*bytes.Buf
 	if err := waitSocket(address, 15*time.Second, cmd); err != nil {
 		return "", "", nil, err
 	}
-
-	// separated out since it's not required in windows
-	deferF.Append(func() error {
-		return mountInfo(tmpdir)
-	})
 
 	return address, debugAddress, cl, err
 }
@@ -178,21 +161,6 @@ func getSysProcAttr() *syscall.SysProcAttr {
 
 func getBuildkitdAddr(tmpdir string) string {
 	return "unix://" + filepath.Join(tmpdir, "buildkitd.sock")
-}
-
-func mountInfo(tmpdir string) error {
-	f, err := os.Open("/proc/self/mountinfo")
-	if err != nil {
-		return errors.Wrap(err, "failed to open mountinfo")
-	}
-	defer f.Close()
-	s := bufio.NewScanner(f)
-	for s.Scan() {
-		if strings.Contains(s.Text(), tmpdir) {
-			return errors.Errorf("leaked mountpoint for %s", tmpdir)
-		}
-	}
-	return s.Err()
 }
 
 // abstracted function to handle pipe dialing on unix.

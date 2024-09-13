@@ -41,10 +41,7 @@ COPY --from=base /etc/bar /bar
 	)
 	b.ResetTimer()
 	b.StartTimer()
-	out, err := buildCmd(sb, withDir(dir), withArgs(
-		"--local=context=.",
-		"--local=dockerfile=.",
-	))
+	out, err := buildxBuildCmd(sb, withArgs(dir))
 	b.StopTimer()
 	require.NoError(b, err, out)
 }
@@ -62,11 +59,7 @@ RUN --mount=type=secret,id=SECRET cat /run/secrets/SECRET
 	)
 	b.ResetTimer()
 	b.StartTimer()
-	out, err := buildCmd(sb, withDir(dir), withArgs(
-		"--local=context=.",
-		"--local=dockerfile=.",
-		"--secret=id=SECRET,src=secret.txt",
-	))
+	out, err := buildxBuildCmd(sb, withDir(dir), withArgs("--secret=id=SECRET,src=secret.txt", "."))
 	b.StopTimer()
 	require.NoError(b, err, out)
 }
@@ -74,9 +67,9 @@ RUN --mount=type=secret,id=SECRET cat /run/secrets/SECRET
 func benchmarkBuildRemoteBuildme(b *testing.B, sb testutil.Sandbox) {
 	b.ResetTimer()
 	b.StartTimer()
-	out, err := buildCmd(sb, withArgs(
-		"--opt=context=https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
-		"--opt=build-arg:BUILDKIT_SYNTAX=docker/dockerfile:1.9.0", // pin dockerfile syntax
+	out, err := buildxBuildCmd(sb, withArgs(
+		"--build-arg=BUILDKIT_SYNTAX=docker/dockerfile:1.9.0",
+		"https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
 	))
 	b.StopTimer()
 	require.NoError(b, err, out)
@@ -104,9 +97,9 @@ func buildBreaker(b *testing.B, sb testutil.Sandbox, n int) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			out, err := buildCmd(sb, withArgs(
-				"--opt=context=https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
-				"--opt=build-arg:BUILDKIT_SYNTAX=docker/dockerfile:1.9.0", // pin dockerfile syntax
+			out, err := buildxBuildCmd(sb, withArgs(
+				"--build-arg=BUILDKIT_SYNTAX=docker/dockerfile:1.9.0",
+				"https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
 			))
 			require.NoError(b, err, out)
 		}()
