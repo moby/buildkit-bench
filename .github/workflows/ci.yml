@@ -208,19 +208,65 @@ jobs:
         env:
           BAKE_ALLOW_REMOTE_FS_ACCESS: 1
       -
+        name: Include additional files to report directory
+        run: |
+          cp -f /tmp/buildkit-bench/* ./bin/report/
+          cat <<EOF > ./bin/report/metadata.txt
+          repo=${{ github.repository }}
+          commit=${{ github.sha }}
+          EOF
+      -
         name: Upload report
         uses: actions/upload-artifact@v4
         with:
           name: report
-          path: ./bin/report/index.html
+          path: ./bin/report
           if-no-files-found: error
+
+  publish:
+    runs-on: ubuntu-24.04
+    needs:
+      - report
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: bin/gh-pages
+      -
+        name: Download report
+        uses: actions/download-artifact@v4
+        with:
+          name: report
+          path: /tmp/buildkit-bench-report
+      -
+        name: Move reports
+        run: |
+          reportDir=$(date +'%Y%m%d-%H%M%S')
+          mkdir -p ./website/public/result/$reportDir
+          mv /tmp/buildkit-bench-report/* ./website/public/result/$reportDir/
+          if [ -d ./bin/gh-pages/result ]; then
+            mv ./bin/gh-pages/result/* ./website/public/result/
+          fi
+      -
+        name: Build website
+        uses: docker/bake-action@v5
+        with:
+          targets: website
+          provenance: false
       -
         name: Publish
         uses: crazy-max/ghaction-github-pages@v4
-        if: github.event_name != 'pull_request'
         with:
           target_branch: gh-pages
-          build_dir: ./bin/report
+          keep_history: true
+          build_dir: ./bin/website
+          commit_message: "Upload website to GitHub Pages"
           jekyll: false
+          dry_run: ${{ github.event_name == 'pull_request' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
