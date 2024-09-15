@@ -113,7 +113,14 @@ target "vendor" {
   output = ["."]
 }
 
+variable "WEBSITE_PUBLIC_PATH" {
+  default = null
+}
+
 target "website" {
   context = "./website"
   output = ["./bin/website"]
+  args = {
+    WEBSITE_PUBLIC_PATH = WEBSITE_PUBLIC_PATH
+  }
 }
