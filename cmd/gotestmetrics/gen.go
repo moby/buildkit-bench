@@ -227,18 +227,6 @@ func chartBar(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric, sor
 
 	chart := charts.NewBar()
 	chart.ChartID = chartIdentity(name, unit)
-
-	minv, err := stats.Min(allv)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to calculate min")
-	}
-	minvr, err := stats.Round(minv*0.9, 0)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to round min")
-	}
-	globalOpts = append(globalOpts, charts.WithYAxisOpts(opts.YAxis{
-		Min: minvr,
-	}))
 	chart.SetGlobalOptions(globalOpts...)
 
 	chart.SetXAxis(refs).AddSeries(cfg.Description, data)
@@ -289,18 +277,6 @@ func chartBoxPlot(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric,
 
 	chart := charts.NewBoxPlot()
 	chart.ChartID = chartIdentity(name, unit)
-
-	minv, err := stats.Min(allv)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to calculate min")
-	}
-	minvr, err := stats.Round(minv*0.9, 3)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to round min")
-	}
-	globalOpts = append(globalOpts, charts.WithYAxisOpts(opts.YAxis{
-		Min: minvr,
-	}))
 	chart.SetGlobalOptions(globalOpts...)
 
 	chart.SetXAxis(refs).AddSeries(cfg.Description, data)
