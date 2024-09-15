@@ -21,6 +21,7 @@ env:
   CANDIDATES_REFS: master
   CANDIDATES_LAST_DAYS: 15
   CANDIDATES_LAST_RELEASES: 8
+  WEBSITE_PUBLIC_PATH: /buildkit-bench/
 
 jobs:
   # limitation to using envs in a reusable workflow input
@@ -258,16 +259,12 @@ jobs:
         with:
           targets: website
           provenance: false
-        env:
-         WEBSITE_PUBLIC_PATH: /buildkit-bench/
       -
         name: Publish
         uses: crazy-max/ghaction-github-pages@v4
         with:
           target_branch: gh-pages
-          keep_history: true
           build_dir: ./bin/website
-          commit_message: "Upload website to GitHub Pages"
           jekyll: false
           dry_run: ${{ github.event_name == 'pull_request' }}
         env:
