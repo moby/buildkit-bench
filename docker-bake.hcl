@@ -112,3 +112,8 @@ target "vendor" {
   target = "update"
   output = ["."]
 }
+
+target "website" {
+  context = "./website"
+  output = ["./bin/website"]
+}
