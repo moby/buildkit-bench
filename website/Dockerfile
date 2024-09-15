@@ -19,6 +19,7 @@ RUN --mount=type=bind,target=.,rw \
   yarn install
 
 FROM deps AS build
+ARG WEBSITE_PUBLIC_PATH
 RUN --mount=type=bind,target=.,rw \
   --mount=type=cache,target=/src/.yarn/cache \
   --mount=type=cache,target=/src/node_modules \
