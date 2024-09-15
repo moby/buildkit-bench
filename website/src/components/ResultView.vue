@@ -5,11 +5,15 @@
 </template>
 
 <script>
+import { publicPath } from '../../vue.config';
+
 export default {
   name: 'ResultView',
   computed: {
     resultUrl() {
-      return `/result/${this.$route.params.result}/index.html`;
+      const resultLink = `${publicPath}result/${this.$route.params.result}/index.html`;
+      console.log(`Loading result ${resultLink}`);
+      return resultLink;
     }
   }
 };
