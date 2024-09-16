@@ -7,7 +7,6 @@ set -eu -o pipefail
 
 : "${TEST_IMAGE_BUILD=1}"
 : "${TEST_IMAGE_ID=buildkit-bench}"
-: "${TEST_GEN=1}"
 : "${TEST_RESULTS_DIR=bin/results}"
 : "${TEST_KEEP_CACHE=}"
 : "${TEST_FLAGS=}"
@@ -63,11 +62,3 @@ fi
     $TEST_IMAGE_ID \
     sh -c "go test -bench=${TEST_BENCH_REGEXP:-.} -benchtime=${TEST_BENCH_TIME:-1s} -benchmem -json -mod=vendor ${TEST_FLAGS:--v} ${TEST_PKG:-./test/...} | gotestmetrics parse --output /testout/gotestoutput.json"
 )
-
-if [ "$TEST_GEN" = "1" ]; then
-  (
-    set -x
-    docker buildx bake tests-gen
-  )
-  echo "Benchmarks HTML report generated at ./bin/gen/index.html"
-fi
