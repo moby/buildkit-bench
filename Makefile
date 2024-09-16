@@ -5,6 +5,10 @@ all:
 test:
 	./hack/test
 
+.PHONY: gen
+gen:
+	docker buildx bake tests-gen
+
 .PHONY: vendor
 vendor:
 	$(eval $@_TMP_OUT := $(shell mktemp -d -t buildkit-bench-output.XXXXXXXXXX))
