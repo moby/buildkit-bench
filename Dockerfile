@@ -60,6 +60,7 @@ EOT
 FROM gobuild-base AS tests-gen-run
 COPY --link --from=gotestmetrics /usr/bin/gotestmetrics /usr/bin/
 COPY --from=tests-results . /tests-results
+ARG GEN_VALIDATION_MODE
 RUN --mount=type=bind,target=. <<EOT
   set -e
   args="gen --output /tmp/benchmarks.html"
@@ -68,6 +69,9 @@ RUN --mount=type=bind,target=. <<EOT
   fi
   if [ -f /tests-results/testconfig.yml ]; then
     args="$args --config /tests-results/testconfig.yml"
+  fi
+  if [ -n "$GEN_VALIDATION_MODE" ]; then
+    args="$args --validation-mode $GEN_VALIDATION_MODE"
   fi
   set -x
   gotestmetrics $args "/tests-results/*.json"

@@ -90,6 +90,10 @@ target "tests" {
   target = "tests"
 }
 
+variable "GEN_VALIDATION_MODE" {
+  default = null
+}
+
 target "tests-gen" {
   inherits = ["_common"]
   contexts = {
@@ -97,6 +101,9 @@ target "tests-gen" {
   }
   target = "tests-gen"
   output = ["./bin/gen"]
+  args = {
+    GEN_VALIDATION_MODE = GEN_VALIDATION_MODE
+  }
 }
 
 target "validate-vendor" {
