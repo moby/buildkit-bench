@@ -9,7 +9,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const dockerfileImagePin = "docker/dockerfile:1.9.0"
+
 func BenchmarkBuild(b *testing.B) {
+	mirroredImages := testutil.OfficialImages(
+		"busybox:latest",
+		"golang:1.22-alpine",
+		"python:latest",
+	)
+	mirroredImages[dockerfileImagePin] = "docker.io/" + dockerfileImagePin
 	testutil.Run(b, testutil.BenchFuncs(
 		benchmarkBuildLocal,
 		benchmarkBuildLocalSecret,
@@ -18,11 +26,7 @@ func BenchmarkBuild(b *testing.B) {
 		benchmarkBuildBreaker32,
 		benchmarkBuildBreaker64,
 		benchmarkBuildBreaker128,
-	), testutil.WithMirroredImages(testutil.OfficialImages(
-		"busybox:latest",
-		"golang:1.22-alpine",
-		"python:latest",
-	)))
+	), testutil.WithMirroredImages(mirroredImages))
 }
 
 func benchmarkBuildLocal(b *testing.B, sb testutil.Sandbox) {
@@ -68,7 +72,7 @@ func benchmarkBuildRemoteBuildme(b *testing.B, sb testutil.Sandbox) {
 	b.ResetTimer()
 	b.StartTimer()
 	out, err := buildxBuildCmd(sb, withArgs(
-		"--build-arg=BUILDKIT_SYNTAX=docker/dockerfile:1.9.0",
+		"--build-arg=BUILDKIT_SYNTAX="+dockerfileImagePin,
 		"https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
 	))
 	b.StopTimer()
@@ -98,7 +102,7 @@ func buildBreaker(b *testing.B, sb testutil.Sandbox, n int) {
 		go func() {
 			defer wg.Done()
 			out, err := buildxBuildCmd(sb, withArgs(
-				"--build-arg=BUILDKIT_SYNTAX=docker/dockerfile:1.9.0",
+				"--build-arg=BUILDKIT_SYNTAX="+dockerfileImagePin,
 				"https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
 			))
 			require.NoError(b, err, out)
