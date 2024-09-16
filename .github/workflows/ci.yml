@@ -196,6 +196,9 @@ jobs:
           driver-opts: image=${{ env.SETUP_BUILDKIT_IMAGE }}
           buildkitd-flags: --debug
       -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
         name: Generate HTML report
         uses: docker/bake-action@v5
         with:
@@ -211,7 +214,7 @@ jobs:
       -
         name: Include additional files to report directory
         run: |
-          cp -f /tmp/buildkit-bench/* ./bin/report/
+          cp /tmp/buildkit-bench/* ./testconfig.yml ./bin/report/
           cat <<EOF > ./bin/report/metadata.txt
           repo=${{ github.repository }}
           commit=${{ github.sha }}

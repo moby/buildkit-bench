@@ -1,0 +1,130 @@
+name: regen
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/workflows/regen.yml
+      - cmd/gotestmetrics/gen.go
+  pull_request:
+    paths:
+      - .github/workflows/regen.yml
+      - cmd/gotestmetrics/gen.go
+
+env:
+  SETUP_BUILDX_VERSION: latest
+  SETUP_BUILDKIT_IMAGE: moby/buildkit:latest
+  BUILDKIT_CACHE_REPO: moby/buildkit-bench-cache
+  WEBSITE_PUBLIC_PATH: /buildkit-bench/
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    outputs:
+      results: ${{ steps.set.outputs.results }}
+    steps:
+      -
+        name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+      -
+        name: Create results matrix
+        uses: actions/github-script@v7
+        id: set
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const resultDir = './result';
+            const results = JSON.stringify(fs.readdirSync(resultDir).filter(d => {
+              return fs.statSync(path.join(resultDir, d)).isDirectory();
+            }), null, 2);
+            core.info(results);
+            core.setOutput('results', results);
+
+  gen:
+    runs-on: ubuntu-24.04
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        result: ${{ fromJson(needs.prepare.outputs.results) }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: bin/gh-pages
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: ${{ env.SETUP_BUILDX_VERSION }}
+          driver-opts: image=${{ env.SETUP_BUILDKIT_IMAGE }}
+          buildkitd-flags: --debug
+      -
+        name: Generate HTML report
+        uses: docker/bake-action@v5
+        with:
+          source: "{{defaultContext}}"
+          targets: tests-gen
+          provenance: false
+          set: |
+            *.cache-from=type=registry,ref=${{ env.BUILDKIT_CACHE_REPO }}:tests-base
+            *.contexts.tests-results=cwd://bin/gh-pages/result/${{ matrix.result }}
+            *.output=./bin/report/${{ matrix.result }}
+      -
+        name: Copy files
+        run: |
+          find ./bin/gh-pages/result/${{ matrix.result }} -type f ! -name 'index.html' -exec cp {} ./bin/report/${{ matrix.result }}/ \;
+      -
+        name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-${{ matrix.result }}
+          path: ./bin/report
+          if-no-files-found: error
+
+  publish:
+    runs-on: ubuntu-24.04
+    needs:
+      - gen
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Download reports
+        uses: actions/download-artifact@v4
+        with:
+          path: ./website/public/result
+          pattern: report-*
+          merge-multiple: true
+      -
+        name: Build website
+        uses: docker/bake-action@v5
+        with:
+          targets: website
+          provenance: false
+      -
+        name: Publish
+        uses: crazy-max/ghaction-github-pages@v4
+        with:
+          target_branch: gh-pages
+          build_dir: ./bin/website
+          jekyll: false
+          dry_run: ${{ github.event_name == 'pull_request' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

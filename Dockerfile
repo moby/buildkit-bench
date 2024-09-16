@@ -66,6 +66,9 @@ RUN --mount=type=bind,target=. <<EOT
   if [ -f /tests-results/candidates.json ]; then
     args="$args --candidates /tests-results/candidates.json"
   fi
+  if [ -f /tests-results/testconfig.yml ]; then
+    args="$args --config /tests-results/testconfig.yml"
+  fi
   set -x
   gotestmetrics $args "/tests-results/*.json"
 EOT
