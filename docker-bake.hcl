@@ -126,6 +126,7 @@ variable "WEBSITE_PUBLIC_PATH" {
 
 target "website" {
   context = "./website"
+  target = "build-update"
   output = ["./bin/website"]
   args = {
     WEBSITE_PUBLIC_PATH = WEBSITE_PUBLIC_PATH

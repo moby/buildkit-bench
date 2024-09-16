@@ -7,7 +7,7 @@ test:
 
 .PHONY: gen
 gen:
-	docker buildx bake tests-gen
+	./hack/gen
 
 .PHONY: vendor
 vendor:
