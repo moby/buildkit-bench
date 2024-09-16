@@ -44,13 +44,37 @@ BUILDKIT_REFS=master,v0.9.3,v0.16.0 make test
 > images in a docker volume if you are repeatedly calling `./hack/test` script.
 > This helps to avoid rate limiting on the remote registry side.
 
-After running the tests, you can generate a report with the following command:
+After running the tests, you can generate the HTML report and serve the
+website with:
 
 ```bash
 make gen
 ```
 
-Report will be generated in `./bin/gen/index.html`.
+```text
+...
+[+] Running 1/0
+ ✔ Container website-serve-1  Created                                                                                                                                                                     0.0s 
+Attaching to serve-1
+serve-1  | Running generateResults.js...
+serve-1  | /src/public/results.json has been generated successfully.
+serve-1  |  INFO  Starting development server...
+ DONE  Compiled successfully in 947ms2:39:29 PM
+serve-1  |
+                                                                                                                                                                                                               
+serve-1  |   App running at:
+serve-1  |   - Local:   http://localhost:8080/
+serve-1  |
+serve-1  |   It seems you are running Vue CLI inside a container.
+serve-1  |   Access the dev server via http://localhost:<your container's external mapped port>/
+serve-1  |
+serve-1  |   Note that the development build is not optimized.
+serve-1  |   To create a production build, run yarn build.
+serve-1  |
+Build finished at 14:39:29 by 0.000s
+```
+
+Then open [http://localhost:8080](http://localhost:8080) in your browser.
 
 ## License
 

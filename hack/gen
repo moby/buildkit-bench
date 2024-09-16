@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -eu -o pipefail
+
+testFile=./bin/results/gotestoutput.json
+testDate=$(date +'%Y%m%d-%H%M%S')
+if [ -f "$testFile" ]; then
+  testDate=$(date -d "$(stat -c %y "$testFile" | cut -d' ' -f1,2)" +'%Y%m%d-%H%M%S')
+fi
+
+resultDir=./website/public/result/${testDate}
+if [ -d "$resultDir" ]; then
+  rm -rf "$resultDir"
+fi
+
+set -x
+docker buildx bake tests-gen --set "*.output=${resultDir}"
+docker compose --project-directory website up --build
