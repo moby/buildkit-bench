@@ -18,14 +18,13 @@ export default {
 
 <style scoped>
 .result {
-  margin-left: 250px;
   height: 100vh;
   overflow: hidden;
   position: relative;
 }
 
 iframe {
-  width: 100%;
+  width: calc(100% - 250px);
   height: 100%;
   border: none;
   position: fixed;

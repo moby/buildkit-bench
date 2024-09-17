@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar">
+  <div class="results">
     <h2>Results</h2>
     <ul>
       <li v-for="result in results" :key="result" @click="loadResult(result)"
@@ -61,27 +61,18 @@ export default {
 </script>
 
 <style scoped>
-.sidebar {
-  width: 250px;
-  background-color: #f8f9fa;
-  padding: 15px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  height: 100vh;
-  position: fixed;
-}
-
-.sidebar h2 {
+.results h2 {
   font-size: 1.5em;
   margin-bottom: 20px;
   color: #343a40;
 }
 
-.sidebar ul {
+.results ul {
   list-style-type: none;
   padding: 0;
 }
 
-.sidebar .result-item {
+.results .result-item {
   padding: 10px;
   margin-bottom: 10px;
   background-color: #ffffff;
@@ -90,16 +81,16 @@ export default {
   transition: background-color 0.3s, transform 0.3s;
 }
 
-.sidebar .result-item:hover {
+.results .result-item:hover {
   background-color: #e9ecef;
   transform: translateX(5px);
 }
 
-.sidebar .result-item:active {
+.results .result-item:active {
   background-color: #dee2e6;
 }
 
-.sidebar .result-item.selected {
+.results .result-item.selected {
   background-color: #d4edda;
   border-left: 5px solid #28a745;
 }
