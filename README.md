@@ -32,7 +32,7 @@ TEST_BENCH_REGEXP=/BenchmarkBuildLocal$ make test
 # run all benchmarks 3 times (default 1)
 TEST_BENCH_RUN=3 make test
 
-# run enough iterations of each benchmark to take 2s (default 1s)
+# run enough iterations of each benchmark to take 2s (default 0.01s)
 TEST_BENCH_TIME=2s make test
 
 # run all with master, v0.9.3 and v0.16.0 git references
