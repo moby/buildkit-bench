@@ -5,7 +5,7 @@ set -eu -o pipefail
 testFile=./bin/results/gotestoutput.json
 testDate=$(date +'%Y%m%d-%H%M%S')
 if [ -f "$testFile" ]; then
-  testDate=$(date -d "$(stat -c %y "$testFile" | cut -d' ' -f1,2)" +'%Y%m%d-%H%M%S')
+  testDate=$(date -r "$testFile" +'%Y%m%d-%H%M%S')
 fi
 
 resultDir=./website/public/result/${testDate}
