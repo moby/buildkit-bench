@@ -2,9 +2,9 @@
   <div class="results">
     <h2>Results</h2>
     <ul>
-      <li v-for="result in results" :key="result" @click="loadResult(result)"
-          :class="['result-item', { 'selected': result === selectedResult }]">
-        {{ result }}
+      <li v-for="result in results" :key="result" @click="loadResult(result)" :class="['result-item', { 'selected': result === selectedResult }]">
+        <i class="calendar-icon"></i>
+        {{ formatResult(result) }}
       </li>
     </ul>
   </div>
@@ -56,6 +56,15 @@ export default {
         this.selectedResult = this.results[0];
       }
     },
+    formatResult(result) {
+      const year = result.substring(0, 4);
+      const month = result.substring(4, 6);
+      const day = result.substring(6, 8);
+      const hour = result.substring(9, 11);
+      const minute = result.substring(11, 13);
+      const second = result.substring(13, 15);
+      return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+    }
   }
 };
 </script>
@@ -73,6 +82,8 @@ export default {
 }
 
 .results .result-item {
+  display: flex;
+  align-items: center;
   padding: 10px;
   margin-bottom: 10px;
   background-color: #ffffff;
@@ -93,5 +104,14 @@ export default {
 .results .result-item.selected {
   background-color: #d4edda;
   border-left: 5px solid #28a745;
+}
+
+.results .calendar-icon {
+  margin-right: 10px;
+  width: 16px;
+  height: 16px;
+  background-image: url('../assets/calendar.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 </style>
