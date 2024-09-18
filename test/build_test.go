@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"sync"
 	"testing"
 
@@ -27,12 +28,13 @@ func BenchmarkBuild(b *testing.B) {
 		benchmarkBuildBreaker32,
 		benchmarkBuildBreaker64,
 		benchmarkBuildBreaker128,
+		benchmarkBuildFileTransfer,
 	), testutil.WithMirroredImages(mirroredImages))
 }
 
 func benchmarkBuildSimple(b *testing.B, sb testutil.Sandbox) {
 	dockerfile := []byte(`
-FROM busybox:latest AS base
+FROM busybox:latest
 COPY foo /etc/foo
 RUN cp /etc/foo /etc/bar
 `)
@@ -145,4 +147,41 @@ RUN cp /etc/foo /etc/bar
 	b.StartTimer()
 	wg.Wait()
 	b.StopTimer()
+}
+
+func benchmarkBuildFileTransfer(b *testing.B, sb testutil.Sandbox) {
+	var appliers []fstest.Applier
+	appliers = append(appliers,
+		fstest.CreateDir("subdir1", 0755),
+		fstest.CreateFile("subdir1/file1.txt", []byte("foo"), 0600),
+		fstest.CreateFile("subdir1/file2.txt", make([]byte, 1024*1024), 0600), // 1MB file
+		fstest.CreateDir("subdir1/subdir2", 0755),
+		fstest.CreateFile("subdir1/subdir2/file3.txt", []byte("bar"), 0600),
+		fstest.CreateFile("subdir1/subdir2/file4.txt", make([]byte, 1024*1024*10), 0600), // 10MB file
+	)
+	for i := 0; i < 5000; i++ {
+		appliers = append(appliers, fstest.CreateFile(fmt.Sprintf("subdir1/file%d.txt", i+5), []byte("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."), 0600))
+	}
+	appliers = append(appliers,
+		fstest.CreateFile("subdir1/largefile1.txt", make([]byte, 1024*1024*50), 0600),  // 50MB file
+		fstest.CreateFile("subdir1/largefile2.txt", make([]byte, 1024*1024*100), 0600), // 100MB file
+	)
+
+	dockerfile := []byte(`
+FROM busybox:latest
+WORKDIR /src
+COPY . .
+RUN du -sh . && tree .
+`)
+	dir := tmpdir(b,
+		fstest.CreateFile("Dockerfile", dockerfile, 0600),
+		fstest.Apply(appliers...),
+	)
+
+	b.ResetTimer()
+	b.StartTimer()
+	out, err := buildxBuildCmd(sb, withArgs(dir))
+	b.StopTimer()
+	sb.WriteLogFile(b, "buildx", []byte(out))
+	require.NoError(b, err, out)
 }
