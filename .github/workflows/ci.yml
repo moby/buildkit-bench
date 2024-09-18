@@ -134,6 +134,9 @@ jobs:
           version: ${{ env.SETUP_BUILDX_VERSION }}
           driver: docker
       -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      -
         name: Build test image
         uses: docker/bake-action@v5
         with:
