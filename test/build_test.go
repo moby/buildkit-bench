@@ -103,6 +103,7 @@ func buildBreaker(b *testing.B, sb testutil.Sandbox, n int) {
 			defer wg.Done()
 			out, err := buildxBuildCmd(sb, withArgs(
 				"--build-arg=BUILDKIT_SYNTAX="+dockerfileImagePin,
+				"-o", "type=image",
 				"https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
 			))
 			require.NoError(b, err, out)
