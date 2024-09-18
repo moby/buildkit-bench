@@ -54,9 +54,6 @@ target "buildkit-build" {
   }
   context = "https://github.com/${BUILDKIT_REPO}.git#${ref}"
   target = BUILDKIT_TARGET
-  args = {
-    BUILDKIT_DEBUG = 1
-  }
   cache-from = ["type=registry,ref=${BUILDKIT_CACHE_REPO}:bkbins-${ref}"]
   cache-to = ["type=inline"]
 }
