@@ -4,24 +4,32 @@ defaults:
 
 runs:
   BenchmarkBuild:
-    BenchmarkBuildLocal:
-      description: Local build
+    BenchmarkBuildSimple:
+      description: Simple build
       count: 4
       benchtime: 0.1s
       metrics:
         duration:
           description: Time (s)
           chart: boxplot
-    BenchmarkBuildLocalSecret:
-      description: Local build with secret
+    BenchmarkBuildMultistage:
+      description: Multistage build
+      count: 4
+      benchtime: 0.1s
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+    BenchmarkBuildSecret:
+      description: Build with secret
       count: 4
       benchtime: 1s
       metrics:
         duration:
           description: Time (s)
           chart: boxplot
-    BenchmarkBuildRemoteBuildme:
-      description: Remote build github.com/dvdksn/buildme
+    BenchmarkBuildRemote:
+      description: Build from git context
       count: 4
       benchtime: 1s
       metrics:
