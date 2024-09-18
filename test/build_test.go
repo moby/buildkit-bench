@@ -47,6 +47,7 @@ COPY --from=base /etc/bar /bar
 	b.StartTimer()
 	out, err := buildxBuildCmd(sb, withArgs(dir))
 	b.StopTimer()
+	sb.WriteLogFile(b, "buildx", []byte(out))
 	require.NoError(b, err, out)
 }
 
@@ -65,6 +66,7 @@ RUN --mount=type=secret,id=SECRET cat /run/secrets/SECRET
 	b.StartTimer()
 	out, err := buildxBuildCmd(sb, withDir(dir), withArgs("--secret=id=SECRET,src=secret.txt", "."))
 	b.StopTimer()
+	sb.WriteLogFile(b, "buildx", []byte(out))
 	require.NoError(b, err, out)
 }
 
@@ -76,6 +78,7 @@ func benchmarkBuildRemoteBuildme(b *testing.B, sb testutil.Sandbox) {
 		"https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
 	))
 	b.StopTimer()
+	sb.WriteLogFile(b, "buildx", []byte(out))
 	require.NoError(b, err, out)
 }
 
@@ -106,6 +109,9 @@ func buildBreaker(b *testing.B, sb testutil.Sandbox, n int) {
 				"-o", "type=image",
 				"https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
 			))
+			// TODO: use sb.WriteLogFile to write buildx logs in a defer with a
+			//  semaphore using a buffered channel to limit the number of
+			//  concurrent goroutines. This might affect timing.
 			require.NoError(b, err, out)
 		}()
 	}

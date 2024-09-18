@@ -15,6 +15,7 @@ set -eu -o pipefail
 : "${TEST_BENCH_TIME=}"
 
 : "${TEST_BENCH_RUN=1}"
+: "${TEST_OUT_DIR=/testout}"
 : "${BUILDKIT_REF_RANDOM=}"
 
 if [ "$TEST_IMAGE_BUILD" = "1" ]; then
@@ -57,8 +58,9 @@ fi
     -v $testOutputDir:/testout \
     --volumes-from=$cacheVolume \
     -e TEST_BENCH_RUN=$TEST_BENCH_RUN \
+    -e TEST_OUT_DIR=$TEST_OUT_DIR \
     -e BUILDKIT_REF_RANDOM=$BUILDKIT_REF_RANDOM \
     -e REGISTRY_MIRROR_DIR=/root/.cache/registry \
     $TEST_IMAGE_ID \
-    sh -c "go test -bench=${TEST_BENCH_REGEXP:-.} -benchtime=${TEST_BENCH_TIME:-0.01s} -benchmem -json -mod=vendor ${TEST_FLAGS:--v} ${TEST_PKG:-./test/...} | gotestmetrics parse --output /testout/gotestoutput.json"
+    sh -c "go test -bench=${TEST_BENCH_REGEXP:-.} -benchtime=${TEST_BENCH_TIME:-0.01s} -benchmem -json -mod=vendor ${TEST_FLAGS:--v} ${TEST_PKG:-./test/...} | gotestmetrics parse --output $TEST_OUT_DIR/gotestoutput.json"
 )
