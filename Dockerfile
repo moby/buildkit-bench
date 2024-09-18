@@ -74,7 +74,7 @@ RUN --mount=type=bind,target=. <<EOT
     args="$args --validation-mode $GEN_VALIDATION_MODE"
   fi
   set -x
-  gotestmetrics $args "/tests-results/*.json"
+  gotestmetrics $args "/tests-results/gotestoutput*.json"
 EOT
 
 FROM scratch AS tests-gen
