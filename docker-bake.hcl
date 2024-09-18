@@ -32,6 +32,20 @@ function "parse_refs" {
   ]
 }
 
+function "ref_info" {
+  params = [ref]
+  result = {
+    cache_tag = (
+      ref == "v0.12.0" || ref == "18fc875d9bfd6e065cd8211abc639434ba65aa56" ? "v0.12.0-pick-pr-4361" :
+      ref
+    ),
+    context = (
+      ref == "v0.12.0" || ref == "18fc875d9bfd6e065cd8211abc639434ba65aa56" ? "https://github.com/crazy-max/buildkit.git#v0.12.0-pick-pr-4361" :
+      "https://github.com/${BUILDKIT_REPO}.git#${ref}"
+    )
+  }
+}
+
 group "default" {
   targets = ["tests"]
 }
@@ -52,9 +66,9 @@ target "buildkit-build" {
   matrix = {
     ref = [for item in parse_refs(BUILDKIT_REFS) : item.value]
   }
-  context = "https://github.com/${BUILDKIT_REPO}.git#${ref}"
+  context = ref_info(ref).context
   target = BUILDKIT_TARGET
-  cache-from = ["type=registry,ref=${BUILDKIT_CACHE_REPO}:bkbins-${ref}"]
+  cache-from = ["type=registry,ref=${BUILDKIT_CACHE_REPO}:bkbins-${ref_info(ref).cache_tag}"]
   cache-to = ["type=inline"]
 }
 
