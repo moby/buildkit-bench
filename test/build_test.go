@@ -19,9 +19,10 @@ func BenchmarkBuild(b *testing.B) {
 	)
 	mirroredImages[dockerfileImagePin] = "docker.io/" + dockerfileImagePin
 	testutil.Run(b, testutil.BenchFuncs(
-		benchmarkBuildLocal,
-		benchmarkBuildLocalSecret,
-		benchmarkBuildRemoteBuildme,
+		benchmarkBuildSimple,
+		benchmarkBuildMultistage,
+		benchmarkBuildSecret,
+		benchmarkBuildRemote,
 		benchmarkBuildBreaker16,
 		benchmarkBuildBreaker32,
 		benchmarkBuildBreaker64,
@@ -29,7 +30,26 @@ func BenchmarkBuild(b *testing.B) {
 	), testutil.WithMirroredImages(mirroredImages))
 }
 
-func benchmarkBuildLocal(b *testing.B, sb testutil.Sandbox) {
+func benchmarkBuildSimple(b *testing.B, sb testutil.Sandbox) {
+	dockerfile := []byte(`
+FROM busybox:latest AS base
+COPY foo /etc/foo
+RUN cp /etc/foo /etc/bar
+`)
+	dir := tmpdir(
+		b,
+		fstest.CreateFile("Dockerfile", dockerfile, 0600),
+		fstest.CreateFile("foo", []byte("foo"), 0600),
+	)
+	b.ResetTimer()
+	b.StartTimer()
+	out, err := buildxBuildCmd(sb, withArgs(dir))
+	b.StopTimer()
+	sb.WriteLogFile(b, "buildx", []byte(out))
+	require.NoError(b, err, out)
+}
+
+func benchmarkBuildMultistage(b *testing.B, sb testutil.Sandbox) {
 	dockerfile := []byte(`
 FROM busybox:latest AS base
 COPY foo /etc/foo
@@ -52,7 +72,7 @@ COPY --from=base /etc/bar /bar
 }
 
 // https://github.com/docker/buildx/issues/2479
-func benchmarkBuildLocalSecret(b *testing.B, sb testutil.Sandbox) {
+func benchmarkBuildSecret(b *testing.B, sb testutil.Sandbox) {
 	dockerfile := []byte(`
 FROM python:latest
 RUN --mount=type=secret,id=SECRET cat /run/secrets/SECRET
@@ -70,7 +90,7 @@ RUN --mount=type=secret,id=SECRET cat /run/secrets/SECRET
 	require.NoError(b, err, out)
 }
 
-func benchmarkBuildRemoteBuildme(b *testing.B, sb testutil.Sandbox) {
+func benchmarkBuildRemote(b *testing.B, sb testutil.Sandbox) {
 	b.ResetTimer()
 	b.StartTimer()
 	out, err := buildxBuildCmd(sb, withArgs(
@@ -99,16 +119,22 @@ func benchmarkBuildBreaker128(b *testing.B, sb testutil.Sandbox) {
 }
 
 func buildBreaker(b *testing.B, sb testutil.Sandbox, n int) {
+	dockerfile := []byte(`
+FROM busybox:latest AS base
+COPY foo /etc/foo
+RUN cp /etc/foo /etc/bar
+`)
 	var wg sync.WaitGroup
 	for i := 0; i < n; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			out, err := buildxBuildCmd(sb, withArgs(
-				"--build-arg=BUILDKIT_SYNTAX="+dockerfileImagePin,
-				"-o", "type=image",
-				"https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
-			))
+			dir := tmpdir(
+				b,
+				fstest.CreateFile("Dockerfile", dockerfile, 0600),
+				fstest.CreateFile("foo", []byte("foo"), 0600),
+			)
+			out, err := buildxBuildCmd(sb, withArgs(dir))
 			// TODO: use sb.WriteLogFile to write buildx logs in a defer with a
 			//  semaphore using a buffered channel to limit the number of
 			//  concurrent goroutines. This might affect timing.
