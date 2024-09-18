@@ -4,12 +4,20 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"fmt"
+	"os"
+	"path"
+	"path/filepath"
+	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/pkg/errors"
 )
 
 const buildkitdConfigFile = "buildkitd.toml"
+
+var reTestName = regexp.MustCompile(`(.*)/ref=([^/]+)/run=([^/]+)`)
 
 type sandbox struct {
 	Backend
@@ -20,6 +28,7 @@ type sandbox struct {
 	ctx     context.Context
 	name    string
 	binsDir string
+	outDir  string
 }
 
 func (sb *sandbox) Name() string {
@@ -38,6 +47,26 @@ func (sb *sandbox) PrintLogs(tb testing.TB) {
 	printLogs(sb.logs, tb.Log)
 }
 
+func (sb *sandbox) WriteLogs(tb testing.TB) {
+	var logs []byte
+	for name, l := range sb.logs {
+		logs = append(logs, []byte(fmt.Sprintf("%s\n", name))...)
+		logs = append(logs, l.Bytes()...)
+	}
+	sb.WriteLogFile(tb, "buildkitd", logs)
+}
+
+func (sb *sandbox) WriteLogFile(tb testing.TB, name string, dt []byte) {
+	tname, ref, run := sb.parseTestName(tb)
+	testLogsDir := path.Join(sb.outDir, "logs", path.Join(strings.Split(tname, "/")...), ref)
+	if err := os.MkdirAll(testLogsDir, 0755); err != nil {
+		tb.Fatalf("failed to create logs directory: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(testLogsDir, fmt.Sprintf("%s-run%s.log", name, run)), dt, 0644); err != nil {
+		tb.Fatalf("writing log file: %v", err)
+	}
+}
+
 func (sb *sandbox) ClearLogs() {
 	sb.logs = make(map[string]*bytes.Buffer)
 }
@@ -48,6 +77,14 @@ func (sb *sandbox) Value(k string) interface{} {
 
 func (sb *sandbox) BinsDir() string {
 	return sb.binsDir
+}
+
+func (sb *sandbox) parseTestName(tb testing.TB) (string, string, string) {
+	matches := reTestName.FindStringSubmatch(tb.Name())
+	if len(matches) < 4 {
+		tb.Fatalf("failed to parse test name: %q", tb.Name())
+	}
+	return matches[1], matches[2], matches[3]
 }
 
 func newSandbox(ctx context.Context, r Worker, mirror string, mv matrixValue) (s Sandbox, cl func() error, err error) {
@@ -87,6 +124,7 @@ func newSandbox(ctx context.Context, r Worker, mirror string, mv matrixValue) (s
 		ctx:     ctx,
 		name:    r.Name(),
 		binsDir: binsDir,
+		outDir:  outDir,
 	}, cl, nil
 }
 

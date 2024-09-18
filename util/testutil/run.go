@@ -49,7 +49,9 @@ type Sandbox interface {
 	Context() context.Context
 	Logs() map[string]*bytes.Buffer
 	PrintLogs(testing.TB)
+	WriteLogs(testing.TB)
 	ClearLogs()
+	WriteLogFile(testing.TB, string, []byte)
 	Value(string) interface{} // chosen matrix value
 	Name() string
 	BinsDir() string
@@ -235,6 +237,7 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 								require.NoError(tb, err)
 								tb.Cleanup(func() { _ = closer() })
 								defer func() {
+									sb.WriteLogs(tb)
 									if tb.Failed() {
 										sb.PrintLogs(tb)
 									}

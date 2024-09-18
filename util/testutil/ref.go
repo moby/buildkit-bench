@@ -14,7 +14,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-var binsDir = "/buildkit-binaries"
+var (
+	binsDir = "/buildkit-binaries"
+	outDir  = "/testout"
+)
 
 type backend struct {
 	address      string
@@ -47,6 +50,9 @@ func (b backend) BuilderName() string {
 func init() {
 	if v := os.Getenv("BUILDKIT_BINS_DIR"); v != "" {
 		binsDir = v
+	}
+	if v := os.Getenv("TEST_OUT_DIR"); v != "" {
+		outDir = v
 	}
 	for _, ref := range getRefs(binsDir) {
 		Register(ref)

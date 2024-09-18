@@ -164,7 +164,6 @@ jobs:
           resultName=$(echo ${{ matrix.test }} | sed 's/\//-/g')
           resultPath=./${{ env.TEST_RESULTS_DIR }}/gotestoutput-$resultName.json
           echo "TEST_RESULT_NAME=$resultName" >> $GITHUB_ENV
-          echo "TEST_RESULT_PATH=$resultPath" >> $GITHUB_ENV
           mv ./${{ env.TEST_RESULTS_DIR }}/gotestoutput.json $resultPath
           jq . $resultPath
       -
@@ -172,7 +171,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bench-results-${{ env.TEST_RESULT_NAME }}
-          path: ${{ env.TEST_RESULT_PATH }}
+          path: ${{ env.TEST_RESULTS_DIR }}
           if-no-files-found: error
           retention-days: 1
 
@@ -220,7 +219,7 @@ jobs:
       -
         name: Include additional files to report directory
         run: |
-          cp /tmp/buildkit-bench/* ./testconfig.yml ./bin/report/
+          cp -r /tmp/buildkit-bench/* ./testconfig.yml ./bin/report/
           env|sort > ./bin/report/env.txt
           if [ -f "$GITHUB_EVENT_PATH" ]; then
             cp $GITHUB_EVENT_PATH ./bin/report/gha-event.json
