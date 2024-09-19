@@ -24,10 +24,11 @@ func BenchmarkBuild(b *testing.B) {
 		benchmarkBuildMultistage,
 		benchmarkBuildSecret,
 		benchmarkBuildRemote,
-		benchmarkBuildBreaker16,
-		benchmarkBuildBreaker32,
-		benchmarkBuildBreaker64,
-		benchmarkBuildBreaker128,
+		benchmarkBuildHighParallelization16x,
+		benchmarkBuildHighParallelization32x,
+		benchmarkBuildHighParallelization64x,
+		benchmarkBuildHighParallelization128x,
+		benchmarkBuildHighParallelization256x,
 		benchmarkBuildFileTransfer,
 	), testutil.WithMirroredImages(mirroredImages))
 }
@@ -104,23 +105,22 @@ func benchmarkBuildRemote(b *testing.B, sb testutil.Sandbox) {
 	require.NoError(b, err, out)
 }
 
-func benchmarkBuildBreaker16(b *testing.B, sb testutil.Sandbox) {
-	buildBreaker(b, sb, 16)
+func benchmarkBuildHighParallelization16x(b *testing.B, sb testutil.Sandbox) {
+	benchmarkBuildHighParallelization(b, sb, 16)
 }
-
-func benchmarkBuildBreaker32(b *testing.B, sb testutil.Sandbox) {
-	buildBreaker(b, sb, 32)
+func benchmarkBuildHighParallelization32x(b *testing.B, sb testutil.Sandbox) {
+	benchmarkBuildHighParallelization(b, sb, 32)
 }
-
-func benchmarkBuildBreaker64(b *testing.B, sb testutil.Sandbox) {
-	buildBreaker(b, sb, 64)
+func benchmarkBuildHighParallelization64x(b *testing.B, sb testutil.Sandbox) {
+	benchmarkBuildHighParallelization(b, sb, 64)
 }
-
-func benchmarkBuildBreaker128(b *testing.B, sb testutil.Sandbox) {
-	buildBreaker(b, sb, 128)
+func benchmarkBuildHighParallelization128x(b *testing.B, sb testutil.Sandbox) {
+	benchmarkBuildHighParallelization(b, sb, 128)
 }
-
-func buildBreaker(b *testing.B, sb testutil.Sandbox, n int) {
+func benchmarkBuildHighParallelization256x(b *testing.B, sb testutil.Sandbox) {
+	benchmarkBuildHighParallelization(b, sb, 256)
+}
+func benchmarkBuildHighParallelization(b *testing.B, sb testutil.Sandbox, n int) {
 	dockerfile := []byte(`
 FROM busybox:latest AS base
 COPY foo /etc/foo
