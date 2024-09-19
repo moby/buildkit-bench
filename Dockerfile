@@ -64,11 +64,20 @@ ARG GEN_VALIDATION_MODE
 RUN --mount=type=bind,target=. <<EOT
   set -e
   args="gen --output /tmp/benchmarks.html"
+  if [ -f /tests-results/name.txt ]; then
+    args="$args --name $(cat /tests-results/name.txt)"
+  fi
   if [ -f /tests-results/candidates.json ]; then
     args="$args --candidates /tests-results/candidates.json"
   fi
   if [ -f /tests-results/testconfig.yml ]; then
     args="$args --config /tests-results/testconfig.yml"
+  fi
+  if [ -f /tests-results/gha-event.json ]; then
+    args="$args --gha-event /tests-results/gha-event.json"
+  fi
+  if [ -f /tests-results/env.txt ]; then
+    args="$args --envs /tests-results/env.txt"
   fi
   if [ -n "$GEN_VALIDATION_MODE" ]; then
     args="$args --validation-mode $GEN_VALIDATION_MODE"
