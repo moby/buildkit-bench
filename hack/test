@@ -5,6 +5,7 @@ set -eu -o pipefail
 : "${GITHUB_ACTIONS=}"
 : "${GITHUB_EVENT_NAME=}"
 
+: "${TEST_TYPES=test benchmark}"
 : "${TEST_IMAGE_BUILD=1}"
 : "${TEST_IMAGE_ID=buildkit-bench}"
 : "${TEST_RESULTS_DIR=bin/results}"
@@ -51,6 +52,27 @@ if [ "$GITHUB_ACTIONS" = "true" ]; then
   fi
 fi
 
+gotestArgs="-json -mod=vendor"
+testTypeSet=false
+for testType in $TEST_TYPES; do
+  case "$testType" in
+    test)
+      testTypeSet=true
+      ;;
+    benchmark)
+      gotestArgs="$gotestArgs -bench=${TEST_BENCH_REGEXP:-.} -benchtime=${TEST_BENCH_TIME:-1x} -benchmem"
+      ;;
+    *)
+      echo "Unknown test type: $testType"
+      exit 1
+      ;;
+  esac
+done
+if [ "$testTypeSet" = false ]; then
+  gotestArgs="$gotestArgs -run=^$"
+fi
+gotestArgs="$gotestArgs ${TEST_FLAGS:--v} ${TEST_PKG:-./test/...}"
+
 (
   set -x
   docker run --rm --privileged $dockerConfigMount \
@@ -62,5 +84,5 @@ fi
     -e BUILDKIT_REF_RANDOM=$BUILDKIT_REF_RANDOM \
     -e REGISTRY_MIRROR_DIR=/root/.cache/registry \
     $TEST_IMAGE_ID \
-    sh -c "go test -bench=${TEST_BENCH_REGEXP:-.} -benchtime=${TEST_BENCH_TIME:-1x} -benchmem -json -mod=vendor ${TEST_FLAGS:--v} ${TEST_PKG:-./test/...} | gotestmetrics parse --output $TEST_OUT_DIR/gotestoutput.json"
+    sh -c "go test ${gotestArgs} | gotestmetrics parse --output $TEST_OUT_DIR/gotestoutput.json"
 )
