@@ -26,6 +26,12 @@ changes from default branch. You can also specify a commit to test or multiple
 references and tweak the benchmark settings:
 
 ```bash
+# run only tests
+TEST_TYPES=test make test
+
+# run only benchmarks
+TEST_TYPES=benchmark make test
+
 # run a specific benchmark
 TEST_BENCH_REGEXP=/BenchmarkBuildLocal$ make test
 
