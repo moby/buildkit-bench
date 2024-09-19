@@ -8,7 +8,9 @@ require (
 	github.com/containerd/continuity v0.4.3
 	github.com/go-echarts/go-echarts/v2 v2.4.1
 	github.com/gofrs/flock v0.12.1
+	github.com/google/go-github/v65 v65.0.0
 	github.com/google/pprof v0.0.0-20240424215950-a892ee059fd6
+	github.com/joho/godotenv v1.5.1
 	github.com/moby/buildkit v0.15.2
 	github.com/montanaflynn/stats v0.7.1
 	github.com/opencontainers/image-spec v1.1.0
@@ -38,6 +40,7 @@ require (
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/in-toto/in-toto-golang v0.5.0 // indirect

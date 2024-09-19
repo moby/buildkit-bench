@@ -253,7 +253,7 @@ jobs:
         name: Download results
         uses: actions/download-artifact@v4
         with:
-          path: /tmp/buildkit-bench
+          path: /tmp/buildkit-bench-result
           pattern: bench-results-*
           merge-multiple: true
       -
@@ -261,7 +261,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: candidates
-          path: /tmp/buildkit-bench
+          path: /tmp/buildkit-bench-result
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -273,6 +273,15 @@ jobs:
         name: Checkout
         uses: actions/checkout@v4
       -
+        name: Create metadata files
+        run: |
+          cp ./testconfig.yml /tmp/buildkit-bench-result/
+          echo "$(date +'%Y%m%d-%H%M%S')" > /tmp/buildkit-bench-result/name.txt
+          env|sort > /tmp/buildkit-bench-result/env.txt
+          if [ -f "$GITHUB_EVENT_PATH" ]; then
+            cp $GITHUB_EVENT_PATH /tmp/buildkit-bench-result/gha-event.json
+          fi
+      -
         name: Generate HTML report
         uses: docker/bake-action@v5
         with:
@@ -281,18 +290,14 @@ jobs:
           provenance: false
           set: |
             *.cache-from=type=registry,ref=${{ env.BUILDKIT_CACHE_REPO }}:tests-base
-            *.contexts.tests-results=cwd:///tmp/buildkit-bench
+            *.contexts.tests-results=cwd:///tmp/buildkit-bench-result
             *.output=./bin/report
         env:
           BAKE_ALLOW_REMOTE_FS_ACCESS: 1
       -
-        name: Include additional files to report directory
+        name: Include results to report
         run: |
-          cp -r /tmp/buildkit-bench/* ./testconfig.yml ./bin/report/
-          env|sort > ./bin/report/env.txt
-          if [ -f "$GITHUB_EVENT_PATH" ]; then
-            cp $GITHUB_EVENT_PATH ./bin/report/gha-event.json
-          fi
+          cp -r /tmp/buildkit-bench-result/* ./bin/report/
       -
         name: Upload report
         uses: actions/upload-artifact@v4
@@ -324,7 +329,7 @@ jobs:
       -
         name: Move reports
         run: |
-          reportDir=$(date +'%Y%m%d-%H%M%S')
+          reportDir=$(cat /tmp/buildkit-bench-report/name.txt)
           mkdir -p ./website/public/result/$reportDir
           mv /tmp/buildkit-bench-report/* ./website/public/result/$reportDir/
           if [ -d ./bin/gh-pages/result ]; then
