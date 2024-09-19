@@ -1,13 +1,12 @@
 defaults:
   count: 3
-  benchtime: 0.01s
+  benchtime: 1x
 
 runs:
   BenchmarkBuild:
     BenchmarkBuildSimple:
       description: Simple build
       count: 4
-      benchtime: 0.1s
       metrics:
         duration:
           description: Time (s)
@@ -15,7 +14,6 @@ runs:
     BenchmarkBuildMultistage:
       description: Multistage build
       count: 4
-      benchtime: 0.1s
       metrics:
         duration:
           description: Time (s)
@@ -23,7 +21,6 @@ runs:
     BenchmarkBuildSecret:
       description: Build with secret
       count: 4
-      benchtime: 1s
       metrics:
         duration:
           description: Time (s)
@@ -31,7 +28,6 @@ runs:
     BenchmarkBuildRemote:
       description: Build from git context
       count: 4
-      benchtime: 1s
       metrics:
         duration:
           description: Time (s)
@@ -39,7 +35,6 @@ runs:
     BenchmarkBuildBreaker16:
       description: Build breaker 16x
       count: 3
-      benchtime: 0.1s
       metrics:
         duration:
           description: Time (s)
@@ -47,7 +42,6 @@ runs:
     BenchmarkBuildBreaker32:
       description: Build breaker 32x
       count: 4
-      benchtime: 0.1s
       metrics:
         duration:
           description: Time (s)
@@ -55,7 +49,6 @@ runs:
     BenchmarkBuildBreaker64:
       description: Build breaker 64x
       count: 4
-      benchtime: 1s
       metrics:
         duration:
           description: Time (s)
@@ -63,7 +56,6 @@ runs:
     BenchmarkBuildBreaker128:
       description: Build breaker 128x
       count: 4
-      benchtime: 1s
       metrics:
         duration:
           description: Time (s)
@@ -71,7 +63,6 @@ runs:
     BenchmarkBuildFileTransfer:
       description: Build with substantial file transfer
       count: 4
-      benchtime: 1s
       metrics:
         duration:
           description: Time (s)
@@ -81,7 +72,6 @@ runs:
     BenchmarkDaemonVersion:
       description: Run buildkitd --version
       count: 8
-      benchtime: 0.01s
       metrics:
         duration:
           description: Time (s)
@@ -89,7 +79,6 @@ runs:
     BenchmarkDaemonSize:
       description: Daemon binary size
       count: 1
-      benchtime: 1s
       metrics:
         bytes:
           description: Size (bytes)
@@ -100,7 +89,6 @@ runs:
     BenchmarkPackageSize:
       description: Package size
       count: 1
-      benchtime: 1s
       metrics:
         bytes:
           description: Size (bytes)
