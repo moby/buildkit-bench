@@ -1,0 +1,77 @@
+#0 building with "remote-oxrdf1l888rfrikcsyaz5rxo7" instance using remote driver
+
+#1 [internal] load git source https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8
+#1 0.012 Initialized empty Git repository in /tmp/bkbench_sandbox2106762131/runc-overlayfs/snapshots/snapshots/1/fs/
+#1 0.015 fatal: Not a valid object name eb6279e0ad8a10003718656c6867539bd9426ad8^{commit}
+#1 0.441 From https://github.com/dvdksn/buildme
+#1 0.441  * [new branch]      args       -> origin/args
+#1 0.441  * [new branch]      cache      -> origin/cache
+#1 0.441  * [new branch]      export     -> origin/export
+#1 0.441  * [new branch]      main       -> origin/main
+#1 DONE 0.5s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1.9.0
+#2 DONE 0.0s
+
+#3 docker-image://docker.io/docker/dockerfile:1.9.0@sha256:fe40cf4e92cd0c467be2cfc30657a680ae2398318afd50b0c80585784c604f28
+#3 resolve docker.io/docker/dockerfile:1.9.0@sha256:fe40cf4e92cd0c467be2cfc30657a680ae2398318afd50b0c80585784c604f28 done
+#3 sha256:2ba8a93af1b3f8d1c5354117c15aa2eaa674a24a81b6622506a8a524ba8d3fc9 12.46MB / 12.46MB 0.0s done
+#3 extracting sha256:2ba8a93af1b3f8d1c5354117c15aa2eaa674a24a81b6622506a8a524ba8d3fc9
+#3 extracting sha256:2ba8a93af1b3f8d1c5354117c15aa2eaa674a24a81b6622506a8a524ba8d3fc9 0.2s done
+#3 DONE 0.2s
+
+#4 [internal] load metadata for docker.io/library/golang:1.22-alpine
+#4 DONE 0.0s
+
+#5 [internal] load metadata for docker.io/library/alpine:latest
+#5 ...
+
+#6 [auth] library/alpine:pull token for registry-1.docker.io
+#6 DONE 0.0s
+
+#5 [internal] load metadata for docker.io/library/alpine:latest
+#5 DONE 1.0s
+
+#7 [build 1/6] FROM docker.io/library/golang:1.22-alpine@sha256:51c59ce1d82286f8c6498ad78f97528fc7896fcff59997bd02b4b76c7f4979ca
+#7 resolve docker.io/library/golang:1.22-alpine@sha256:51c59ce1d82286f8c6498ad78f97528fc7896fcff59997bd02b4b76c7f4979ca done
+#7 sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 32B / 32B done
+#7 sha256:e03faa37baa5b2c00b853f583697d0f539de17c6cc18298ec0aeb8286e0ce96a 125B / 125B done
+#7 sha256:2481cf71f4c933e7da3d588142a6f08f3eb282bc1c916cb59d8e4aa03ace6347 290.88kB / 290.88kB done
+#7 sha256:2623b10dea37b1fe63fb912ba746548c058d45c2d5edbd6d1ed3dc11d321c0bb 69.36MB / 69.36MB 0.2s done
+#7 DONE 0.2s
+
+#8 [final 1/2] FROM docker.io/library/alpine:latest@sha256:beefdbd8a1da6d2915566fde36db9db0b524eb737fc57cd1367effd16dc0d06d
+#8 resolve docker.io/library/alpine:latest@sha256:beefdbd8a1da6d2915566fde36db9db0b524eb737fc57cd1367effd16dc0d06d done
+#8 sha256:43c4264eed91be63b206e17d93e75256a6097070ce643c5e8f0379998b44f170 3.62MB / 3.62MB 0.1s done
+#8 extracting sha256:43c4264eed91be63b206e17d93e75256a6097070ce643c5e8f0379998b44f170 0.2s done
+#8 DONE 0.3s
+
+#7 [build 1/6] FROM docker.io/library/golang:1.22-alpine@sha256:51c59ce1d82286f8c6498ad78f97528fc7896fcff59997bd02b4b76c7f4979ca
+#7 extracting sha256:2481cf71f4c933e7da3d588142a6f08f3eb282bc1c916cb59d8e4aa03ace6347 0.0s done
+#7 extracting sha256:2623b10dea37b1fe63fb912ba746548c058d45c2d5edbd6d1ed3dc11d321c0bb
+#7 extracting sha256:2623b10dea37b1fe63fb912ba746548c058d45c2d5edbd6d1ed3dc11d321c0bb 2.9s done
+#7 DONE 3.1s
+
+#7 [build 1/6] FROM docker.io/library/golang:1.22-alpine@sha256:51c59ce1d82286f8c6498ad78f97528fc7896fcff59997bd02b4b76c7f4979ca
+#7 extracting sha256:e03faa37baa5b2c00b853f583697d0f539de17c6cc18298ec0aeb8286e0ce96a done
+#7 extracting sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 done
+#7 DONE 3.1s
+
+#9 [build 2/6] WORKDIR /src
+#9 DONE 0.4s
+
+#10 [build 3/6] COPY go.mod go.sum .
+#10 DONE 0.0s
+
+#11 [build 4/6] RUN go mod download
+#11 DONE 0.9s
+
+#12 [build 5/6] COPY . .
+#12 DONE 0.0s
+
+#13 [build 6/6] RUN go build -o /buildme .
+#13 DONE 10.8s
+
+#14 [final 2/2] COPY --from=build /buildme /
+#14 DONE 0.0s
+WARNING: No output specified with remote driver. Build result will only remain in the build cache. To push result image into registry use --push or to load image into docker use --load
