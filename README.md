@@ -31,24 +31,26 @@ TEST_TYPES=test make test
 
 # run only benchmarks
 TEST_TYPES=benchmark make test
+# or
+make bench
 
 # run a specific benchmark
-TEST_BENCH_REGEXP=/BenchmarkBuildLocal$ make test
+TEST_BENCH_REGEXP=/BenchmarkBuildLocal$ make bench
 
 # run all benchmarks 3 times (default 1)
-TEST_BENCH_RUN=3 make test
+TEST_BENCH_RUN=3 make bench
 
 # run 5 iterations of each benchmark (default 1x)
-TEST_BENCH_TIME=5x make test
+TEST_BENCH_TIME=5x make bench
 
 # run all with master, v0.9.3 and v0.16.0 git references
-BUILDKIT_REFS=master,v0.9.3,v0.16.0 make test
+BUILDKIT_REFS=master,v0.9.3,v0.16.0 make bench
 ```
 
 > [!NOTE]
 > Set `TEST_KEEP_CACHE=1` for the test framework to keep external dependant
-> images in a docker volume if you are repeatedly calling `./hack/test` script.
-> This helps to avoid rate limiting on the remote registry side.
+> images in a docker volume if you are repeatedly calling `make test` or
+> `make bench`. This helps to avoid rate limiting on the remote registry side.
 
 After running the tests, you can generate the HTML report and serve the
 website with:
