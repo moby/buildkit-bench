@@ -5,6 +5,10 @@ all:
 test:
 	./hack/test
 
+.PHONY: bench
+bench:
+	TEST_TYPES=benchmark ./hack/test
+
 .PHONY: gen
 gen:
 	./hack/gen

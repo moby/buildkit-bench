@@ -147,7 +147,7 @@ jobs:
       -
         name: Test
         run: |
-          ./hack/test
+          make test
         env:
           TEST_TYPES: test
       -
@@ -221,9 +221,8 @@ jobs:
       -
         name: Benchmark
         run: |
-          ./hack/test
+          make bench
         env:
-          TEST_TYPES: benchmark
           TEST_BENCH_REGEXP: ${{ matrix.test }}$
           TEST_BENCH_RUN: ${{ matrix.count }}
           TEST_BENCH_TIME: ${{ matrix.benchtime }}
