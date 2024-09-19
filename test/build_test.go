@@ -28,7 +28,6 @@ func BenchmarkBuild(b *testing.B) {
 		benchmarkBuildHighParallelization32x,
 		benchmarkBuildHighParallelization64x,
 		benchmarkBuildHighParallelization128x,
-		benchmarkBuildHighParallelization256x,
 		benchmarkBuildFileTransfer,
 	), testutil.WithMirroredImages(mirroredImages))
 }
@@ -116,9 +115,6 @@ func benchmarkBuildHighParallelization64x(b *testing.B, sb testutil.Sandbox) {
 }
 func benchmarkBuildHighParallelization128x(b *testing.B, sb testutil.Sandbox) {
 	benchmarkBuildHighParallelization(b, sb, 128)
-}
-func benchmarkBuildHighParallelization256x(b *testing.B, sb testutil.Sandbox) {
-	benchmarkBuildHighParallelization(b, sb, 256)
 }
 func benchmarkBuildHighParallelization(b *testing.B, sb testutil.Sandbox, n int) {
 	dockerfile := []byte(`
