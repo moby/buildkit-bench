@@ -3,6 +3,7 @@ package testutil
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -100,7 +101,9 @@ func (c *Ref) New(ctx context.Context, cfg *BackendConfig) (b Backend, cl func()
 		"--containerd-worker=false",
 		"--oci-worker-gc=false",
 		"--oci-worker-labels=org.mobyproject.buildkit.worker.sandbox=true",
-	}, cfg.Logs, nil)
+	}, cfg.Logs, []string{
+		fmt.Sprintf("PATH=%s:%s", path.Join(binsDir, c.id), os.Getenv("PATH")),
+	})
 	if err != nil {
 		printLogs(cfg.Logs, log.Println)
 		return nil, nil, err
