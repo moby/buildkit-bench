@@ -62,7 +62,6 @@ func testDaemonDebugHeap(t *testing.T, sb testutil.Sandbox) {
 
 func benchmarkDaemonVersion(b *testing.B, sb testutil.Sandbox) {
 	buildkitdPath := path.Join(sb.BinsDir(), sb.Name(), "buildkitd")
-	b.ResetTimer()
 	b.StartTimer()
 	err := exec.Command(buildkitdPath, "--version").Run()
 	b.StopTimer()

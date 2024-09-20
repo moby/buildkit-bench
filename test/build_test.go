@@ -43,7 +43,6 @@ RUN cp /etc/foo /etc/bar
 		fstest.CreateFile("Dockerfile", dockerfile, 0600),
 		fstest.CreateFile("foo", []byte("foo"), 0600),
 	)
-	b.ResetTimer()
 	b.StartTimer()
 	out, err := buildxBuildCmd(sb, withArgs(dir))
 	b.StopTimer()
@@ -65,7 +64,6 @@ COPY --from=base /etc/bar /bar
 		fstest.CreateFile("Dockerfile", dockerfile, 0600),
 		fstest.CreateFile("foo", []byte("foo"), 0600),
 	)
-	b.ResetTimer()
 	b.StartTimer()
 	out, err := buildxBuildCmd(sb, withArgs(dir))
 	b.StopTimer()
@@ -84,7 +82,6 @@ RUN --mount=type=secret,id=SECRET cat /run/secrets/SECRET
 		fstest.CreateFile("Dockerfile", dockerfile, 0600),
 		fstest.CreateFile("secret.txt", []byte("mysecret"), 0600),
 	)
-	b.ResetTimer()
 	b.StartTimer()
 	out, err := buildxBuildCmd(sb, withDir(dir), withArgs("--secret=id=SECRET,src=secret.txt", "."))
 	b.StopTimer()
@@ -93,7 +90,6 @@ RUN --mount=type=secret,id=SECRET cat /run/secrets/SECRET
 }
 
 func benchmarkBuildRemote(b *testing.B, sb testutil.Sandbox) {
-	b.ResetTimer()
 	b.StartTimer()
 	out, err := buildxBuildCmd(sb, withArgs(
 		"--build-arg=BUILDKIT_SYNTAX="+dockerfileImagePin,
@@ -139,7 +135,6 @@ RUN cp /etc/foo /etc/bar
 			require.NoError(b, err, out)
 		}()
 	}
-	b.ResetTimer()
 	b.StartTimer()
 	wg.Wait()
 	b.StopTimer()
@@ -174,7 +169,6 @@ RUN du -sh . && tree .
 		fstest.Apply(appliers...),
 	)
 
-	b.ResetTimer()
 	b.StartTimer()
 	out, err := buildxBuildCmd(sb, withArgs(dir))
 	b.StopTimer()
