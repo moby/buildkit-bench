@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/kong v0.9.0
 	github.com/containerd/containerd v1.7.19
 	github.com/containerd/continuity v0.4.3
-	github.com/go-echarts/go-echarts/v2 v2.4.1
+	github.com/go-echarts/go-echarts/v2 v2.4.2
 	github.com/gofrs/flock v0.12.1
 	github.com/google/go-github/v65 v65.0.0
 	github.com/google/pprof v0.0.0-20240424215950-a892ee059fd6

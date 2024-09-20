@@ -55,8 +55,17 @@ type BaseConfiguration struct {
 	Colors      []string
 	appendColor []string // append customize color to the Colors(reverse order)
 
+	// Animation configs
 	// Animation whether enable the animation, default true
-	Animation types.Bool `json:"animation,omitempty"`
+	Animation          types.Bool `json:"animation,omitempty"`
+	AnimationThreshold types.Int  `json:"animationThreshold,omitempty"`
+	// AnimationDuration defined as types.FuncStr for more flexibilities, so are other related options
+	AnimationDuration       types.FuncStr `json:"animationDuration,omitempty"`
+	AnimationEasing         string        `json:"animationEasing,omitempty"`
+	AnimationDelay          types.FuncStr `json:"animationDelay,omitempty"`
+	AnimationDurationUpdate types.FuncStr `json:"animationDurationUpdate,omitempty"`
+	AnimationEasingUpdate   string        `json:"animationEasingUpdate,omitempty"`
+	AnimationDelayUpdate    types.FuncStr `json:"animationDelayUpdate,omitempty"`
 
 	// Array of datasets, managed by AddDataset()
 	DatasetList []opts.Dataset `json:"dataset,omitempty"`
@@ -117,7 +126,6 @@ func (bc *BaseConfiguration) json() map[string]interface{} {
 		obj["dataset"] = bc.DatasetList[0]
 	} else if len(bc.DatasetList) > 1 {
 		obj["dataset"] = bc.DatasetList
-
 	}
 	if bc.AxisPointer != nil {
 		obj["axisPointer"] = bc.AxisPointer
@@ -355,7 +363,6 @@ func WithGeoComponentOpts(opt opts.GeoComponent) GlobalOpts {
 		bc.GeoComponent = opt
 		bc.JSAssets.Add("maps/" + datasets.MapFileNames[opt.Map] + ".js")
 	}
-
 }
 
 // WithParallelComponentOpts sets the parallel component.
