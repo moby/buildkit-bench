@@ -4,7 +4,7 @@ go 1.21.0
 
 require (
 	github.com/alecthomas/kong v0.9.0
-	github.com/containerd/containerd v1.7.19
+	github.com/containerd/containerd v1.7.22
 	github.com/containerd/continuity v0.4.3
 	github.com/go-echarts/go-echarts/v2 v2.4.1
 	github.com/gofrs/flock v0.12.1
@@ -25,6 +25,7 @@ require (
 )
 
 require (
+	cloud.google.com/go/compute v1.23.3 // indirect
 	github.com/AdaLogics/go-fuzz-headers v0.0.0-20230811130428-ced1acdcaa24 // indirect
 	github.com/bitfield/gotestdox v0.2.2 // indirect
 	github.com/containerd/errdefs v0.1.0 // indirect
@@ -64,10 +65,11 @@ require (
 	go.opentelemetry.io/otel/trace v1.21.0 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/oauth2 v0.13.0 // indirect
 	golang.org/x/sys v0.24.0 // indirect
 	golang.org/x/term v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20231016165738-49dd2c1f3d0b // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20231212172506-995d672761c0 // indirect
 	google.golang.org/grpc v1.59.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 )
