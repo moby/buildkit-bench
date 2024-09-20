@@ -13,7 +13,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 
@@ -21,6 +20,7 @@ import (
 	"github.com/containerd/containerd/remotes/docker"
 	"github.com/gofrs/flock"
 	"github.com/moby/buildkit/util/appcontext"
+	"github.com/moby/buildkit/util/bklog"
 	"github.com/moby/buildkit/util/contentutil"
 	ocispecs "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/pkg/errors"
@@ -196,7 +196,15 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 		o(&tc)
 	}
 
-	getMirror := lazyMirrorRunnerFunc(tb, tc.mirroredImages)
+	var mirror string
+	if len(tc.mirroredImages) > 0 {
+		registryHost, cleanup, err := runMirror(tb, tc.mirroredImages)
+		if err != nil {
+			tb.Fatalf("failed to run mirror: %v", err)
+		}
+		mirror = registryHost
+		tb.Cleanup(func() { _ = cleanup() })
+	}
 
 	matrix := prepareValueMatrix(tc)
 
@@ -233,7 +241,7 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 							defer cancel(errors.WithStack(context.Canceled))
 
 							runWithSandbox := func(tb testing.TB) {
-								sb, closer, err := newSandbox(ctx, br, getMirror(), mv)
+								sb, closer, err := newSandbox(ctx, br, mirror, mv)
 								require.NoError(tb, err)
 								tb.Cleanup(func() { _ = closer() })
 								defer func() {
@@ -320,22 +328,9 @@ func prepareValueMatrix(tc testConf) []matrixValue {
 	return m
 }
 
-func lazyMirrorRunnerFunc(tb testing.TB, images map[string]string) func() string {
-	var once sync.Once
-	var mirror string
-	return func() string {
-		once.Do(func() {
-			host, cleanup, err := runMirror(tb, images)
-			require.NoError(tb, err)
-			tb.Cleanup(func() { _ = cleanup() })
-			mirror = host
-		})
-		return mirror
-	}
-}
-
 func runMirror(tb testing.TB, mirroredImages map[string]string) (host string, _ func() error, err error) {
 	mirrorDir := os.Getenv("REGISTRY_MIRROR_DIR")
+	bklog.L.Info("starting registry mirror")
 
 	var lock *flock.Flock
 	if mirrorDir != "" {
@@ -360,6 +355,8 @@ func runMirror(tb testing.TB, mirroredImages map[string]string) (host string, _ 
 	defer func() {
 		if err != nil {
 			cleanup()
+		} else {
+			bklog.L.Infof("registry mirror started at %s", mirror)
 		}
 	}()
 
