@@ -6,6 +6,7 @@ require (
 	github.com/alecthomas/kong v0.9.0
 	github.com/containerd/containerd v1.7.22
 	github.com/containerd/continuity v0.4.3
+	github.com/containerd/platforms v0.2.1
 	github.com/go-echarts/go-echarts/v2 v2.4.2
 	github.com/gofrs/flock v0.12.1
 	github.com/google/go-github/v65 v65.0.0
@@ -29,7 +30,6 @@ require (
 	github.com/bitfield/gotestdox v0.2.2 // indirect
 	github.com/containerd/errdefs v0.1.0 // indirect
 	github.com/containerd/log v0.1.0 // indirect
-	github.com/containerd/platforms v0.2.1 // indirect
 	github.com/containerd/typeurl/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/distribution/reference v0.6.0 // indirect

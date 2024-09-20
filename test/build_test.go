@@ -2,10 +2,12 @@ package test
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"testing"
 
 	"github.com/containerd/continuity/fs/fstest"
+	"github.com/containerd/platforms"
 	"github.com/moby/buildkit-bench/util/testutil"
 	"github.com/stretchr/testify/require"
 )
@@ -19,6 +21,8 @@ func BenchmarkBuild(b *testing.B) {
 		"python:latest",
 	)
 	mirroredImages[dockerfileImagePin] = "docker.io/" + dockerfileImagePin
+	mirroredImages["amd64/busybox:latest"] = "docker.io/amd64/busybox:latest"
+	mirroredImages["arm64v8/busybox:latest"] = "docker.io/arm64v8/busybox:latest"
 	testutil.Run(b, testutil.BenchFuncs(
 		benchmarkBuildSimple,
 		benchmarkBuildMultistage,
@@ -29,6 +33,7 @@ func BenchmarkBuild(b *testing.B) {
 		benchmarkBuildHighParallelization64x,
 		benchmarkBuildHighParallelization128x,
 		benchmarkBuildFileTransfer,
+		benchmarkBuildEmulator,
 	), testutil.WithMirroredImages(mirroredImages))
 }
 
@@ -171,6 +176,43 @@ RUN du -sh . && tree .
 
 	b.StartTimer()
 	out, err := buildxBuildCmd(sb, withArgs(dir))
+	b.StopTimer()
+	sb.WriteLogFile(b, "buildx", []byte(out))
+	require.NoError(b, err, out)
+}
+
+// https://github.com/moby/buildkit/pull/4949
+func benchmarkBuildEmulator(b *testing.B, sb testutil.Sandbox) {
+	var busyboxImage string
+	var platform platforms.Platform
+	defaultPlatform := platforms.Normalize(platforms.DefaultSpec())
+	if strings.HasPrefix(defaultPlatform.Architecture, "arm") {
+		busyboxImage = "amd64/busybox:latest"
+		platform = platforms.Normalize(platforms.Platform{
+			OS:           defaultPlatform.OS,
+			Architecture: "amd64",
+		})
+	} else {
+		busyboxImage = "arm64v8/busybox:latest"
+		platform = platforms.Normalize(platforms.Platform{
+			OS:           defaultPlatform.OS,
+			Architecture: "arm64",
+		})
+	}
+
+	dockerfile := []byte(fmt.Sprintf(`
+FROM %s
+ENV QEMU_STRACE=1
+RUN uname -a
+`, busyboxImage))
+
+	dir := tmpdir(b, fstest.CreateFile("Dockerfile", dockerfile, 0600))
+	b.StartTimer()
+	out, err := buildxBuildCmd(sb, withArgs(
+		"--build-arg", "BUILDKIT_DOCKERFILE_CHECK=skip=all", // skip all checks (for InvalidBaseImagePlatform): https://docs.docker.com/build/checks/#skip-checks
+		"--platform", platforms.Format(platform),
+		dir,
+	))
 	b.StopTimer()
 	sb.WriteLogFile(b, "buildx", []byte(out))
 	require.NoError(b, err, out)

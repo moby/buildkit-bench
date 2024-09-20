@@ -235,6 +235,16 @@ jobs:
           mv ./${{ env.TEST_RESULTS_DIR }}/gotestoutput.json $resultPath
           jq . $resultPath
       -
+        name: Logs
+        if: github.event_name == 'pull_request'
+        run: |
+          find ${{ env.TEST_RESULTS_DIR }} -type f -name "*.log" -print | while read -r f; do
+            echo "##########################################################################"
+            echo "$f"
+            echo "##########################################################################"
+            cat "$f"
+          done
+      -
         name: Upload results
         uses: actions/upload-artifact@v4
         with:
