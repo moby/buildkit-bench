@@ -1,29 +1,26 @@
 version: 2
 updates:
   - package-ecosystem: "github-actions"
-    open-pull-requests-limit: 0
     directory: "/"
     schedule:
       interval: "daily"
     labels:
       - "area/dependencies"
       - "bot"
-
   - package-ecosystem: "gomod"
-    open-pull-requests-limit: 0
     directory: "/"
     schedule:
       interval: "daily"
     labels:
       - "area/dependencies"
       - "bot"
-
   - package-ecosystem: "npm"
-    open-pull-requests-limit: 0
     directory: "/website"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     versioning-strategy: "increase"
+    allow:
+      - dependency-type: "production"
     labels:
       - "area/dependencies"
       - "bot"
