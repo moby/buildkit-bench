@@ -23,16 +23,8 @@ export default {
         .then(response => response.json())
         .then(data => {
           this.results = data.results.sort((a, b) => b.localeCompare(a));
-          if (this.results.length > 0) {
-            this.selectedResult = this.results[0];
-            this.$router.push(`/result/${this.selectedResult}`).catch(err => {
-              if (err.name !== 'NavigationDuplicated') {
-                throw err;
-              }
-            });
-          }
+          this.updateSelectedResult();
         });
-    this.updateSelectedResult();
   },
   watch: {
     '$route.params.result': 'updateSelectedResult'
@@ -54,6 +46,11 @@ export default {
         this.selectedResult = this.$route.params.result;
       } else if (this.results.length > 0) {
         this.selectedResult = this.results[0];
+        this.$router.push(`/result/${this.selectedResult}`).catch(err => {
+          if (err.name !== 'NavigationDuplicated') {
+            throw err;
+          }
+        });
       }
     },
     formatResult(result) {
