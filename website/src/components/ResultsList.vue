@@ -67,9 +67,14 @@ export default {
 </script>
 
 <style scoped>
+.results {
+  background-color: #f8f9fa;
+}
+
 .results h2 {
   font-size: 1.5em;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  margin-top: 0;
   color: #343a40;
 }
 
