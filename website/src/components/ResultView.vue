@@ -44,37 +44,56 @@ export default {
 
       Promise.all([ghaEvent, env])
         .then(([ghaEvent, env]) => {
+          let repo = undefined;
+          let commit = undefined;
+          let runId = undefined;
+          let runAttempt = undefined;
           if (ghaEvent) {
+            repo = ghaEvent.repository?.full_name;
             if (ghaEvent.commits && ghaEvent.commits.length > 0) {
-              const lastCommit = ghaEvent.commits[ghaEvent.commits.length - 1];
-              this.metadataLinks.push({
-                text: `Commit ${lastCommit.id.substring(0, 7)}`,
-                url: lastCommit.url,
-                icon: require('../assets/github.svg')
-              });
-            }
-            if (ghaEvent.repository && ghaEvent.repository.html_url) {
-              if (env) {
-                const runIdMatch = env.match(/GITHUB_RUN_ID=(\d+)/);
-                const runAttemptMatch = env.match(/GITHUB_RUN_ATTEMPT=(\d+)/);
-                if (runIdMatch && runAttemptMatch) {
-                  this.metadataLinks.push({
-                    text: `GitHub Actions Run`,
-                    url: `https://github.com/${ghaEvent.repository.full_name}/actions/runs/${runIdMatch[1]}/attempts/${runAttemptMatch[1]}`,
-                    icon: require('../assets/github.svg')
-                  });
-                }
-              }
-              this.metadataLinks.push({
-                text: `Logs`,
-                url: `${ghaEvent.repository.html_url}/tree/gh-pages/result/${resultName}/logs`,
-                icon: require('../assets/logs.svg')
-              });
+              commit = ghaEvent.commits[ghaEvent.commits.length - 1].id;
             }
           }
+          if (env) {
+            const repoMatch = env.match(/GITHUB_REPOSITORY=(.+)/);
+            const commitMatch = env.match(/GITHUB_SHA=(.+)/);
+            const runIdMatch = env.match(/GITHUB_RUN_ID=(\d+)/);
+            const runAttemptMatch = env.match(/GITHUB_RUN_ATTEMPT=(\d+)/);
+            if (!repo && repoMatch) {
+              repo = repoMatch[1];
+            }
+            if (!commit && commitMatch) {
+              commit = commitMatch[1];
+            }
+            if (runIdMatch) {
+              runId = runIdMatch[1];
+            }
+            if (runAttemptMatch) {
+              runAttempt = runAttemptMatch[1];
+            }
+          }
+          if (!repo || !commit) {
+            return;
+          }
+          this.metadataLinks.push({
+            text: `Commit ${commit.substring(0, 7)}`,
+            url: `https://github.com/${repo}/commit/${commit}`,
+            icon: require('../assets/github.svg')
+          });
+          if (runId && runAttempt) {
+            this.metadataLinks.push({
+              text: `GitHub Actions Run`,
+              url: `https://github.com/${repo}/actions/runs/${runId}/attempts/${runAttempt}`,
+              icon: require('../assets/github.svg')
+            });
+          }
+          this.metadataLinks.push({
+            text: `Logs`,
+            url: `https://github.com/${repo}/tree/gh-pages/result/${resultName}/logs`,
+            icon: require('../assets/logs.svg')
+          });
         })
-        .catch(() => {
-        });
+        .catch(() => {});
     }
   }
 };
