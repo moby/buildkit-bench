@@ -28,14 +28,15 @@ export default {
 }
 
 .sidebar {
-  width: 200px;
+  flex: 0 0 auto;
   background-color: #f8f9fa;
-  border-right: 1px solid #dee2e6;
   padding: 10px;
 }
 
 .result-view {
-  flex-grow: 1;
-  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 </style>
