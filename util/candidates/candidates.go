@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	ggithub "github.com/google/go-github/v65/github"
 	"github.com/moby/buildkit-bench/util/github"
 	"github.com/pkg/errors"
 	"golang.org/x/mod/semver"
@@ -34,11 +35,11 @@ type Ref struct {
 	Commit Commit
 }
 
-func New(ghc *github.Client, refs string, lastDays int, lastReleases int) (*Candidates, error) {
+func New(ghc *github.Client, refs []string, lastDays int, lastReleases int) (*Candidates, error) {
 	c := &Candidates{
 		ghc: ghc,
 	}
-	if err := c.setRefs(strings.Split(refs, ",")); err != nil {
+	if err := c.setRefs(refs); err != nil {
 		return nil, errors.Wrap(err, "failed to set refs candidates")
 	}
 	if err := c.setReleases(lastReleases); err != nil {
@@ -98,8 +99,8 @@ func (c *Candidates) setRefs(refs []string) error {
 			return errors.Wrapf(err, "failed to fetch commit for ref %q", ref)
 		}
 		res[ref] = Commit{
-			SHA:  cm.SHA,
-			Date: cm.Commit.Committer.Date,
+			SHA:  *cm.SHA,
+			Date: *cm.Commit.Committer.Date.GetTime(),
 		}
 	}
 	c.Refs = res
@@ -113,16 +114,16 @@ func (c *Candidates) setReleases(last int) error {
 	}
 	res := make(map[string]Commit)
 	for _, tag := range filterFeatureReleases(tags, last) {
-		if containsCommitSha(c.Refs, tag.Commit.SHA) {
-			log.Printf("Skipping tag %s (%s), already in refs", tag.Name, tag.Commit.SHA)
+		if containsCommitSha(c.Refs, *tag.Commit.SHA) {
+			log.Printf("Skipping tag %s (%s), already in refs", *tag.Name, *tag.Commit.SHA)
 		} else {
-			cm, err := c.ghc.GetCommit(tag.Commit.SHA)
+			cm, err := c.ghc.GetCommit(*tag.Commit.SHA)
 			if err != nil {
-				return errors.Wrapf(err, "failed to fetch commit for tag commit %q", tag.Commit.SHA)
+				return errors.Wrapf(err, "failed to fetch commit for tag commit %q", *tag.Commit.SHA)
 			}
-			res[tag.Name] = Commit{
-				SHA:  cm.SHA,
-				Date: cm.Commit.Committer.Date,
+			res[*tag.Name] = Commit{
+				SHA:  *cm.SHA,
+				Date: *cm.Commit.Committer.Date.GetTime(),
 			}
 		}
 	}
@@ -137,14 +138,14 @@ func (c *Candidates) setCommits(lastDays int) error {
 	}
 	res := make(map[string]Commit)
 	for date, cm := range lastCommitByDay(filterMergeCommits(commits)) {
-		if containsCommitSha(c.Refs, cm.SHA) {
-			log.Printf("Skipping commit %s, already in refs", cm.SHA)
-		} else if containsCommitSha(c.Releases, cm.SHA) {
-			log.Printf("Skipping commit %s, already in releases", cm.SHA)
+		if containsCommitSha(c.Refs, *cm.SHA) {
+			log.Printf("Skipping commit %s, already in refs", *cm.SHA)
+		} else if containsCommitSha(c.Releases, *cm.SHA) {
+			log.Printf("Skipping commit %s, already in releases", *cm.SHA)
 		} else {
 			res[date] = Commit{
-				SHA:  cm.SHA,
-				Date: cm.Commit.Committer.Date,
+				SHA:  *cm.SHA,
+				Date: *cm.Commit.Committer.Date.GetTime(),
 			}
 		}
 	}
@@ -152,8 +153,8 @@ func (c *Candidates) setCommits(lastDays int) error {
 	return nil
 }
 
-func filterMergeCommits(commits []github.Commit) []github.Commit {
-	var mergeCommits []github.Commit
+func filterMergeCommits(commits []*ggithub.RepositoryCommit) []*ggithub.RepositoryCommit {
+	var mergeCommits []*ggithub.RepositoryCommit
 	for _, cm := range commits {
 		if len(cm.Parents) > 1 {
 			mergeCommits = append(mergeCommits, cm)
@@ -162,43 +163,43 @@ func filterMergeCommits(commits []github.Commit) []github.Commit {
 	return mergeCommits
 }
 
-func lastCommitByDay(commits []github.Commit) map[string]github.Commit {
-	lastCommits := make(map[string]github.Commit)
+func lastCommitByDay(commits []*ggithub.RepositoryCommit) map[string]*ggithub.RepositoryCommit {
+	lastCommits := make(map[string]*ggithub.RepositoryCommit)
 	for _, cm := range commits {
 		day := cm.Commit.Committer.Date.Format("2006-01-02")
-		if existingCommit, exists := lastCommits[day]; !exists || cm.Commit.Committer.Date.After(existingCommit.Commit.Committer.Date) {
+		if existingCommit, exists := lastCommits[day]; !exists || cm.Commit.Committer.Date.After(*existingCommit.Commit.Committer.Date.GetTime()) {
 			lastCommits[day] = cm
 		}
 	}
 	return lastCommits
 }
 
-func filterFeatureReleases(tags []github.Tag, last int) []github.Tag {
-	var latestRC *github.Tag
-	latestReleases := make(map[string]github.Tag)
-	zeroReleases := make(map[string]github.Tag)
+func filterFeatureReleases(tags []*ggithub.RepositoryTag, last int) []*ggithub.RepositoryTag {
+	var latestRC *ggithub.RepositoryTag
+	latestReleases := make(map[string]*ggithub.RepositoryTag)
+	zeroReleases := make(map[string]*ggithub.RepositoryTag)
 	for _, tag := range tags {
 		tag := tag
 		if len(latestReleases) == last && len(zeroReleases) == last {
 			break
 		}
-		if semver.IsValid(tag.Name) {
-			if semver.Prerelease(tag.Name) != "" && len(latestReleases) == 0 && len(zeroReleases) == 0 {
-				latestRC = &tag
+		if semver.IsValid(*tag.Name) {
+			if semver.Prerelease(*tag.Name) != "" && len(latestReleases) == 0 && len(zeroReleases) == 0 {
+				latestRC = tag
 				continue
 			}
-			mm := semver.MajorMinor(tag.Name)
-			if getPatchVersion(tag.Name) == "0" {
+			mm := semver.MajorMinor(*tag.Name)
+			if getPatchVersion(*tag.Name) == "0" {
 				zeroReleases[mm] = tag
 			}
-			if t, ok := latestReleases[mm]; !ok || semver.Compare(tag.Name, t.Name) > 0 {
+			if t, ok := latestReleases[mm]; !ok || semver.Compare(*tag.Name, *t.Name) > 0 {
 				latestReleases[mm] = tag
 			}
 		}
 	}
-	var res []github.Tag
+	var res []*ggithub.RepositoryTag
 	if latestRC != nil {
-		res = append(res, *latestRC)
+		res = append(res, latestRC)
 	}
 	for mm, lt := range latestReleases {
 		res = append(res, lt)
@@ -207,7 +208,7 @@ func filterFeatureReleases(tags []github.Tag, last int) []github.Tag {
 		}
 	}
 	sort.Slice(res, func(i, j int) bool {
-		return semver.Compare(res[i].Name, res[j].Name) > 0
+		return semver.Compare(*res[i].Name, *res[j].Name) > 0
 	})
 	return res
 }
