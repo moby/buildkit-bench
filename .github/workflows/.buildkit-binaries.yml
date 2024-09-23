@@ -45,10 +45,10 @@ jobs:
         id: set
         run: |
           go run -mod=vendor ./cmd/refcandidates \
-            --repo ${{ inputs.repo }} \
-            --refs ${{ inputs.refs }} \
-            --last-days ${{ inputs.last_days }} \
-            --last-releases ${{ inputs.last_releases }} \
+            --repo "${{ inputs.repo }}" \
+            --refs "${{ inputs.refs }}" \
+            --last-days "${{ inputs.last_days }}" \
+            --last-releases "${{ inputs.last_releases }}" \
             --file-output ./bin/candidates.json \
             --gha-output includes
         env:

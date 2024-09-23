@@ -83,3 +83,11 @@ func (c *Client) GetTags() ([]*github.RepositoryTag, error) {
 	}
 	return res, nil
 }
+
+func (c *Client) GetPullRequest(number int) (*github.PullRequest, error) {
+	pr, _, err := c.client.PullRequests.Get(c.ctx, c.owner, c.repo, number)
+	if err != nil {
+		return nil, err
+	}
+	return pr, nil
+}

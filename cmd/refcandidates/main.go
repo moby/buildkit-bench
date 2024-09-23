@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/alecthomas/kong"
@@ -79,9 +80,13 @@ func setGhaOutput(name string, c *candidates.Candidates) error {
 
 	var includes []include
 	for ref, cm := range c.Refs {
+		refName := ref
+		if strings.HasPrefix(refName, "pr-") && cm.Merged {
+			refName = cm.SHA
+		}
 		includes = append(includes, include{
 			Name:   ref,
-			Ref:    ref,
+			Ref:    refName,
 			Commit: cm.SHA,
 		})
 	}

@@ -6,6 +6,7 @@ import (
 	"os"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,7 +16,10 @@ import (
 	"golang.org/x/mod/semver"
 )
 
-var reSemverRelease = regexp.MustCompile(`^v?(\d+\.\d+\.\d+)$`)
+var (
+	reSemverRelease = regexp.MustCompile(`^v?(\d+\.\d+\.\d+)$`)
+	reRefPR         = regexp.MustCompile(`^pr-(\d+)$`)
+)
 
 type Candidates struct {
 	Refs     map[string]Commit `json:"refs"`
@@ -26,8 +30,9 @@ type Candidates struct {
 }
 
 type Commit struct {
-	SHA  string    `json:"sha"`
-	Date time.Time `json:"date"`
+	SHA    string    `json:"sha"`
+	Date   time.Time `json:"date"`
+	Merged bool      `json:"merged,omitempty"`
 }
 
 type Ref struct {
@@ -94,6 +99,22 @@ func (c *Candidates) Sorted() []Ref {
 func (c *Candidates) setRefs(refs []string) error {
 	res := make(map[string]Commit)
 	for _, ref := range refs {
+		if matches := reRefPR.FindStringSubmatch(ref); matches != nil {
+			prNum, err := strconv.Atoi(matches[1])
+			if err != nil {
+				return errors.Wrapf(err, "failed to parse pull request number from ref %q", ref)
+			}
+			pr, err := c.ghc.GetPullRequest(prNum)
+			if err != nil {
+				return errors.Wrapf(err, "failed to fetch commit for pull request %d", prNum)
+			}
+			res["pr-"+matches[1]] = Commit{
+				SHA:    *pr.MergeCommitSHA,
+				Date:   *pr.UpdatedAt.GetTime(),
+				Merged: *pr.Merged,
+			}
+			continue
+		}
 		cm, err := c.ghc.GetCommit(ref)
 		if err != nil {
 			return errors.Wrapf(err, "failed to fetch commit for ref %q", ref)
