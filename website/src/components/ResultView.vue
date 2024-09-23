@@ -33,67 +33,57 @@ export default {
     '$route.params.result': 'updateMetadata'
   },
   methods: {
-    updateMetadata() {
+    async updateMetadata() {
       this.metadataLinks = [];
       const resultName = this.$route.params.result;
 
-      const ghaEvent = fetch(`${process.env.BASE_URL}result/${resultName}/gha-event.json`)
-        .then(response => response.ok ? response.json() : null);
-      const env = fetch(`${process.env.BASE_URL}result/${resultName}/env.txt`)
-        .then(response => response.ok ? response.text() : null);
+      try {
+        const ghaEvent = await import(`../../public/result/${resultName}/gha-event.json`);
+        const env = await import(`../../public/result/${resultName}/env.txt`);
 
-      Promise.all([ghaEvent, env])
-        .then(([ghaEvent, env]) => {
-          let repo = undefined;
-          let commit = undefined;
-          let runId = undefined;
-          let runAttempt = undefined;
-          if (ghaEvent) {
-            repo = ghaEvent.repository?.full_name;
-            if (ghaEvent.commits && ghaEvent.commits.length > 0) {
-              commit = ghaEvent.commits[ghaEvent.commits.length - 1].id;
-            }
-          }
-          if (env) {
-            const repoMatch = env.match(/GITHUB_REPOSITORY=(.+)/);
-            const commitMatch = env.match(/GITHUB_SHA=(.+)/);
-            const runIdMatch = env.match(/GITHUB_RUN_ID=(\d+)/);
-            const runAttemptMatch = env.match(/GITHUB_RUN_ATTEMPT=(\d+)/);
-            if (!repo && repoMatch) {
-              repo = repoMatch[1];
-            }
-            if (!commit && commitMatch) {
-              commit = commitMatch[1];
-            }
-            if (runIdMatch) {
-              runId = runIdMatch[1];
-            }
-            if (runAttemptMatch) {
-              runAttempt = runAttemptMatch[1];
-            }
-          }
-          if (!repo || !commit) {
-            return;
-          }
+        let repo = ghaEvent.repository?.full_name;
+        let commit = ghaEvent.commits?.[ghaEvent.commits.length - 1]?.id;
+        let runId, runAttempt;
+
+        const envs = ((envString) => {
+          return envString.split('\n').filter(line => line).map(line => {
+            const [key, value] = line.split('=');
+            return { key, value };
+          });
+        })(env.default);
+
+        const repoEnv = envs.find(entry => entry.key === 'GITHUB_REPOSITORY');
+        const commitEnv = envs.find(entry => entry.key === 'GITHUB_SHA');
+        const runIdEnv = envs.find(entry => entry.key === 'GITHUB_RUN_ID');
+        const runAttemptEnv = envs.find(entry => entry.key === 'GITHUB_RUN_ATTEMPT');
+        if (!repo && repoEnv) repo = repoEnv.value;
+        if (!commit && commitEnv) commit = commitEnv.value;
+        if (runIdEnv) runId = runIdEnv.value;
+        if (runAttemptEnv) runAttempt = runAttemptEnv.value;
+        if (!repo) return;
+
+        if (commit) {
           this.metadataLinks.push({
             text: `Commit ${commit.substring(0, 7)}`,
             url: `https://github.com/${repo}/commit/${commit}`,
             icon: require('../assets/github.svg')
           });
-          if (runId && runAttempt) {
-            this.metadataLinks.push({
-              text: `GitHub Actions Run`,
-              url: `https://github.com/${repo}/actions/runs/${runId}/attempts/${runAttempt}`,
-              icon: require('../assets/github.svg')
-            });
-          }
+        }
+        if (runId && runAttempt) {
           this.metadataLinks.push({
-            text: `Logs`,
-            url: `https://github.com/${repo}/tree/gh-pages/result/${resultName}/logs`,
-            icon: require('../assets/logs.svg')
+            text: `GitHub Actions Run`,
+            url: `https://github.com/${repo}/actions/runs/${runId}/attempts/${runAttempt}`,
+            icon: require('../assets/github.svg')
           });
-        })
-        .catch(() => {});
+        }
+        this.metadataLinks.push({
+          text: `Logs`,
+          url: `https://github.com/${repo}/tree/gh-pages/result/${resultName}/logs`,
+          icon: require('../assets/logs.svg')
+        });
+      } catch (error) {
+        console.error(`failed to load metadata for ${resultName}`, error);
+      }
     }
   }
 };

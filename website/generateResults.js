@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const resultsDir = path.join(__dirname, 'public', 'result');
-const outputFilePath = path.join(__dirname, 'public', 'results.json');
+const outputFilePath = path.join(__dirname, 'src', 'assets', 'results.json');
 
 console.log('Running generateResults.js...');
 
