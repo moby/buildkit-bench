@@ -119,9 +119,11 @@ func (c *genCmd) writeHTML(benchmarks map[string]gotest.Benchmark) error {
 		if !ok {
 			return errors.New("missing GITHUB_EVENT_NAME in envs")
 		}
-		_, err = gha.ParseEventFile(ghaEventName, c.GHAEvent)
-		if err != nil {
-			return err
+		if ghaEventName != "schedule" { // https://github.com/moby/buildkit-bench/issues/141
+			_, err = gha.ParseEventFile(ghaEventName, c.GHAEvent)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
