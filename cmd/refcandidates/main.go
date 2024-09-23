@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/alecthomas/kong"
@@ -17,13 +18,13 @@ import (
 )
 
 var cli struct {
-	Repo         string `kong:"name='repo',default='moby/buildkit',help='GitHub repository name.'"`
-	Token        string `kong:"name='token',env='GITHUB_TOKEN',required,help='GitHub API token.'"`
-	Refs         string `kong:"name='refs',default='master',help='Comma-separated list of refs to consider.'"`
-	LastDays     int    `kong:"name='last-days',default='7',help='Return last merge commit for a number of days.'"`
-	LastReleases int    `kong:"name='last-releases',default='3',help='Return last feature releases.'"`
-	FileOutput   string `kong:"name='file-output',help='File to write the JSON output to.'"`
-	GhaOutput    string `kong:"name='gha-output',help='Set GitHub Actions output parameter to be used as matrix includes.'"`
+	Repo         string   `kong:"name='repo',default='moby/buildkit',help='GitHub repository name.'"`
+	Token        string   `kong:"name='token',env='GITHUB_TOKEN',required,help='GitHub API token.'"`
+	Refs         []string `kong:"name='refs',default='master',help='Extra references to consider.'"`
+	LastDays     int      `kong:"name='last-days',default='7',help='Return last merge commit for a number of days.'"`
+	LastReleases int      `kong:"name='last-releases',default='3',help='Return last feature releases.'"`
+	FileOutput   string   `kong:"name='file-output',help='File to write the JSON output to.'"`
+	GhaOutput    string   `kong:"name='gha-output',help='Set GitHub Actions output parameter to be used as matrix includes.'"`
 }
 
 func run() error {
@@ -79,9 +80,13 @@ func setGhaOutput(name string, c *candidates.Candidates) error {
 
 	var includes []include
 	for ref, cm := range c.Refs {
+		refName := ref
+		if strings.HasPrefix(refName, "pr-") && cm.Merged {
+			refName = cm.SHA
+		}
 		includes = append(includes, include{
 			Name:   ref,
-			Ref:    ref,
+			Ref:    refName,
 			Commit: cm.SHA,
 		})
 	}

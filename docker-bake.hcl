@@ -41,7 +41,7 @@ function "ref_info" {
     ),
     context = (
       ref == "v0.12.0" || ref == "18fc875d9bfd6e065cd8211abc639434ba65aa56" ? "https://github.com/crazy-max/buildkit.git#v0.12.0-pick-pr-4361" :
-      ref == "pr-5342" ? "https://github.com/jsternberg/buildkit.git#gogoproto-remove" :
+      can(regex("^pr-(\\d+)$", ref)) ? "https://github.com/${BUILDKIT_REPO}.git#refs/pull/${regex_replace(ref, "^pr-(\\d+)$", "$1")}/merge" :
       "https://github.com/${BUILDKIT_REPO}.git#${ref}"
     )
   }
