@@ -14,6 +14,8 @@ import (
 
 const dockerfileImagePin = "docker/dockerfile:1.9.0"
 
+var contextDirApplier fstest.Applier
+
 func BenchmarkBuild(b *testing.B) {
 	mirroredImages := testutil.OfficialImages(
 		"busybox:latest",
@@ -23,6 +25,25 @@ func BenchmarkBuild(b *testing.B) {
 	mirroredImages[dockerfileImagePin] = "docker.io/" + dockerfileImagePin
 	mirroredImages["amd64/busybox:latest"] = "docker.io/amd64/busybox:latest"
 	mirroredImages["arm64v8/busybox:latest"] = "docker.io/arm64v8/busybox:latest"
+
+	var contextDirAppliers []fstest.Applier
+	contextDirAppliers = append(contextDirAppliers,
+		fstest.CreateDir("subdir1", 0755),
+		fstest.CreateFile("subdir1/file1.txt", []byte("foo"), 0600),
+		fstest.CreateFile("subdir1/file2.txt", make([]byte, 1024*1024), 0600), // 1MB file
+		fstest.CreateDir("subdir1/subdir2", 0755),
+		fstest.CreateFile("subdir1/subdir2/file3.txt", []byte("bar"), 0600),
+		fstest.CreateFile("subdir1/subdir2/file4.txt", make([]byte, 1024*1024*10), 0600), // 10MB file
+	)
+	for i := 0; i < 5000; i++ {
+		contextDirAppliers = append(contextDirAppliers, fstest.CreateFile(fmt.Sprintf("subdir1/file%d.txt", i+5), []byte("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."), 0600))
+	}
+	contextDirAppliers = append(contextDirAppliers,
+		fstest.CreateFile("subdir1/largefile1.txt", make([]byte, 1024*1024*50), 0600),  // 50MB file
+		fstest.CreateFile("subdir1/largefile2.txt", make([]byte, 1024*1024*100), 0600), // 100MB file
+	)
+	contextDirApplier = fstest.Apply(contextDirAppliers...)
+
 	testutil.Run(b, testutil.BenchFuncs(
 		benchmarkBuildSimple,
 		benchmarkBuildMultistage,
@@ -34,6 +55,10 @@ func BenchmarkBuild(b *testing.B) {
 		benchmarkBuildHighParallelization128x,
 		benchmarkBuildFileTransfer,
 		benchmarkBuildEmulator,
+		benchmarkBuildExportUncompressed,
+		benchmarkBuildExportGzip,
+		benchmarkBuildExportEstargz,
+		//benchmarkBuildExportZstd, https://github.com/moby/buildkit-bench/pull/146#discussion_r1771519112
 	), testutil.WithMirroredImages(mirroredImages))
 }
 
@@ -133,7 +158,7 @@ RUN cp /etc/foo /etc/bar
 				fstest.CreateFile("Dockerfile", dockerfile, 0600),
 				fstest.CreateFile("foo", []byte("foo"), 0600),
 			)
-			out, err := buildxBuildCmd(sb, withArgs(dir))
+			out, err := buildxBuildCmd(sb, withArgs("--output=type=image", dir))
 			// TODO: use sb.WriteLogFile to write buildx logs in a defer with a
 			//  semaphore using a buffered channel to limit the number of
 			//  concurrent goroutines. This might affect timing.
@@ -146,23 +171,6 @@ RUN cp /etc/foo /etc/bar
 }
 
 func benchmarkBuildFileTransfer(b *testing.B, sb testutil.Sandbox) {
-	var appliers []fstest.Applier
-	appliers = append(appliers,
-		fstest.CreateDir("subdir1", 0755),
-		fstest.CreateFile("subdir1/file1.txt", []byte("foo"), 0600),
-		fstest.CreateFile("subdir1/file2.txt", make([]byte, 1024*1024), 0600), // 1MB file
-		fstest.CreateDir("subdir1/subdir2", 0755),
-		fstest.CreateFile("subdir1/subdir2/file3.txt", []byte("bar"), 0600),
-		fstest.CreateFile("subdir1/subdir2/file4.txt", make([]byte, 1024*1024*10), 0600), // 10MB file
-	)
-	for i := 0; i < 5000; i++ {
-		appliers = append(appliers, fstest.CreateFile(fmt.Sprintf("subdir1/file%d.txt", i+5), []byte("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."), 0600))
-	}
-	appliers = append(appliers,
-		fstest.CreateFile("subdir1/largefile1.txt", make([]byte, 1024*1024*50), 0600),  // 50MB file
-		fstest.CreateFile("subdir1/largefile2.txt", make([]byte, 1024*1024*100), 0600), // 100MB file
-	)
-
 	dockerfile := []byte(`
 FROM busybox:latest
 WORKDIR /src
@@ -171,9 +179,8 @@ RUN du -sh . && tree .
 `)
 	dir := tmpdir(b,
 		fstest.CreateFile("Dockerfile", dockerfile, 0600),
-		fstest.Apply(appliers...),
+		contextDirApplier,
 	)
-
 	b.StartTimer()
 	out, err := buildxBuildCmd(sb, withArgs(dir))
 	b.StopTimer()
@@ -213,6 +220,35 @@ RUN uname -a
 		"--platform", platforms.Format(platform),
 		dir,
 	))
+	b.StopTimer()
+	sb.WriteLogFile(b, "buildx", []byte(out))
+	require.NoError(b, err, out)
+}
+
+func benchmarkBuildExportUncompressed(b *testing.B, sb testutil.Sandbox) {
+	benchmarkBuildExport(b, sb, "uncompressed")
+}
+func benchmarkBuildExportGzip(b *testing.B, sb testutil.Sandbox) {
+	benchmarkBuildExport(b, sb, "gzip")
+}
+func benchmarkBuildExportEstargz(b *testing.B, sb testutil.Sandbox) {
+	benchmarkBuildExport(b, sb, "gzip")
+}
+func benchmarkBuildExportZstd(b *testing.B, sb testutil.Sandbox) {
+	benchmarkBuildExport(b, sb, "zstd")
+}
+func benchmarkBuildExport(b *testing.B, sb testutil.Sandbox, compression string) {
+	dockerfile := []byte(`
+FROM python:latest
+WORKDIR /src
+COPY . .
+`)
+	dir := tmpdir(b,
+		fstest.CreateFile("Dockerfile", dockerfile, 0600),
+		contextDirApplier,
+	)
+	b.StartTimer()
+	out, err := buildxBuildCmd(sb, withArgs("--output=type=image,compression="+compression, dir))
 	b.StopTimer()
 	sb.WriteLogFile(b, "buildx", []byte(out))
 	require.NoError(b, err, out)
