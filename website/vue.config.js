@@ -8,5 +8,8 @@ module.exports = {
         '@': path.resolve(__dirname, 'src')
       }
     }
+  },
+  chainWebpack: config => {
+    config.module.rule('text').test(/\.txt$/).type('asset/source');
   }
 };

@@ -18,13 +18,10 @@ export default {
       selectedResult: null
     };
   },
-  created() {
-    fetch('results.json')
-        .then(response => response.json())
-        .then(data => {
-          this.results = data.results.sort((a, b) => b.localeCompare(a));
-          this.updateSelectedResult();
-        });
+  async created() {
+    const resultsData = await import(`../assets/results.json`);
+    this.results = resultsData.results.sort((a, b) => b.localeCompare(a));
+    this.updateSelectedResult();
   },
   watch: {
     '$route.params.result': 'updateSelectedResult'
