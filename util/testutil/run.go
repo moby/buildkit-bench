@@ -254,6 +254,7 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 							}
 							if b, ok := tb.(*testing.B); ok {
 								b.ResetTimer()
+								b.StopTimer()
 								for i := 0; i < b.N; i++ {
 									runWithSandbox(b)
 								}
