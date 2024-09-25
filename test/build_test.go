@@ -73,11 +73,13 @@ RUN cp /etc/foo /etc/bar
 		fstest.CreateFile("Dockerfile", dockerfile, 0600),
 		fstest.CreateFile("foo", []byte("foo"), 0600),
 	)
-	b.StartTimer()
-	out, err := buildxBuildCmd(sb, withArgs(dir))
-	b.StopTimer()
-	sb.WriteLogFile(b, "buildx", []byte(out))
-	require.NoError(b, err, out)
+	reportBuildkitdAlloc(b, sb, func() {
+		b.StartTimer()
+		out, err := buildxBuildCmd(sb, withArgs(dir))
+		b.StopTimer()
+		sb.WriteLogFile(b, "buildx", []byte(out))
+		require.NoError(b, err, out)
+	})
 }
 
 func benchmarkBuildMultistage(b *testing.B, sb testutil.Sandbox) {
@@ -94,11 +96,13 @@ COPY --from=base /etc/bar /bar
 		fstest.CreateFile("Dockerfile", dockerfile, 0600),
 		fstest.CreateFile("foo", []byte("foo"), 0600),
 	)
-	b.StartTimer()
-	out, err := buildxBuildCmd(sb, withArgs(dir))
-	b.StopTimer()
-	sb.WriteLogFile(b, "buildx", []byte(out))
-	require.NoError(b, err, out)
+	reportBuildkitdAlloc(b, sb, func() {
+		b.StartTimer()
+		out, err := buildxBuildCmd(sb, withArgs(dir))
+		b.StopTimer()
+		sb.WriteLogFile(b, "buildx", []byte(out))
+		require.NoError(b, err, out)
+	})
 }
 
 // https://github.com/docker/buildx/issues/2479
@@ -112,22 +116,26 @@ RUN --mount=type=secret,id=SECRET cat /run/secrets/SECRET
 		fstest.CreateFile("Dockerfile", dockerfile, 0600),
 		fstest.CreateFile("secret.txt", []byte("mysecret"), 0600),
 	)
-	b.StartTimer()
-	out, err := buildxBuildCmd(sb, withDir(dir), withArgs("--secret=id=SECRET,src=secret.txt", "."))
-	b.StopTimer()
-	sb.WriteLogFile(b, "buildx", []byte(out))
-	require.NoError(b, err, out)
+	reportBuildkitdAlloc(b, sb, func() {
+		b.StartTimer()
+		out, err := buildxBuildCmd(sb, withDir(dir), withArgs("--secret=id=SECRET,src=secret.txt", "."))
+		b.StopTimer()
+		sb.WriteLogFile(b, "buildx", []byte(out))
+		require.NoError(b, err, out)
+	})
 }
 
 func benchmarkBuildRemote(b *testing.B, sb testutil.Sandbox) {
-	b.StartTimer()
-	out, err := buildxBuildCmd(sb, withArgs(
-		"--build-arg=BUILDKIT_SYNTAX="+dockerfileImagePin,
-		"https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
-	))
-	b.StopTimer()
-	sb.WriteLogFile(b, "buildx", []byte(out))
-	require.NoError(b, err, out)
+	reportBuildkitdAlloc(b, sb, func() {
+		b.StartTimer()
+		out, err := buildxBuildCmd(sb, withArgs(
+			"--build-arg=BUILDKIT_SYNTAX="+dockerfileImagePin,
+			"https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
+		))
+		b.StopTimer()
+		sb.WriteLogFile(b, "buildx", []byte(out))
+		require.NoError(b, err, out)
+	})
 }
 
 func benchmarkBuildHighParallelization16x(b *testing.B, sb testutil.Sandbox) {
@@ -165,9 +173,11 @@ RUN cp /etc/foo /etc/bar
 			require.NoError(b, err, out)
 		}()
 	}
-	b.StartTimer()
-	wg.Wait()
-	b.StopTimer()
+	reportBuildkitdAlloc(b, sb, func() {
+		b.StartTimer()
+		wg.Wait()
+		b.StopTimer()
+	})
 }
 
 func benchmarkBuildFileTransfer(b *testing.B, sb testutil.Sandbox) {
@@ -181,11 +191,13 @@ RUN du -sh . && tree .
 		fstest.CreateFile("Dockerfile", dockerfile, 0600),
 		contextDirApplier,
 	)
-	b.StartTimer()
-	out, err := buildxBuildCmd(sb, withArgs(dir))
-	b.StopTimer()
-	sb.WriteLogFile(b, "buildx", []byte(out))
-	require.NoError(b, err, out)
+	reportBuildkitdAlloc(b, sb, func() {
+		b.StartTimer()
+		out, err := buildxBuildCmd(sb, withArgs(dir))
+		b.StopTimer()
+		sb.WriteLogFile(b, "buildx", []byte(out))
+		require.NoError(b, err, out)
+	})
 }
 
 // https://github.com/moby/buildkit/pull/4949
@@ -214,15 +226,17 @@ RUN uname -a
 `, busyboxImage))
 
 	dir := tmpdir(b, fstest.CreateFile("Dockerfile", dockerfile, 0600))
-	b.StartTimer()
-	out, err := buildxBuildCmd(sb, withArgs(
-		"--build-arg", "BUILDKIT_DOCKERFILE_CHECK=skip=all", // skip all checks (for InvalidBaseImagePlatform): https://docs.docker.com/build/checks/#skip-checks
-		"--platform", platforms.Format(platform),
-		dir,
-	))
-	b.StopTimer()
-	sb.WriteLogFile(b, "buildx", []byte(out))
-	require.NoError(b, err, out)
+	reportBuildkitdAlloc(b, sb, func() {
+		b.StartTimer()
+		out, err := buildxBuildCmd(sb, withArgs(
+			"--build-arg", "BUILDKIT_DOCKERFILE_CHECK=skip=all", // skip all checks (for InvalidBaseImagePlatform): https://docs.docker.com/build/checks/#skip-checks
+			"--platform", platforms.Format(platform),
+			dir,
+		))
+		b.StopTimer()
+		sb.WriteLogFile(b, "buildx", []byte(out))
+		require.NoError(b, err, out)
+	})
 }
 
 func benchmarkBuildExportUncompressed(b *testing.B, sb testutil.Sandbox) {
@@ -247,9 +261,11 @@ COPY . .
 		fstest.CreateFile("Dockerfile", dockerfile, 0600),
 		contextDirApplier,
 	)
-	b.StartTimer()
-	out, err := buildxBuildCmd(sb, withArgs("--output=type=image,compression="+compression, dir))
-	b.StopTimer()
-	sb.WriteLogFile(b, "buildx", []byte(out))
-	require.NoError(b, err, out)
+	reportBuildkitdAlloc(b, sb, func() {
+		b.StartTimer()
+		out, err := buildxBuildCmd(sb, withArgs("--output=type=image,compression="+compression, dir))
+		b.StopTimer()
+		sb.WriteLogFile(b, "buildx", []byte(out))
+		require.NoError(b, err, out)
+	})
 }
