@@ -11,16 +11,16 @@
 </template>
 
 <script>
+import resultsData from '@/assets/results.json';
+
 export default {
   data() {
     return {
-      results: [],
+      results: resultsData.results.sort((a, b) => b.localeCompare(a)),
       selectedResult: null
     };
   },
-  async created() {
-    const resultsData = await import(`../assets/results.json`);
-    this.results = resultsData.results.sort((a, b) => b.localeCompare(a));
+  created() {
     this.updateSelectedResult();
   },
   watch: {
