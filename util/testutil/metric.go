@@ -8,9 +8,14 @@ import (
 type MetricUnit string
 
 const (
+	MetricAlloc    MetricUnit = "alloc"
 	MetricBytes    MetricUnit = "bytes"
 	MetricDuration MetricUnit = "duration"
 )
+
+func ReportAlloc(b *testing.B, value int64) {
+	ReportMetric(b, float64(value), MetricAlloc)
+}
 
 func ReportMetric(b *testing.B, value float64, unit MetricUnit) {
 	b.ReportMetric(value, string(unit))

@@ -1,12 +1,15 @@
 package test
 
 import (
+	"fmt"
+	"net/http"
 	"os"
 	"os/exec"
 	"path"
 	"testing"
 
 	"github.com/containerd/continuity/fs/fstest"
+	"github.com/google/pprof/profile"
 	"github.com/moby/buildkit-bench/util/testutil"
 	"github.com/stretchr/testify/require"
 )
@@ -79,4 +82,48 @@ func buildctlBuildCmd(sb testutil.Sandbox, opts ...cmdOpt) (string, error) {
 	cmd := buildctlCmd(sb, opts...)
 	out, err := cmd.CombinedOutput()
 	return string(out), err
+}
+
+func reportBuildkitdAlloc(b *testing.B, sb testutil.Sandbox, cb func()) {
+	beforeAlloc, errb := buildkitdAlloc(sb)
+	cb()
+	afterAlloc, erra := buildkitdAlloc(sb)
+	testutil.ReportAlloc(b, afterAlloc-beforeAlloc)
+	require.NoError(b, errb)
+	require.NoError(b, erra)
+}
+
+func buildkitdAlloc(sb testutil.Sandbox) (int64, error) {
+	client := &http.Client{}
+	resp, err := client.Get(fmt.Sprintf("http://%s/debug/pprof/heap?gc=1", sb.DebugAddress()))
+	if err != nil {
+		return 0, err
+	}
+	defer resp.Body.Close()
+
+	p, err := profile.Parse(resp.Body)
+	if err != nil {
+		return 0, err
+	}
+
+	return func(prof *profile.Profile, value func(v []int64) int64) int64 {
+		var total, diff int64
+		for _, sample := range prof.Sample {
+			var v int64
+			v = value(sample.Value)
+			if v < 0 {
+				v = -v
+			}
+			total += v
+			if sample.DiffBaseSample() {
+				diff += v
+			}
+		}
+		if diff > 0 {
+			total = diff
+		}
+		return total
+	}(p, func(v []int64) int64 {
+		return v[1] // sample index of alloc_space in heap profiles
+	}), nil
 }
