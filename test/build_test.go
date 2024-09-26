@@ -54,6 +54,7 @@ func BenchmarkBuild(b *testing.B) {
 		benchmarkBuildHighParallelization64x,
 		benchmarkBuildHighParallelization128x,
 		benchmarkBuildFileTransfer,
+		benchmarkBuildFileTransferCachedWithIteration,
 		benchmarkBuildEmulator,
 		benchmarkBuildExportUncompressed,
 		benchmarkBuildExportGzip,
@@ -210,6 +211,33 @@ RUN du -sh . && tree .
 		sb.WriteLogFile(b, "buildx", []byte(out))
 		require.NoError(b, err, out)
 	})
+}
+
+func benchmarkBuildFileTransferCachedWithIteration(b *testing.B, sb testutil.Sandbox) {
+	dockerfile := []byte(`
+FROM busybox:latest
+WORKDIR /src
+COPY . .
+RUN du -sh . && tree .
+`)
+	dir := tmpdir(b,
+		fstest.CreateFile("Dockerfile", dockerfile, 0600),
+		contextDirApplier,
+	)
+
+	// first build to warmup cache
+	out, err := buildxBuildCmd(sb, withArgs(dir))
+	require.NoError(b, err, out)
+
+	for i := 0; i < b.N; i++ {
+		reportBuildkitdAlloc(b, sb, func() {
+			b.StartTimer()
+			out, err := buildxBuildCmd(sb, withArgs(dir))
+			b.StopTimer()
+			sb.WriteLogFile(b, "buildx", []byte(out))
+			require.NoError(b, err, out)
+		})
+	}
 }
 
 // https://github.com/moby/buildkit/pull/4949
