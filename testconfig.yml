@@ -85,7 +85,17 @@ runs:
           description: Allocated memory (bytes)
           chart: boxplot
     BenchmarkBuildFileTransfer:
-      description: Build with substantial file transfer
+      description: Build with file transfer
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+        alloc:
+          description: Allocated memory (bytes)
+          chart: boxplot
+    BenchmarkBuildFileTransferCachedWithIteration:
+      description: Build with file transfer (cached)
       count: 4
       metrics:
         duration:
