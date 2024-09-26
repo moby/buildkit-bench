@@ -156,6 +156,18 @@ FROM busybox:latest AS base
 COPY foo /etc/foo
 RUN cp /etc/foo /etc/bar
 `)
+
+	// warmup
+	for i := 0; i < 5; i++ {
+		dir := tmpdir(
+			b,
+			fstest.CreateFile("Dockerfile", dockerfile, 0600),
+			fstest.CreateFile("foo", []byte("foo"), 0600),
+		)
+		out, err := buildxBuildCmd(sb, withArgs("--output=type=image", dir))
+		require.NoError(b, err, out)
+	}
+
 	var wg sync.WaitGroup
 	for i := 0; i < n; i++ {
 		wg.Add(1)
