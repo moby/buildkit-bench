@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile-upstream:master
+# check=skip=SecretsUsedInArgOrEnv
 
 ARG GO_VERSION=1.22
 ARG ALPINE_VERSION=3.20
