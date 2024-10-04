@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile-upstream:master
+# check=skip=SecretsUsedInArgOrEnv
 
 ARG GO_VERSION=1.22
 ARG ALPINE_VERSION=3.20
@@ -9,6 +10,7 @@ ARG REGISTRY_VERSION=v2.8.3
 
 # named contexts
 FROM scratch AS buildkit-binaries
+FROM scratch AS buildx-binaries
 FROM scratch AS tests-results
 
 # xx is a helper for cross-compilation
@@ -61,14 +63,15 @@ FROM gobuild-base AS tests-gen-run
 COPY --link --from=gotestmetrics /usr/bin/gotestmetrics /usr/bin/
 COPY --from=tests-results . /tests-results
 ARG GEN_VALIDATION_MODE
+ARG CANDIDATES_KEY
 RUN --mount=type=bind,target=. <<EOT
   set -e
   args="gen --output /tmp/benchmarks.html"
   if [ -f /tests-results/name.txt ]; then
     args="$args --name $(cat /tests-results/name.txt)"
   fi
-  if [ -f /tests-results/candidates.json ]; then
-    args="$args --candidates /tests-results/candidates.json"
+  if [ -f "/tests-results/$CANDIDATES_KEY.json" ]; then
+    args="$args --candidates /tests-results/$CANDIDATES_KEY.json"
   fi
   if [ -f /tests-results/testconfig.yml ]; then
     args="$args --config /tests-results/testconfig.yml"
@@ -113,5 +116,7 @@ COPY --link --from=binaries / /usr/bin/
 # tests prepares an image suitable for running tests
 FROM tests-base AS tests
 COPY --link --from=buildkit-binaries / /buildkit-binaries
+COPY --link --from=buildx-binaries / /buildx-binaries
 RUN tree -nph /buildkit-binaries
+RUN tree -nph /buildx-binaries
 COPY . .
