@@ -142,10 +142,17 @@ target "tests-base" {
   output = ["type=cacheonly"]
 }
 
-target "tests" {
+target "tests-buildkit" {
   inherits = ["tests-base"]
   contexts = {
     buildkit-binaries = "target:buildkit-binaries"
+  }
+  target = "tests"
+}
+
+target "tests-buildx" {
+  inherits = ["tests-base"]
+  contexts = {
     buildx-binaries = "target:buildx-binaries"
   }
   target = "tests"

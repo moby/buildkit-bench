@@ -5,7 +5,8 @@ ARG GO_VERSION=1.22
 ARG ALPINE_VERSION=3.20
 ARG XX_VERSION=1.4.0
 
-ARG BUILDX_VERSION=0.17.1
+ARG BUILDKIT_VERSION=v0.16.0
+ARG BUILDX_VERSION=v0.17.1
 ARG REGISTRY_VERSION=v2.8.3
 
 # named contexts
@@ -16,8 +17,11 @@ FROM scratch AS tests-results
 # xx is a helper for cross-compilation
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
-# buildx client
-FROM docker/buildx-bin:${BUILDX_VERSION} AS buildx
+# default buildkit
+FROM moby/buildkit:${BUILDKIT_VERSION} AS buildkit
+
+# default buildx
+FROM docker/buildx-bin:${BUILDX_VERSION#v} AS buildx
 
 # go base image
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS golatest
@@ -94,7 +98,6 @@ COPY --from=tests-gen-run /tmp/benchmarks.html /index.html
 
 FROM scratch AS binaries
 COPY --link --from=registry /out /
-COPY --link --from=buildx /buildx /
 COPY --link --from=gotestmetrics /usr/bin/gotestmetrics /
 
 FROM gobuild-base AS tests-base
@@ -111,6 +114,11 @@ RUN apk add --no-cache shadow shadow-uidmap sudo vim iptables ip6tables dnsmasq 
 RUN curl -Ls https://raw.githubusercontent.com/moby/moby/v25.0.1/hack/dind > /docker-entrypoint.sh && chmod 0755 /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 ENV CGO_ENABLED=0
+ARG BUILDKIT_VERSION
+COPY --link --from=buildkit /usr/bin/buildctl* /opt/buildkit/${BUILDKIT_VERSION}/
+COPY --link --from=buildkit /usr/bin/buildkit* /opt/buildkit/${BUILDKIT_VERSION}/
+ARG BUILDX_VERSION
+COPY --link --from=buildx /buildx /opt/buildx/${BUILDX_VERSION}/
 COPY --link --from=binaries / /usr/bin/
 
 # tests prepares an image suitable for running tests
