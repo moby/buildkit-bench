@@ -1,0 +1,258 @@
+stdout: /buildkit-binaries/v0.12.0/buildkitd --oci-worker=true --oci-worker-binary=/buildkit-binaries/v0.12.0/buildkit-runc --containerd-worker=false --oci-worker-gc=false --oci-worker-labels=org.mobyproject.buildkit.worker.sandbox=true --config=/tmp/bkbench_config1028703334/buildkitd.toml --root /tmp/bkbench_sandbox3106716464 --addr unix:///tmp/bkbench_sandbox3106716464/buildkitd.sock --debug --debugaddr 127.0.0.1:37693
+Linux buildkitsandbox 6.8.0-1014-azure #16-Ubuntu SMP Thu Aug 15 20:04:41 UTC 2024 aarch64 GNU/Linux
+stderr: /buildkit-binaries/v0.12.0/buildkitd --oci-worker=true --oci-worker-binary=/buildkit-binaries/v0.12.0/buildkit-runc --containerd-worker=false --oci-worker-gc=false --oci-worker-labels=org.mobyproject.buildkit.worker.sandbox=true --config=/tmp/bkbench_config1028703334/buildkitd.toml --root /tmp/bkbench_sandbox3106716464 --addr unix:///tmp/bkbench_sandbox3106716464/buildkitd.sock --debug --debugaddr 127.0.0.1:37693
+> StartCmd 2024-10-07 11:40:43.784096601 +0000 UTC m=+84.315983284 /buildkit-binaries/v0.12.0/buildkitd --oci-worker=true --oci-worker-binary=/buildkit-binaries/v0.12.0/buildkit-runc --containerd-worker=false --oci-worker-gc=false --oci-worker-labels=org.mobyproject.buildkit.worker.sandbox=true --config=/tmp/bkbench_config1028703334/buildkitd.toml --root /tmp/bkbench_sandbox3106716464 --addr unix:///tmp/bkbench_sandbox3106716464/buildkitd.sock --debug --debugaddr 127.0.0.1:37693
+time="2024-10-07T11:40:43Z" level=debug msg="debug handlers listening at 127.0.0.1:37693"
+time="2024-10-07T11:40:43Z" level=info msg="auto snapshotter: using overlayfs"
+time="2024-10-07T11:40:43Z" level=warning msg="using host network as the default"
+time="2024-10-07T11:40:43Z" level=info msg="found worker \"r1ryo8a5u2pzhya3vy3tpz7cs\", labels=map[org.mobyproject.buildkit.worker.executor:oci org.mobyproject.buildkit.worker.hostname:93e96ea3f57a org.mobyproject.buildkit.worker.network:host org.mobyproject.buildkit.worker.oci.process-mode:sandbox org.mobyproject.buildkit.worker.sandbox:true org.mobyproject.buildkit.worker.selinux.enabled:false org.mobyproject.buildkit.worker.snapshotter:overlayfs], platforms=[linux/amd64 linux/amd64/v2 linux/amd64/v3 linux/arm64 linux/riscv64 linux/ppc64le linux/s390x linux/386 linux/mips64le linux/mips64 linux/arm/v7 linux/arm/v6]"
+time="2024-10-07T11:40:43Z" level=info msg="found 1 workers, default=\"r1ryo8a5u2pzhya3vy3tpz7cs\""
+time="2024-10-07T11:40:43Z" level=warning msg="currently, only the default worker can be used."
+time="2024-10-07T11:40:43Z" level=info msg="running server on /tmp/bkbench_sandbox3106716464/buildkitd.sock"
+time="2024-10-07T11:40:44Z" level=debug msg="session started" spanID=a6616518a1fe6360 traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg="session finished: <nil>" spanID=a6616518a1fe6360 traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg="session started" spanID=67834519050af2fe traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg="new ref for local: nbdvmk76ce74rz57geinqeq3p" span="[internal] load build definition from Dockerfile" spanID=18f5c5674938dd68 traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg="diffcopy took: 1.821258ms" span="[internal] load build definition from Dockerfile" spanID=196a84f973646557 traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg="saved nbdvmk76ce74rz57geinqeq3p as dockerfile:dockerfile:001:4c10f8a0827c1637" span="[internal] load build definition from Dockerfile" spanID=18f5c5674938dd68 traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg=resolving host="localhost:39727" spanID=bd9d5285d494a9a4 traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg="do request" host="localhost:39727" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.12-dev request.method=HEAD spanID=bd9d5285d494a9a4 traceID=ef0c5d7b7e157ae06c445e9b795f14fd url="http://localhost:39727/v2/arm64v8/busybox/manifests/latest?ns=docker.io"
+time="2024-10-07T11:40:44Z" level=debug msg="fetch response received" host="localhost:39727" response.header.content-length=1480 response.header.content-type=application/vnd.oci.image.index.v1+json response.header.date="Mon, 07 Oct 2024 11:40:44 GMT" response.header.docker-content-digest="sha256:820b96e26b140ab491212f0fec120c86491fa37bc94e2a4e0c6848a2331010d8" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:820b96e26b140ab491212f0fec120c86491fa37bc94e2a4e0c6848a2331010d8\"" response.status="200 OK" spanID=bd9d5285d494a9a4 traceID=ef0c5d7b7e157ae06c445e9b795f14fd url="http://localhost:39727/v2/arm64v8/busybox/manifests/latest?ns=docker.io"
+time="2024-10-07T11:40:44Z" level=debug msg=resolved desc.digest="sha256:820b96e26b140ab491212f0fec120c86491fa37bc94e2a4e0c6848a2331010d8" host="localhost:39727" spanID=bd9d5285d494a9a4 traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg=fetch digest="sha256:820b96e26b140ab491212f0fec120c86491fa37bc94e2a4e0c6848a2331010d8" mediatype=application/vnd.oci.image.index.v1+json size=1480 spanID=bd9d5285d494a9a4 traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg="do request" digest="sha256:820b96e26b140ab491212f0fec120c86491fa37bc94e2a4e0c6848a2331010d8" mediatype=application/vnd.oci.image.index.v1+json request.header.accept="application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.12-dev request.method=GET size=1480 spanID=bd9d5285d494a9a4 traceID=ef0c5d7b7e157ae06c445e9b795f14fd url="http://localhost:39727/v2/arm64v8/busybox/manifests/sha256:820b96e26b140ab491212f0fec120c86491fa37bc94e2a4e0c6848a2331010d8?ns=docker.io"
+time="2024-10-07T11:40:44Z" level=debug msg="fetch response received" digest="sha256:820b96e26b140ab491212f0fec120c86491fa37bc94e2a4e0c6848a2331010d8" mediatype=application/vnd.oci.image.index.v1+json response.header.content-length=1480 response.header.content-type=application/vnd.oci.image.index.v1+json response.header.date="Mon, 07 Oct 2024 11:40:44 GMT" response.header.docker-content-digest="sha256:820b96e26b140ab491212f0fec120c86491fa37bc94e2a4e0c6848a2331010d8" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:820b96e26b140ab491212f0fec120c86491fa37bc94e2a4e0c6848a2331010d8\"" response.status="200 OK" size=1480 spanID=bd9d5285d494a9a4 traceID=ef0c5d7b7e157ae06c445e9b795f14fd url="http://localhost:39727/v2/arm64v8/busybox/manifests/sha256:820b96e26b140ab491212f0fec120c86491fa37bc94e2a4e0c6848a2331010d8?ns=docker.io"
+time="2024-10-07T11:40:44Z" level=debug msg=fetch digest="sha256:7615936bd840f51289d138979bbb26b6c8b33a82b6bf3c9c55de18cac6e9e0ff" mediatype=application/vnd.oci.image.manifest.v1+json size=610 spanID=bd9d5285d494a9a4 traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg="do request" digest="sha256:7615936bd840f51289d138979bbb26b6c8b33a82b6bf3c9c55de18cac6e9e0ff" mediatype=application/vnd.oci.image.manifest.v1+json request.header.accept="application/vnd.oci.image.manifest.v1+json, */*" request.header.user-agent=buildkit/v0.12-dev request.method=GET size=610 spanID=bd9d5285d494a9a4 traceID=ef0c5d7b7e157ae06c445e9b795f14fd url="http://localhost:39727/v2/arm64v8/busybox/manifests/sha256:7615936bd840f51289d138979bbb26b6c8b33a82b6bf3c9c55de18cac6e9e0ff?ns=docker.io"
+time="2024-10-07T11:40:44Z" level=debug msg="fetch response received" digest="sha256:7615936bd840f51289d138979bbb26b6c8b33a82b6bf3c9c55de18cac6e9e0ff" mediatype=application/vnd.oci.image.manifest.v1+json response.header.content-length=610 response.header.content-type=application/vnd.oci.image.manifest.v1+json response.header.date="Mon, 07 Oct 2024 11:40:44 GMT" response.header.docker-content-digest="sha256:7615936bd840f51289d138979bbb26b6c8b33a82b6bf3c9c55de18cac6e9e0ff" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:7615936bd840f51289d138979bbb26b6c8b33a82b6bf3c9c55de18cac6e9e0ff\"" response.status="200 OK" size=610 spanID=bd9d5285d494a9a4 traceID=ef0c5d7b7e157ae06c445e9b795f14fd url="http://localhost:39727/v2/arm64v8/busybox/manifests/sha256:7615936bd840f51289d138979bbb26b6c8b33a82b6bf3c9c55de18cac6e9e0ff?ns=docker.io"
+time="2024-10-07T11:40:44Z" level=debug msg=fetch digest="sha256:63cd0d5fb10d7d46ba29e292442263a4e6b114389290559295bcbdb10c687995" mediatype=application/vnd.oci.image.config.v1+json size=390 spanID=bd9d5285d494a9a4 traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg="do request" digest="sha256:63cd0d5fb10d7d46ba29e292442263a4e6b114389290559295bcbdb10c687995" mediatype=application/vnd.oci.image.config.v1+json request.header.accept="application/vnd.oci.image.config.v1+json, */*" request.header.user-agent=buildkit/v0.12-dev request.method=GET size=390 spanID=bd9d5285d494a9a4 traceID=ef0c5d7b7e157ae06c445e9b795f14fd url="http://localhost:39727/v2/arm64v8/busybox/blobs/sha256:63cd0d5fb10d7d46ba29e292442263a4e6b114389290559295bcbdb10c687995?ns=docker.io"
+time="2024-10-07T11:40:44Z" level=debug msg="fetch response received" digest="sha256:63cd0d5fb10d7d46ba29e292442263a4e6b114389290559295bcbdb10c687995" mediatype=application/vnd.oci.image.config.v1+json response.header.accept-ranges=bytes response.header.cache-control="max-age=31536000" response.header.content-length=390 response.header.content-type=application/octet-stream response.header.date="Mon, 07 Oct 2024 11:40:44 GMT" response.header.docker-content-digest="sha256:63cd0d5fb10d7d46ba29e292442263a4e6b114389290559295bcbdb10c687995" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:63cd0d5fb10d7d46ba29e292442263a4e6b114389290559295bcbdb10c687995\"" response.status="200 OK" size=390 spanID=bd9d5285d494a9a4 traceID=ef0c5d7b7e157ae06c445e9b795f14fd url="http://localhost:39727/v2/arm64v8/busybox/blobs/sha256:63cd0d5fb10d7d46ba29e292442263a4e6b114389290559295bcbdb10c687995?ns=docker.io"
+time="2024-10-07T11:40:44Z" level=debug msg="new ref for local: qbti5uf5ovone1fs5gvqgt1cl" span="[internal] load .dockerignore" spanID=c62239c337f32799 traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg="diffcopy took: 933.138µs" span="[internal] load .dockerignore" spanID=4ced4b0c38a1f6c8 traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg="saved qbti5uf5ovone1fs5gvqgt1cl as context:context-.dockerignore:001:4c10f8a0827c1637" span="[internal] load .dockerignore" spanID=c62239c337f32799 traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg=fetch digest="sha256:820b96e26b140ab491212f0fec120c86491fa37bc94e2a4e0c6848a2331010d8" mediatype=application/vnd.oci.image.index.v1+json size=1480 spanID=9ee24d1d0031f0df traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg=fetch digest="sha256:7615936bd840f51289d138979bbb26b6c8b33a82b6bf3c9c55de18cac6e9e0ff" mediatype=application/vnd.oci.image.manifest.v1+json size=610 spanID=9ee24d1d0031f0df traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg=fetch digest="sha256:63cd0d5fb10d7d46ba29e292442263a4e6b114389290559295bcbdb10c687995" mediatype=application/vnd.oci.image.config.v1+json size=390 spanID=9ee24d1d0031f0df traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg=fetch digest="sha256:1523c6c3dc4c68bb2416b8bdbc51b5621a2d7dc445fa36cbfe7b0cdb9582b44f" mediatype=application/vnd.oci.image.layer.v1.tar+gzip size=1844315 spanID=9ee24d1d0031f0df traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg="do request" digest="sha256:1523c6c3dc4c68bb2416b8bdbc51b5621a2d7dc445fa36cbfe7b0cdb9582b44f" mediatype=application/vnd.oci.image.layer.v1.tar+gzip request.header.accept="application/vnd.oci.image.layer.v1.tar+gzip, */*" request.header.user-agent=containerd/1.7.2+unknown request.method=GET size=1844315 spanID=9ee24d1d0031f0df traceID=ef0c5d7b7e157ae06c445e9b795f14fd url="http://localhost:39727/v2/arm64v8/busybox/blobs/sha256:1523c6c3dc4c68bb2416b8bdbc51b5621a2d7dc445fa36cbfe7b0cdb9582b44f?ns=docker.io"
+time="2024-10-07T11:40:44Z" level=debug msg="fetch response received" digest="sha256:1523c6c3dc4c68bb2416b8bdbc51b5621a2d7dc445fa36cbfe7b0cdb9582b44f" mediatype=application/vnd.oci.image.layer.v1.tar+gzip response.header.accept-ranges=bytes response.header.cache-control="max-age=31536000" response.header.content-length=1844315 response.header.content-type=application/octet-stream response.header.date="Mon, 07 Oct 2024 11:40:44 GMT" response.header.docker-content-digest="sha256:1523c6c3dc4c68bb2416b8bdbc51b5621a2d7dc445fa36cbfe7b0cdb9582b44f" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:1523c6c3dc4c68bb2416b8bdbc51b5621a2d7dc445fa36cbfe7b0cdb9582b44f\"" response.status="200 OK" size=1844315 spanID=9ee24d1d0031f0df traceID=ef0c5d7b7e157ae06c445e9b795f14fd url="http://localhost:39727/v2/arm64v8/busybox/blobs/sha256:1523c6c3dc4c68bb2416b8bdbc51b5621a2d7dc445fa36cbfe7b0cdb9582b44f?ns=docker.io"
+time="2024-10-07T11:40:44Z" level=debug msg="unpigz not found, falling back to go gzip" error="exec: \"unpigz\": executable file not found in $PATH"
+time="2024-10-07T11:40:44Z" level=debug msg="file \".\" ignored: resolved to root" spanID=9ee24d1d0031f0df traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg="diff applied" d=66.629994ms digest="sha256:1523c6c3dc4c68bb2416b8bdbc51b5621a2d7dc445fa36cbfe7b0cdb9582b44f" media=application/vnd.oci.image.layer.v1.tar+gzip size=1844315 spanID=9ee24d1d0031f0df traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+time="2024-10-07T11:40:44Z" level=debug msg="> creating kccjdmaw69ue28sdxqfyvxu36 [/bin/sh -c uname -a]" span="[2/2] RUN uname -a" spanID=52ffb371e1a908fa traceID=ef0c5d7b7e157ae06c445e9b795f14fd
+1 brk(NULL) = 0x0000005500122000
+1 uname(0x55031229d8) = 0
+1 faccessat(AT_FDCWD,"/etc/ld.so.preload",R_OK,0x3ece8) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/etc/ld.so.cache",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls/aarch64/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls/aarch64/atomics",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls/aarch64/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls/aarch64",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls/atomics",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/aarch64/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu/aarch64/atomics",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/aarch64/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu/aarch64",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu/atomics",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls/aarch64/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls/aarch64/atomics",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls/aarch64/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls/aarch64",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls/atomics",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/aarch64/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/aarch64/atomics",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/aarch64/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/aarch64",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/atomics",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/tls/aarch64/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/tls/aarch64/atomics",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/tls/aarch64/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/tls/aarch64",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/tls/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/tls/atomics",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/tls/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/tls",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64/atomics",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/atomics",0x0000005503121cc0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/libm.so.6",O_RDONLY|O_CLOEXEC) = 3
+1 read(3,0x3121e40,832) = 832
+1 newfstatat(3,"",0x0000005503121cc0,0x1000) = 0
+1 mmap(NULL,8192,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANONYMOUS,-1,0) = 0x0000005503166000
+1 mmap(NULL,655472,PROT_NONE,MAP_PRIVATE|MAP_ANONYMOUS,-1,0) = 0x0000005503168000
+1 mmap(0x0000005503170000,589936,PROT_EXEC|PROT_READ,MAP_PRIVATE|MAP_DENYWRITE|MAP_FIXED,3,0) = 0x0000005503170000
+1 munmap(0x0000005503168000,32768) = 0
+1 munmap(0x0000005503201000,28784) = 0
+1 mprotect(0x00000055031f0000,61440,PROT_NONE) = 0
+1 mmap(0x00000055031ff000,8192,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_DENYWRITE|MAP_FIXED,3,0x8f000) = 0x00000055031ff000
+1 close(3) = 0
+1 openat(AT_FDCWD,"/lib/libresolv.so.2",O_RDONLY|O_CLOEXEC) = 3
+1 read(3,0x3121e20,832) = 832
+1 newfstatat(3,"",0x0000005503121ca0,0x1000) = 0
+1 mmap(NULL,207352,PROT_NONE,MAP_PRIVATE|MAP_ANONYMOUS,-1,0) = 0x0000005503209000
+1 mmap(0x0000005503210000,141816,PROT_EXEC|PROT_READ,MAP_PRIVATE|MAP_DENYWRITE|MAP_FIXED,3,0) = 0x0000005503210000
+1 munmap(0x0000005503209000,28672) = 0
+1 munmap(0x0000005503233000,35320) = 0
+1 mprotect(0x000000550321d000,73728,PROT_NONE) = 0
+1 mmap(0x000000550322f000,8192,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_DENYWRITE|MAP_FIXED,3,0xf000) = 0x000000550322f000
+1 mmap(0x0000005503231000,6648,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED,-1,0) = 0x0000005503231000
+1 close(3) = 0
+1 openat(AT_FDCWD,"/lib/libc.so.6",O_RDONLY|O_CLOEXEC) = 3
+1 read(3,0x3121e00,832) = 832
+1 newfstatat(3,"",0x0000005503121c80,0x1000) = 0
+1 mmap(NULL,1826912,PROT_NONE,MAP_PRIVATE|MAP_ANONYMOUS,-1,0) = 0x000000550323c000
+1 mmap(0x0000005503240000,1761376,PROT_EXEC|PROT_READ,MAP_PRIVATE|MAP_DENYWRITE|MAP_FIXED,3,0) = 0x0000005503240000
+1 munmap(0x000000550323c000,16384) = 0
+1 munmap(0x00000055033ef000,45152) = 0
+1 mprotect(0x00000055033c7000,86016,PROT_NONE) = 0
+1 mmap(0x00000055033dc000,24576,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_DENYWRITE|MAP_FIXED,3,0x18c000) = 0x00000055033dc000
+1 mmap(0x00000055033e2000,49248,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED,-1,0) = 0x00000055033e2000
+1 close(3) = 0
+1 mmap(NULL,8192,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANONYMOUS,-1,0) = 0x00000055033fb000
+1 set_tid_address(365126725872,365124005928,365126725856,365124010392,365126725984,365126726144) = 1
+1 set_robust_list(365126725888,24,365126725888,1,0,365126725936) = -1 errno=38 (Function not implemented)
+1 Unknown syscall 293
+1 mprotect(0x00000055033dc000,16384,PROT_READ) = 0
+1 mprotect(0x000000550322f000,4096,PROT_READ) = 0
+1 mprotect(0x00000055031ff000,4096,PROT_READ) = 0
+1 mprotect(0x000000550011c000,16384,PROT_READ) = 0
+1 mprotect(0x0000005503161000,8192,PROT_READ) = 0
+1 prlimit64(0,3,0,365123741784,365126192192,40) = 0
+1 getrandom(365126641968,8,1,1,365126725984,8682585657332619125) = 8
+1 getuid() = 0
+1 brk(NULL) = 0x0000005500122000
+1 brk(0x0000005500143000) = 0x0000005500143000
+1 getpid() = 1
+1 rt_sigaction(SIGCHLD,0x00000055031224a8,NULL) = 0
+1 getppid() = 0
+1 uname(0x5503122758) = 0
+1 getcwd(0x5500123440,4096) = 2
+1 rt_sigaction(SIGINT,NULL,0x0000005503122750) = 0
+1 rt_sigaction(SIGINT,0x00000055031226b8,NULL) = 0
+1 rt_sigaction(SIGQUIT,NULL,0x0000005503122750) = 0
+1 rt_sigaction(SIGQUIT,0x00000055031226b8,NULL) = 0
+1 rt_sigaction(SIGTERM,NULL,0x0000005503122750) = 0
+1 newfstatat(AT_FDCWD,"/usr/local/sbin/uname",0x0000005503122410,0) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/local/bin/uname",0x0000005503122410,0) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/sbin/uname",0x0000005503122410,0) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/bin/uname",0x0000005503122410,0) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/sbin/uname",0x0000005503122410,0) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/bin/uname",0x0000005503122410,0) = 0
+1 brk(NULL) = 0x0000005500122000
+1 uname(0x55031229c8) = 0
+1 faccessat(AT_FDCWD,"/etc/ld.so.preload",R_OK,0x3ece8) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/etc/ld.so.cache",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls/aarch64/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls/aarch64/atomics",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls/aarch64/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls/aarch64",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls/atomics",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu/tls",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/aarch64/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu/aarch64/atomics",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/aarch64/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu/aarch64",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu/atomics",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64-linux-gnu/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64-linux-gnu",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls/aarch64/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls/aarch64/atomics",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls/aarch64/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls/aarch64",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls/atomics",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/tls",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/aarch64/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/aarch64/atomics",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/aarch64/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/aarch64",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/atomics",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/usr/lib/aarch64-linux-gnu",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/tls/aarch64/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/tls/aarch64/atomics",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/tls/aarch64/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/tls/aarch64",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/tls/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/tls/atomics",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/tls/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/tls",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64/atomics",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/aarch64/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/aarch64",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/atomics/libm.so.6",O_RDONLY|O_CLOEXEC) = -1 errno=2 (No such file or directory)
+1 newfstatat(AT_FDCWD,"/lib/atomics",0x0000005503121cb0,0) = -1 errno=2 (No such file or directory)
+1 openat(AT_FDCWD,"/lib/libm.so.6",O_RDONLY|O_CLOEXEC) = 3
+1 read(3,0x3121e30,832) = 832
+1 newfstatat(3,"",0x0000005503121cb0,0x1000) = 0
+1 mmap(NULL,8192,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANONYMOUS,-1,0) = 0x0000005503166000
+1 mmap(NULL,655472,PROT_NONE,MAP_PRIVATE|MAP_ANONYMOUS,-1,0) = 0x0000005503168000
+1 mmap(0x0000005503170000,589936,PROT_EXEC|PROT_READ,MAP_PRIVATE|MAP_DENYWRITE|MAP_FIXED,3,0) = 0x0000005503170000
+1 munmap(0x0000005503168000,32768) = 0
+1 munmap(0x0000005503201000,28784) = 0
+1 mprotect(0x00000055031f0000,61440,PROT_NONE) = 0
+1 mmap(0x00000055031ff000,8192,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_DENYWRITE|MAP_FIXED,3,0x8f000) = 0x00000055031ff000
+1 close(3) = 0
+1 openat(AT_FDCWD,"/lib/libresolv.so.2",O_RDONLY|O_CLOEXEC) = 3
+1 read(3,0x3121e10,832) = 832
+1 newfstatat(3,"",0x0000005503121c90,0x1000) = 0
+1 mmap(NULL,207352,PROT_NONE,MAP_PRIVATE|MAP_ANONYMOUS,-1,0) = 0x0000005503209000
+1 mmap(0x0000005503210000,141816,PROT_EXEC|PROT_READ,MAP_PRIVATE|MAP_DENYWRITE|MAP_FIXED,3,0) = 0x0000005503210000
+1 munmap(0x0000005503209000,28672) = 0
+1 munmap(0x0000005503233000,35320) = 0
+1 mprotect(0x000000550321d000,73728,PROT_NONE) = 0
+1 mmap(0x000000550322f000,8192,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_DENYWRITE|MAP_FIXED,3,0xf000) = 0x000000550322f000
+1 mmap(0x0000005503231000,6648,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED,-1,0) = 0x0000005503231000
+1 close(3) = 0
+1 openat(AT_FDCWD,"/lib/libc.so.6",O_RDONLY|O_CLOEXEC) = 3
+1 read(3,0x3121df0,832) = 832
+1 newfstatat(3,"",0x0000005503121c70,0x1000) = 0
+1 mmap(NULL,1826912,PROT_NONE,MAP_PRIVATE|MAP_ANONYMOUS,-1,0) = 0x000000550323c000
+1 mmap(0x0000005503240000,1761376,PROT_EXEC|PROT_READ,MAP_PRIVATE|MAP_DENYWRITE|MAP_FIXED,3,0) = 0x0000005503240000
+1 munmap(0x000000550323c000,16384) = 0
+1 munmap(0x00000055033ef000,45152) = 0
+1 mprotect(0x00000055033c7000,86016,PROT_NONE) = 0
+1 mmap(0x00000055033dc000,24576,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_DENYWRITE|MAP_FIXED,3,0x18c000) = 0x00000055033dc000
+1 mmap(0x00000055033e2000,49248,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED,-1,0) = 0x00000055033e2000
+1 close(3) = 0
+1 mmap(NULL,8192,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANONYMOUS,-1,0) = 0x00000055033fb000
+1 set_tid_address(365126725872,365124005928,365126725856,365124010392,365126725984,365126726144) = 1
+1 set_robust_list(365126725888,24,365126725888,1,0,365126725936) = -1 errno=38 (Function not implemented)
+1 Unknown syscall 293
+1 mprotect(0x00000055033dc000,16384,PROT_READ) = 0
+1 mprotect(0x000000550322f000,4096,PROT_READ) = 0
+1 mprotect(0x00000055031ff000,4096,PROT_READ) = 0
+1 mprotect(0x000000550011c000,16384,PROT_READ) = 0
+1 mprotect(0x0000005503161000,8192,PROT_READ) = 0
+1 prlimit64(0,3,0,365123741768,365126192192,40) = 0
+1 getrandom(365126641968,8,1,1,365126725984,7143882630846823253) = 8
+1 getuid() = 0
+1 uname(0x5503122858) = 0
+1 newfstatat(1,"",0x0000005503121fe8,0x1000) = 0
+1 brk(NULL) = 0x0000005500122000
+1 brk(0x0000005500143000) = 0x0000005500143000
+1 write(1,0x1222a0,101) = 101
+1 exit_group(0)
+time="2024-10-07T11:40:44Z" level=debug msg="session finished: <nil>" spanID=67834519050af2fe traceID=ef0c5d7b7e157ae06c445e9b795f14fd
