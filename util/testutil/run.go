@@ -7,6 +7,7 @@ import (
 	"maps"
 	"math/rand"
 	"os"
+	"path"
 	"path/filepath"
 	"reflect"
 	"runtime"
@@ -39,7 +40,8 @@ type Backend interface {
 	Address() string
 	DebugAddress() string
 	ExtraEnv() []string
-	BuildxDir() string
+	BuildxBin() string
+	BuildxConfigDir() string
 	BuilderName() string
 }
 
@@ -54,13 +56,14 @@ type Sandbox interface {
 	WriteLogFile(testing.TB, string, []byte)
 	Value(string) interface{} // chosen matrix value
 	Name() string
-	BinsDir() string
+	BuildKitBinsDir() string
 }
 
 // BackendConfig is used to configure backends created by a worker.
 type BackendConfig struct {
 	Logs         map[string]*bytes.Buffer
 	DaemonConfig []ConfigUpdater
+	BuildxBin    string
 }
 
 type Worker interface {
@@ -192,6 +195,26 @@ func RunTest(tb testing.TB, testFunc func(tb testing.TB, sb Sandbox)) {
 
 func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 	var tc testConf
+
+	// set up buildx matrix
+	WithMatrix("buildx", func() map[string]interface{} {
+		var matrix map[string]interface{}
+		entries, err := os.ReadDir(buildxBinsDir)
+		if err != nil {
+			return matrix
+		}
+		for _, entry := range entries {
+			if !entry.IsDir() {
+				continue
+			}
+			if matrix == nil {
+				matrix = make(map[string]interface{})
+			}
+			matrix[entry.Name()] = path.Join(buildxBinsDir, entry.Name(), "buildx")
+		}
+		return matrix
+	}())(&tc)
+
 	for _, o := range opt {
 		o(&tc)
 	}
@@ -242,7 +265,7 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 
 							runWithSandbox := func(tb testing.TB) {
 								sb, closer, err := newSandbox(ctx, br, mirror, mv)
-								require.NoError(tb, err)
+								require.NoError(tb, err, errors.Unwrap(err))
 								tb.Cleanup(func() { _ = closer() })
 								defer func() {
 									sb.WriteLogs(tb)

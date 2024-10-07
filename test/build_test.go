@@ -60,7 +60,9 @@ func BenchmarkBuild(b *testing.B) {
 		benchmarkBuildExportGzip,
 		benchmarkBuildExportEstargz,
 		//benchmarkBuildExportZstd, https://github.com/moby/buildkit-bench/pull/146#discussion_r1771519112
-	), testutil.WithMirroredImages(mirroredImages))
+	),
+		testutil.WithMirroredImages(mirroredImages),
+	)
 }
 
 func benchmarkBuildSimple(b *testing.B, sb testutil.Sandbox) {

@@ -18,7 +18,7 @@ func BenchmarkPackage(b *testing.B) {
 
 func benchmarkPackageSize(b *testing.B, sb testutil.Sandbox) {
 	var packageSize int64
-	err := filepath.Walk(path.Join(sb.BinsDir(), sb.Name()), func(_ string, info os.FileInfo, err error) error {
+	err := filepath.Walk(path.Join(sb.BuildKitBinsDir(), sb.Name()), func(_ string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}

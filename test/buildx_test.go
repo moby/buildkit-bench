@@ -15,7 +15,7 @@ func TestBuildx(t *testing.T) {
 }
 
 func testBuildxVersion(t *testing.T, sb testutil.Sandbox) {
-	output, err := exec.Command("buildx", "version").Output()
+	output, err := exec.Command(sb.BuildxBin(), "version").Output()
 	require.NoError(t, err)
 	t.Log(string(output))
 }

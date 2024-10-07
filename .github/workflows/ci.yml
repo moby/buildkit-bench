@@ -175,7 +175,7 @@ jobs:
         uses: docker/bake-action@v5
         with:
           source: "{{defaultContext}}"
-          targets: tests
+          targets: tests-buildkit
           provenance: false
           set: |
             *.cache-from=type=registry,ref=${{ env.BUILDKIT_CACHE_REPO }}:tests-base
@@ -249,7 +249,7 @@ jobs:
         uses: docker/bake-action@v5
         with:
           source: "{{defaultContext}}"
-          targets: tests
+          targets: tests-buildkit
           provenance: false
           set: |
             *.cache-from=type=registry,ref=${{ env.BUILDKIT_CACHE_REPO }}:tests-base

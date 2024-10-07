@@ -43,13 +43,13 @@ func withDir(dir string) cmdOpt {
 }
 
 func buildxCmd(sb testutil.Sandbox, opts ...cmdOpt) *exec.Cmd {
-	cmd := exec.Command("buildx")
+	cmd := exec.Command(sb.BuildxBin())
 	cmd.Env = append([]string{}, os.Environ()...)
 	for _, opt := range opts {
 		opt(cmd)
 	}
-	if buildxDir := sb.BuildxDir(); buildxDir != "" {
-		cmd.Env = append(cmd.Env, "BUILDX_CONFIG="+buildxDir)
+	if buildxConfigDir := sb.BuildxConfigDir(); buildxConfigDir != "" {
+		cmd.Env = append(cmd.Env, "BUILDX_CONFIG="+buildxConfigDir)
 	}
 	if builderName := sb.BuilderName(); builderName != "" {
 		cmd.Env = append(cmd.Env, "BUILDX_BUILDER="+builderName)
@@ -65,7 +65,7 @@ func buildxBuildCmd(sb testutil.Sandbox, opts ...cmdOpt) (string, error) {
 }
 
 func buildctlCmd(sb testutil.Sandbox, opts ...cmdOpt) *exec.Cmd {
-	cmd := exec.Command(path.Join(sb.BinsDir(), sb.Name(), "buildctl"))
+	cmd := exec.Command(path.Join(sb.BuildKitBinsDir(), sb.Name(), "buildctl"))
 	cmd.Args = append(cmd.Args, "--debug")
 	if buildkitAddr := sb.Address(); buildkitAddr != "" {
 		cmd.Args = append(cmd.Args, "--addr", buildkitAddr)
