@@ -30,7 +30,7 @@ func BenchmarkDaemon(b *testing.B) {
 }
 
 func testDaemonVersion(t *testing.T, sb testutil.Sandbox) {
-	buildkitdPath := path.Join(sb.BinsDir(), sb.Name(), "buildkitd")
+	buildkitdPath := path.Join(sb.BuildKitBinsDir(), sb.Name(), "buildkitd")
 
 	output, err := exec.Command(buildkitdPath, "--version").Output()
 	require.NoError(t, err)
@@ -61,7 +61,7 @@ func testDaemonDebugHeap(t *testing.T, sb testutil.Sandbox) {
 }
 
 func benchmarkDaemonVersion(b *testing.B, sb testutil.Sandbox) {
-	buildkitdPath := path.Join(sb.BinsDir(), sb.Name(), "buildkitd")
+	buildkitdPath := path.Join(sb.BuildKitBinsDir(), sb.Name(), "buildkitd")
 	b.StartTimer()
 	err := exec.Command(buildkitdPath, "--version").Run()
 	b.StopTimer()
@@ -69,7 +69,7 @@ func benchmarkDaemonVersion(b *testing.B, sb testutil.Sandbox) {
 }
 
 func benchmarkDaemonSize(b *testing.B, sb testutil.Sandbox) {
-	buildkitdPath := path.Join(sb.BinsDir(), sb.Name(), "buildkitd")
+	buildkitdPath := path.Join(sb.BuildKitBinsDir(), sb.Name(), "buildkitd")
 	fi, err := os.Stat(buildkitdPath)
 	require.NoError(b, err)
 	testutil.ReportMetric(b, float64(fi.Size()), testutil.MetricBytes)
