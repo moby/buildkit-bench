@@ -161,9 +161,6 @@ target "tests-buildx" {
 variable "GEN_VALIDATION_MODE" {
   default = null
 }
-variable "CANDIDATES_KEY" {
-  default = "candidates"
-}
 
 target "tests-gen" {
   inherits = ["_common"]
@@ -174,7 +171,6 @@ target "tests-gen" {
   output = ["./bin/gen"]
   args = {
     GEN_VALIDATION_MODE = GEN_VALIDATION_MODE
-    CANDIDATES_KEY = CANDIDATES_KEY
   }
 }
 
