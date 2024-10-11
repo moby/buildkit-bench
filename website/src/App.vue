@@ -31,6 +31,7 @@ export default {
   flex: 0 0 auto;
   background-color: #f8f9fa;
   padding: 10px;
+  overflow-y: auto;
 }
 
 .result-view {
