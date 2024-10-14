@@ -22,6 +22,7 @@ type TestConfigRun map[string]TestConfigBenchmark
 
 type TestConfigBenchmark struct {
 	Description string                      `yaml:"description"`
+	Scope       string                      `yaml:"scope,omitempty" json:",omitempty"`
 	Count       int                         `yaml:"count,omitempty" json:",omitempty"`
 	Benchtime   string                      `yaml:"benchtime,omitempty" json:",omitempty"`
 	Metrics     map[string]TestConfigMetric `yaml:"metrics"`

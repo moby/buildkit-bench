@@ -80,7 +80,10 @@ func (c *genCmd) validateBenchmarks(benchmarks map[string]gotest.Benchmark) erro
 	}
 	if c.ValidationMode == "strict" {
 		for rootName, bms := range tc.Runs {
-			for testName := range bms {
+			for testName, testConfig := range bms {
+				if testConfig.Scope != "" && testConfig.Scope != c.Project {
+					continue
+				}
 				if _, ok := seen[rootName+"/"+testName]; !ok {
 					return errors.Errorf("missing benchmark result for %q", rootName+"/"+testName)
 				}
