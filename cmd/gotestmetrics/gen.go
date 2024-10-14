@@ -30,6 +30,7 @@ type genCmd struct {
 	Name           string `kong:"name='name',help='Name of the report.'"`
 	Config         string `kong:"name='config',required,default='testconfig.yml',help='Test config file.'"`
 	Output         string `kong:"name='output',default='./bin/gen/benchmarks.html',help='File to write the HTML report to.'"`
+	Project        string `kong:"name='project',enum='buildkit,buildx',default='buildkit',help='Project type.'"`
 	Candidates     string `kong:"name='candidates',help='Candidates file.'"`
 	GHAEvent       string `kong:"name='gha-event',help='GitHub Actions payload JSON file.'"`
 	Envs           string `kong:"name='envs',help='Environment variables file.'"`
@@ -79,7 +80,10 @@ func (c *genCmd) validateBenchmarks(benchmarks map[string]gotest.Benchmark) erro
 	}
 	if c.ValidationMode == "strict" {
 		for rootName, bms := range tc.Runs {
-			for testName := range bms {
+			for testName, testConfig := range bms {
+				if testConfig.Scope != "" && testConfig.Scope != c.Project {
+					continue
+				}
 				if _, ok := seen[rootName+"/"+testName]; !ok {
 					return errors.Errorf("missing benchmark result for %q", rootName+"/"+testName)
 				}
@@ -153,15 +157,19 @@ func (c *genCmd) writeHTML(benchmarks map[string]gotest.Benchmark) error {
 		metrics := make(map[string]map[string][]float64)
 		for _, run := range runs {
 			for unit := range bc.Metrics {
+				ref := run.Ref
+				if c.Project == "buildx" {
+					ref = run.Buildx
+				}
 				if _, ok := metrics[unit]; !ok {
 					metrics[unit] = make(map[string][]float64)
 				}
 				if v, ok := run.Extra[unit]; ok {
-					metrics[unit][run.Ref] = append(metrics[unit][run.Ref], v)
+					metrics[unit][ref] = append(metrics[unit][ref], v)
 				} else if unit == "duration" {
-					metrics[unit][run.Ref] = append(metrics[unit][run.Ref], time.Duration(run.NsPerOp).Seconds())
+					metrics[unit][ref] = append(metrics[unit][ref], time.Duration(run.NsPerOp).Seconds())
 				} else {
-					return errors.Errorf("missing metric %q for run %s", unit, run.Ref)
+					return errors.Errorf("missing metric %q for run %s", unit, ref)
 				}
 			}
 		}

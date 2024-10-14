@@ -26,6 +26,7 @@ type BenchmarkRunInfo struct {
 	Test    string
 	Run     int
 	Ref     string
+	Buildx  string
 	Threads int
 }
 
@@ -113,6 +114,8 @@ func parseBenchmarkRunInfo(line string) (*BenchmarkRunInfo, error) {
 		switch key {
 		case "ref":
 			bri.Ref = value
+		case "buildx":
+			bri.Buildx = value
 		case "run":
 			rkey, rvalue, ok := strings.Cut(value, "-")
 			if !ok {

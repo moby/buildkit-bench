@@ -1,0 +1,126 @@
+# reusable workflow
+name: .benchmark
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        type: string
+        required: true
+      artifact_key:
+        type: string
+        required: true
+
+env:
+  GO_VERSION: 1.22
+  SETUP_BUILDX_VERSION: latest
+  SETUP_BUILDKIT_IMAGE: moby/buildkit:latest
+  BUILDKIT_CACHE_REPO: moby/buildkit-bench-cache
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    outputs:
+      includes: ${{ steps.set.outputs.includes }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      -
+        name: Set includes
+        id: set
+        run: |
+          go run -mod=vendor ./cmd/gotestmetrics \
+            --debug list --project ${{ inputs.target }} --gha-output includes
+
+  benchmark:
+    runs-on: ubuntu-24.04
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.prepare.outputs.includes) }}
+    env:
+      TEST_FLAGS: -v --timeout=5h
+      TEST_IMAGE_BUILD: 0
+      TEST_IMAGE_ID: buildkit-bench
+      TEST_RESULTS_DIR: bin/results
+    steps:
+      -
+        name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/binaries
+          pattern: ${{ inputs.artifact_key }}-*
+          merge-multiple: true
+      -
+        name: Extract binaries
+        run: |
+          mkdir -p ./bin/binaries
+          for f in "/tmp/binaries"/*.tar.gz; do
+            (set -x ; tar -xzvf "$f" -C ./bin/binaries && rm "$f")
+          done
+          tree -nph ./bin/binaries
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: ${{ env.SETUP_BUILDX_VERSION }}
+          driver: docker
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      -
+        name: Build test image
+        uses: docker/bake-action@v5
+        with:
+          source: "{{defaultContext}}"
+          targets: tests-${{ inputs.target }}
+          provenance: false
+          set: |
+            *.cache-from=type=registry,ref=${{ env.BUILDKIT_CACHE_REPO }}:tests-base
+            *.contexts.${{ inputs.target }}-binaries=cwd://bin/binaries
+            *.output=type=docker,name=${{ env.TEST_IMAGE_ID }}
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Benchmark
+        run: |
+          make bench
+        env:
+          TEST_BENCH_REGEXP: ${{ matrix.test }}$
+          TEST_BENCH_RUN: ${{ matrix.count }}
+          TEST_BENCH_TIME: ${{ matrix.benchtime }}
+      -
+        name: Result
+        run: |
+          resultName=$(echo ${{ matrix.test }} | sed 's/\//-/g')
+          resultPath=./${{ env.TEST_RESULTS_DIR }}/gotestoutput-${{ inputs.target }}-$resultName.json
+          echo "TEST_RESULT_NAME=$resultName" >> $GITHUB_ENV
+          mv ./${{ env.TEST_RESULTS_DIR }}/gotestoutput.json $resultPath
+          jq . $resultPath
+      -
+        name: Logs
+        if: github.event_name == 'pull_request'
+        run: |
+          find ${{ env.TEST_RESULTS_DIR }} -type f -name "*.log" -print | while read -r f; do
+            echo "##########################################################################"
+            echo "$f"
+            echo "##########################################################################"
+            cat "$f"
+          done
+      -
+        name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results-${{ inputs.target }}-${{ env.TEST_RESULT_NAME }}
+          path: ${{ env.TEST_RESULTS_DIR }}
+          if-no-files-found: error
+          retention-days: 7

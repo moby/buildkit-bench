@@ -16,16 +16,20 @@ import (
 )
 
 var (
-	binsDir = "/buildkit-binaries"
-	outDir  = "/testout"
+	buildkitBinsDir    = "/buildkit-binaries"
+	buildkitBinsAltDir = "/opt/buildkit"
+	buildxBinsDir      = "/buildx-binaries"
+	buildxBinsAltDir   = "/opt/buildx"
+	outDir             = "/testout"
 )
 
 type backend struct {
-	address      string
-	debugAddress string
-	extraEnv     []string
-	buildxDir    string
-	builderName  string
+	address         string
+	debugAddress    string
+	extraEnv        []string
+	buildxBin       string
+	buildxConfigDir string
+	builderName     string
 }
 
 func (b backend) Address() string {
@@ -40,8 +44,12 @@ func (b backend) ExtraEnv() []string {
 	return b.extraEnv
 }
 
-func (b backend) BuildxDir() string {
-	return b.buildxDir
+func (b backend) BuildxBin() string {
+	return b.buildxBin
+}
+
+func (b backend) BuildxConfigDir() string {
+	return b.buildxConfigDir
 }
 
 func (b backend) BuilderName() string {
@@ -49,13 +57,12 @@ func (b backend) BuilderName() string {
 }
 
 func init() {
-	if v := os.Getenv("BUILDKIT_BINS_DIR"); v != "" {
-		binsDir = v
-	}
+	buildkitBinsDir = getBinsDir(buildkitBinsDir, buildkitBinsAltDir, "BUILDKIT_BINS_DIR")
+	buildxBinsDir = getBinsDir(buildxBinsDir, buildxBinsAltDir, "BUILDX_BINS_DIR")
 	if v := os.Getenv("TEST_OUT_DIR"); v != "" {
 		outDir = v
 	}
-	for _, ref := range getRefs(binsDir) {
+	for _, ref := range getRefs(buildkitBinsDir) {
 		Register(ref)
 	}
 }
@@ -79,7 +86,7 @@ func (c *Ref) New(ctx context.Context, cfg *BackendConfig) (b Backend, cl func()
 		}
 	}()
 
-	buildkitdPath := path.Join(binsDir, c.id, "buildkitd")
+	buildkitdPath := path.Join(buildkitBinsDir, c.id, "buildkitd")
 	if err := lookupBinary(buildkitdPath); err != nil {
 		return nil, nil, err
 	}
@@ -97,12 +104,12 @@ func (c *Ref) New(ctx context.Context, cfg *BackendConfig) (b Backend, cl func()
 	buildkitdSock, debugAddress, stop, err := runBuildkitd(cfg, tmpdir, []string{
 		buildkitdPath,
 		"--oci-worker=true",
-		"--oci-worker-binary=" + path.Join(binsDir, c.id, "buildkit-runc"),
+		"--oci-worker-binary=" + path.Join(buildkitBinsDir, c.id, "buildkit-runc"),
 		"--containerd-worker=false",
 		"--oci-worker-gc=false",
 		"--oci-worker-labels=org.mobyproject.buildkit.worker.sandbox=true",
 	}, cfg.Logs, []string{
-		fmt.Sprintf("PATH=%s:%s", path.Join(binsDir, c.id), os.Getenv("PATH")),
+		fmt.Sprintf("PATH=%s:%s", path.Join(buildkitBinsDir, c.id), os.Getenv("PATH")),
 	})
 	if err != nil {
 		printLogs(cfg.Logs, log.Println)
@@ -110,26 +117,26 @@ func (c *Ref) New(ctx context.Context, cfg *BackendConfig) (b Backend, cl func()
 	}
 	deferF.Append(stop)
 
-	if err := lookupBinary("buildx"); err != nil {
+	if err := lookupBinary(cfg.BuildxBin); err != nil {
 		return nil, nil, err
 	}
 
 	// Create a remote buildx instance
 	builderName := "remote-" + identity.NewID()
-	buildxDir := filepath.Join(tmpdir, "buildx")
-	cmd := exec.Command("buildx", "create",
+	buildxConfigDir := filepath.Join(tmpdir, "buildx")
+	cmd := exec.Command(cfg.BuildxBin, "create",
 		"--bootstrap",
 		"--name", builderName,
 		"--driver", "remote",
 		buildkitdSock,
 	)
-	cmd.Env = append(os.Environ(), "BUILDX_CONFIG="+buildxDir)
+	cmd.Env = append(os.Environ(), "BUILDX_CONFIG="+buildxConfigDir)
 	if err := cmd.Run(); err != nil {
 		return nil, nil, errors.Wrapf(err, "failed to create buildx instance %s", builderName)
 	}
 	deferF.Append(func() error {
-		cmd := exec.Command("buildx", "rm", "-f", builderName)
-		cmd.Env = append(os.Environ(), "BUILDX_CONFIG="+buildxDir)
+		cmd := exec.Command(cfg.BuildxBin, "rm", "-f", builderName)
+		cmd.Env = append(os.Environ(), "BUILDX_CONFIG="+buildxConfigDir)
 		return cmd.Run()
 	})
 
@@ -139,10 +146,11 @@ func (c *Ref) New(ctx context.Context, cfg *BackendConfig) (b Backend, cl func()
 	})
 
 	return backend{
-		address:      buildkitdSock,
-		debugAddress: debugAddress,
-		buildxDir:    buildxDir,
-		builderName:  builderName,
+		address:         buildkitdSock,
+		debugAddress:    debugAddress,
+		buildxBin:       cfg.BuildxBin,
+		buildxConfigDir: buildxConfigDir,
+		builderName:     builderName,
 	}, cl, nil
 }
 
@@ -174,4 +182,19 @@ func mountInfo(tmpdir string) error {
 		}
 	}
 	return s.Err()
+}
+
+func getBinsDir(targetdir string, altdir string, env string) string {
+	if v := os.Getenv(env); v != "" {
+		targetdir = v
+	}
+	f, err := os.Open(targetdir)
+	if err != nil {
+		return altdir
+	}
+	defer f.Close()
+	if n, err := f.Readdirnames(1); err != nil || len(n) == 0 {
+		return altdir
+	}
+	return targetdir
 }

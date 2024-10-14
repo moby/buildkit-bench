@@ -1,24 +1,33 @@
 # reusable workflow
-name: .buildkit-binaries
+name: .binaries
 
 on:
   workflow_call:
     inputs:
+      target:
+        type: string
+        required: true
       repo:
         type: string
-        default: moby/buildkit
+        required: true
+      artifact_key:
+        type: string
+        required: true
+      cache_prefix:
+        type: string
+        required: true
+      candidates_key:
+        type: string
+        required: true
       refs:
         type: string
-        default: master
+        required: true
       last_days:
         type: string
         default: 7
       last_releases:
         type: string
         default: 3
-      artifact_key:
-        type: string
-        default: buildkit-binaries
 
 env:
   GO_VERSION: 1.22
@@ -49,20 +58,20 @@ jobs:
             --refs "${{ inputs.refs }}" \
             --last-days "${{ inputs.last_days }}" \
             --last-releases "${{ inputs.last_releases }}" \
-            --file-output ./bin/candidates.json \
+            --file-output ./bin/${{ inputs.candidates_key }}.json \
             --gha-output includes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       -
         name: List candidates
         run: |
-          jq . ./bin/candidates.json
+          jq . ./bin/${{ inputs.candidates_key }}.json
       -
         name: Upload candidates
         uses: actions/upload-artifact@v4
         with:
-          name: candidates
-          path: ./bin/candidates.json
+          name: ${{ inputs.candidates_key }}
+          path: ./bin/${{ inputs.candidates_key }}.json
           if-no-files-found: error
           retention-days: 7
 
@@ -75,6 +84,19 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.prepare.outputs.includes) }}
     steps:
+      -
+        name: Prepare
+        run: |
+          case ${{ inputs.target }} in
+            buildkit)
+              echo "BUILDKIT_REPO=${{ inputs.repo }}" >> $GITHUB_ENV
+              echo "BUILDKIT_REFS=${{ matrix.ref }}" >> $GITHUB_ENV
+              ;;
+            buildx)
+              echo "BUILDX_REPO=${{ inputs.repo }}" >> $GITHUB_ENV
+              echo "BUILDX_REFS=${{ matrix.ref }}" >> $GITHUB_ENV
+              ;;
+          esac
       -
         name: Checkout
         uses: actions/checkout@v4
@@ -96,20 +118,17 @@ jobs:
         name: Build
         uses: docker/bake-action@v5
         with:
-          targets: buildkit-build
+          targets: ${{ inputs.target }}-build
           provenance: false
           set: |
-            *.output=./bin/buildkit-binaries/${{ matrix.name }}
-            *.cache-from=type=registry,ref=${{ env.BUILDKIT_CACHE_REPO }}:bkbins-${{ matrix.commit }}
-            *.cache-to=type=registry,ignore-error=true,mode=max,ref=${{ env.BUILDKIT_CACHE_REPO }}:bkbins-${{ matrix.commit }}
-            *.cache-to=type=registry,ignore-error=true,mode=max,ref=${{ env.BUILDKIT_CACHE_REPO }}:bkbins-${{ matrix.ref }}
-        env:
-          BUILDKIT_REPO: ${{ inputs.repo }}
-          BUILDKIT_REFS: ${{ matrix.ref }}
+            *.output=./bin/binaries/${{ matrix.name }}
+            *.cache-from=type=registry,ref=${{ env.BUILDKIT_CACHE_REPO }}:${{ inputs.cache_prefix }}-${{ matrix.commit }}
+            *.cache-to=type=registry,ignore-error=true,mode=max,ref=${{ env.BUILDKIT_CACHE_REPO }}:${{ inputs.cache_prefix }}-${{ matrix.commit }}
+            *.cache-to=type=registry,ignore-error=true,mode=max,ref=${{ env.BUILDKIT_CACHE_REPO }}:${{ inputs.cache_prefix }}-${{ matrix.ref }}
       -
         # https://github.com/actions/upload-artifact/?tab=readme-ov-file#permission-loss
         name: Tar binaries
-        working-directory: ./bin/buildkit-binaries
+        working-directory: ./bin/binaries
         run: tar -czvf ../binaries-${{ matrix.name }}.tar.gz *
       -
         name: Upload binaries

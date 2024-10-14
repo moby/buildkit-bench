@@ -10,6 +10,7 @@ import (
 
 type listCmd struct {
 	Config    string `kong:"name='config',required,default='testconfig.yml',help='Test config file.'"`
+	Project   string `kong:"name='project',enum='buildkit,buildx',default='buildkit',help='Project type.'"`
 	GhaOutput string `kong:"name='gha-output',help='Set GitHub Actions output parameter to be used as matrix includes.'"`
 }
 
@@ -28,6 +29,9 @@ func (c *listCmd) Run(ctx *Context) error {
 		var includes []listInclude
 		for rootName, benchmarks := range tc.Runs {
 			for benchmarkName, benchmark := range benchmarks {
+				if benchmark.Scope != "" && benchmark.Scope != c.Project {
+					continue
+				}
 				count := benchmark.Count
 				if count == 0 {
 					count = tc.Defaults.Count

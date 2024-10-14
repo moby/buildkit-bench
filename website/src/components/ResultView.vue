@@ -8,7 +8,15 @@
       </div>
     </header>
     <div class="iframe-container">
-      <iframe :src="resultUrl"></iframe>
+      <div v-if="hasBuildx" class="full-size">
+        <ul class="tabs">
+          <li :class="{ active: activeTab === 'buildkit' }" @click="activeTab = 'buildkit'">BuildKit</li>
+          <li :class="{ active: activeTab === 'buildx' }" @click="activeTab = 'buildx'">Buildx</li>
+        </ul>
+        <iframe v-if="activeTab === 'buildkit'" :src="buildkitUrl"></iframe>
+        <iframe v-if="activeTab === 'buildx'" :src="buildxUrl"></iframe>
+      </div>
+      <iframe v-else :src="buildkitUrl"></iframe>
     </div>
   </div>
 </template>
@@ -18,19 +26,31 @@ export default {
   name: 'ResultView',
   data() {
     return {
-      metadataLinks: []
+      metadataLinks: [],
+      activeTab: 'buildkit',
+      buildkitPage: 'buildkit.html',
+      hasBuildx: false
     };
   },
   computed: {
-    resultUrl() {
-      return `${process.env.BASE_URL}result/${this.$route.params.result}/index.html`;
+    buildkitUrl() {
+      return `${process.env.BASE_URL}result/${this.$route.params.result}/${this.buildkitPage}`;
+    },
+    buildxUrl() {
+      return `${process.env.BASE_URL}result/${this.$route.params.result}/buildx.html`;
     }
   },
   created() {
     this.updateMetadata();
+    this.checkBuildKit();
+    this.checkBuildx();
   },
   watch: {
-    '$route.params.result': 'updateMetadata'
+    '$route.params.result': function() {
+      this.updateMetadata();
+      this.checkBuildKit();
+      this.checkBuildx();
+    }
   },
   methods: {
     async updateMetadata() {
@@ -48,7 +68,7 @@ export default {
         const envs = ((envString) => {
           return envString.split('\n').filter(line => line).map(line => {
             const [key, value] = line.split('=');
-            return { key, value };
+            return {key, value};
           });
         })(env.default);
 
@@ -83,6 +103,23 @@ export default {
         });
       } catch (error) {
         console.error(`failed to load metadata for ${resultName}`, error);
+      }
+    },
+    async checkBuildKit() {
+      try {
+        await import(`../../public/result/${this.$route.params.result}/buildkit.html`);
+        this.buildkitPage = 'buildkit.html';
+      } catch (error) {
+        // for backward compatibility
+        this.buildkitPage = 'index.html';
+      }
+    },
+    async checkBuildx() {
+      try {
+        await import(`../../public/result/${this.$route.params.result}/buildx.html`);
+        this.hasBuildx = true;
+      } catch (error) {
+        this.hasBuildx = false;
       }
     }
   }
@@ -138,5 +175,34 @@ iframe {
   width: 100%;
   height: 100%;
   border: none;
+}
+
+.tabs {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.tabs li {
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.tabs li.active {
+  background-color: #e9ecef;
+  font-weight: bold;
+}
+
+.tabs li:hover {
+  background-color: #e9ecef;
+}
+
+.full-size {
+  width: 100%;
+  height: 100%;
 }
 </style>

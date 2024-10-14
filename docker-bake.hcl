@@ -1,9 +1,9 @@
-variable "BUILDKIT_REPO" {
-  default = "moby/buildkit"
-}
-
 variable "BUILDKIT_CACHE_REPO" {
   default = "moby/buildkit-bench-cache"
+}
+
+variable "BUILDKIT_REPO" {
+  default = "moby/buildkit"
 }
 
 variable "BUILDKIT_REFS" {
@@ -11,6 +11,18 @@ variable "BUILDKIT_REFS" {
 }
 
 variable "BUILDKIT_TARGET" {
+  default = "binaries"
+}
+
+variable "BUILDX_REPO" {
+  default = "docker/buildx"
+}
+
+variable "BUILDX_REFS" {
+  default = "master"
+}
+
+variable "BUILDX_TARGET" {
   default = "binaries"
 }
 
@@ -32,7 +44,7 @@ function "parse_refs" {
   ]
 }
 
-function "ref_info" {
+function "buildkit_ref_info" {
   params = [ref]
   result = {
     cache_tag = (
@@ -43,6 +55,17 @@ function "ref_info" {
       ref == "v0.12.0" || ref == "18fc875d9bfd6e065cd8211abc639434ba65aa56" ? "https://github.com/crazy-max/buildkit.git#v0.12.0-pick-pr-4361" :
       can(regex("^pr-(\\d+)$", ref)) ? "https://github.com/${BUILDKIT_REPO}.git#refs/pull/${regex_replace(ref, "^pr-(\\d+)$", "$1")}/merge" :
       "https://github.com/${BUILDKIT_REPO}.git#${ref}"
+    )
+  }
+}
+
+function "buildx_ref_info" {
+  params = [ref]
+  result = {
+    cache_tag = ref,
+    context = (
+      can(regex("^pr-(\\d+)$", ref)) ? "https://github.com/${BUILDX_REPO}.git#refs/pull/${regex_replace(ref, "^pr-(\\d+)$", "$1")}/merge" :
+      "https://github.com/${BUILDX_REPO}.git#${ref}"
     )
   }
 }
@@ -67,9 +90,9 @@ target "buildkit-build" {
   matrix = {
     ref = [for item in parse_refs(BUILDKIT_REFS) : item.value]
   }
-  context = ref_info(ref).context
+  context = buildkit_ref_info(ref).context
   target = BUILDKIT_TARGET
-  cache-from = ["type=registry,ref=${BUILDKIT_CACHE_REPO}:bkbins-${ref_info(ref).cache_tag}"]
+  cache-from = ["type=registry,ref=${BUILDKIT_CACHE_REPO}:bkbins-${buildkit_ref_info(ref).cache_tag}"]
   cache-to = ["type=inline"]
 }
 
@@ -86,6 +109,31 @@ EOT
   output = ["type=cacheonly"]
 }
 
+target "buildx-build" {
+  inherits = ["_common"]
+  name = "buildx-build-${sanitize_target(ref)}"
+  matrix = {
+    ref = [for item in parse_refs(BUILDX_REFS) : item.value]
+  }
+  context = buildx_ref_info(ref).context
+  target = BUILDX_TARGET
+  cache-from = ["type=registry,ref=${BUILDKIT_CACHE_REPO}:bxbins-${buildx_ref_info(ref).cache_tag}"]
+  cache-to = ["type=inline"]
+}
+
+target "buildx-binaries" {
+  contexts = { for ref in parse_refs(BUILDX_REFS) :
+    format("buildx-build-%s", sanitize_target(ref.value)) => format("target:buildx-build-%s", sanitize_target(ref.value))
+  }
+  dockerfile-inline = <<EOT
+FROM scratch
+${join("\n", [for ref in parse_refs(BUILDX_REFS) :
+  format("COPY --link --from=buildx-build-%s / /%s", sanitize_target(ref.value), ref.key)
+])}
+EOT
+  output = ["type=cacheonly"]
+}
+
 target "tests-base" {
   inherits = ["_common"]
   target = "tests-base"
@@ -94,10 +142,18 @@ target "tests-base" {
   output = ["type=cacheonly"]
 }
 
-target "tests" {
+target "tests-buildkit" {
   inherits = ["tests-base"]
   contexts = {
     buildkit-binaries = "target:buildkit-binaries"
+  }
+  target = "tests"
+}
+
+target "tests-buildx" {
+  inherits = ["tests-base"]
+  contexts = {
+    buildx-binaries = "target:buildx-binaries"
   }
   target = "tests"
 }

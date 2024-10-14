@@ -4,25 +4,30 @@ ARG GO_VERSION=1.22
 ARG ALPINE_VERSION=3.20
 ARG XX_VERSION=1.4.0
 
-ARG BUILDX_VERSION=0.17.1
+ARG BUILDKIT_VERSION=v0.16.0
+ARG BUILDX_VERSION=v0.17.1
 ARG REGISTRY_VERSION=v2.8.3
 
 # named contexts
 FROM scratch AS buildkit-binaries
+FROM scratch AS buildx-binaries
 FROM scratch AS tests-results
 
 # xx is a helper for cross-compilation
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
-# buildx client
-FROM docker/buildx-bin:${BUILDX_VERSION} AS buildx
+# default buildkit
+FROM moby/buildkit:${BUILDKIT_VERSION} AS buildkit
+
+# default buildx
+FROM docker/buildx-bin:${BUILDX_VERSION#v} AS buildx
 
 # go base image
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS golatest
 
 # gobuild is base stage for compiling go/cgo
 FROM golatest AS gobuild-base
-RUN apk add --no-cache file bash clang lld musl-dev pkgconfig git make tree
+RUN apk add --no-cache file bash clang lld musl-dev pkgconfig git make tree findutils
 COPY --link --from=xx / /
 
 FROM gobuild-base AS registry
@@ -50,49 +55,80 @@ RUN --mount=type=bind,target=. \
   --mount=type=cache,target=/root/.cache \
   --mount=type=cache,target=/go/pkg/mod <<EOT
   set -ex
-  xx-go build -mod=vendor -ldflags '-extldflags -static' -o /usr/bin/gotestmetrics ./cmd/gotestmetrics
-  xx-verify --static /usr/bin/gotestmetrics
+  xx-go build -mod=vendor -ldflags '-extldflags -static' -o /out/gotestmetrics ./cmd/gotestmetrics
+  xx-verify --static /out/gotestmetrics
   if ! xx-info is-cross; then
-    gotestmetrics --help
+    /out/gotestmetrics --help
   fi
 EOT
+COPY --chmod=755 <<"EOF" /out/gotestmetrics-gen
+#!/bin/bash
+set -e
+project=$1
+if [ -z "$project" ]; then
+  echo "project argument is required"
+  exit 1
+fi
+args=("gen" "--output=/out/$project.html" "--project=$project")
+if [ -f /tests-results/name.txt ]; then
+  args+=("--name=$(cat /tests-results/name.txt)")
+fi
+if [ -f /tests-results/testconfig.yml ]; then
+  args+=("--config=/tests-results/testconfig.yml")
+fi
+if [ -f /tests-results/gha-event.json ]; then
+  args+=("--gha-event=/tests-results/gha-event.json")
+fi
+if [ -f /tests-results/env.txt ]; then
+  args+=("--envs=/tests-results/env.txt")
+fi
+if [ -n "$GEN_VALIDATION_MODE" ]; then
+  args+=("--validation-mode=$GEN_VALIDATION_MODE")
+fi
+case "$project" in
+  buildkit)
+    if [ -f "/tests-results/buildkit-candidates.json" ]; then
+      args+=("--candidates=/tests-results/buildkit-candidates.json")
+    elif [ -f "/tests-results/candidates.json" ]; then
+      args+=("--candidates=/tests-results/candidates.json")
+    fi
+    if find /tests-results -maxdepth 1 -type f -name 'gotestoutput-buildkit-*' | grep -q .; then
+      args+=("/tests-results/gotestoutput-buildkit-*.json")
+    else
+      args+=("/tests-results/gotestoutput*.json")
+    fi
+  ;;
+  buildx)
+    if [ -f "/tests-results/buildx-candidates.json" ]; then
+      args+=("--candidates=/tests-results/buildx-candidates.json")
+    fi
+    if find /tests-results -maxdepth 1 -type f -name 'gotestoutput-buildx-*' | grep -q .; then
+      args+=("/tests-results/gotestoutput-buildx-*.json")
+    else
+      args+=("/tests-results/gotestoutput*.json")
+    fi
+    ;;
+esac
+set -x
+gotestmetrics "${args[@]}"
+EOF
 
 FROM gobuild-base AS tests-gen-run
-COPY --link --from=gotestmetrics /usr/bin/gotestmetrics /usr/bin/
+COPY --link --from=gotestmetrics /out /usr/bin/
 COPY --from=tests-results . /tests-results
 ARG GEN_VALIDATION_MODE
 RUN --mount=type=bind,target=. <<EOT
   set -e
-  args="gen --output /tmp/benchmarks.html"
-  if [ -f /tests-results/name.txt ]; then
-    args="$args --name $(cat /tests-results/name.txt)"
-  fi
-  if [ -f /tests-results/candidates.json ]; then
-    args="$args --candidates /tests-results/candidates.json"
-  fi
-  if [ -f /tests-results/testconfig.yml ]; then
-    args="$args --config /tests-results/testconfig.yml"
-  fi
-  if [ -f /tests-results/gha-event.json ]; then
-    args="$args --gha-event /tests-results/gha-event.json"
-  fi
-  if [ -f /tests-results/env.txt ]; then
-    args="$args --envs /tests-results/env.txt"
-  fi
-  if [ -n "$GEN_VALIDATION_MODE" ]; then
-    args="$args --validation-mode $GEN_VALIDATION_MODE"
-  fi
-  set -x
-  gotestmetrics $args "/tests-results/gotestoutput*.json"
+  gotestmetrics-gen buildkit
+  gotestmetrics-gen buildx
 EOT
 
 FROM scratch AS tests-gen
-COPY --from=tests-gen-run /tmp/benchmarks.html /index.html
+COPY --from=tests-gen-run /out /
 
 FROM scratch AS binaries
 COPY --link --from=registry /out /
-COPY --link --from=buildx /buildx /
-COPY --link --from=gotestmetrics /usr/bin/gotestmetrics /
+COPY --link --from=gotestmetrics /out /
 
 FROM gobuild-base AS tests-base
 WORKDIR /src
@@ -108,10 +144,17 @@ RUN apk add --no-cache shadow shadow-uidmap sudo vim iptables ip6tables dnsmasq 
 RUN curl -Ls https://raw.githubusercontent.com/moby/moby/v25.0.1/hack/dind > /docker-entrypoint.sh && chmod 0755 /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 ENV CGO_ENABLED=0
+ARG BUILDKIT_VERSION
+COPY --link --from=buildkit /usr/bin/buildctl* /opt/buildkit/${BUILDKIT_VERSION}/
+COPY --link --from=buildkit /usr/bin/buildkit* /opt/buildkit/${BUILDKIT_VERSION}/
+ARG BUILDX_VERSION
+COPY --link --from=buildx /buildx /opt/buildx/${BUILDX_VERSION}/
 COPY --link --from=binaries / /usr/bin/
 
 # tests prepares an image suitable for running tests
 FROM tests-base AS tests
 COPY --link --from=buildkit-binaries / /buildkit-binaries
+COPY --link --from=buildx-binaries / /buildx-binaries
 RUN tree -nph /buildkit-binaries
+RUN tree -nph /buildx-binaries
 COPY . .

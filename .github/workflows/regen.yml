@@ -89,7 +89,8 @@ jobs:
       -
         name: Copy files
         run: |
-          find ./bin/gh-pages/result/${{ matrix.result }} -type f ! -name 'index.html' -exec cp {} ./bin/report/${{ matrix.result }}/ \;
+          rm -f ./bin/gh-pages/result/${{ matrix.result }}/index.html
+          find ./bin/gh-pages/result/${{ matrix.result }} -type f ! -name '*.html' -exec cp {} ./bin/report/${{ matrix.result }}/ \;
       -
         name: Upload report
         uses: actions/upload-artifact@v4

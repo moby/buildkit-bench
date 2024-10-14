@@ -147,7 +147,8 @@ runs:
 
   BenchmarkDaemon:
     BenchmarkDaemonVersion:
-      description: Run buildkitd --version
+      description: Run "buildkitd --version"
+      scope: buildkit
       count: 8
       metrics:
         duration:
@@ -155,6 +156,7 @@ runs:
           chart: boxplot
     BenchmarkDaemonSize:
       description: Daemon binary size
+      scope: buildkit
       count: 1
       metrics:
         bytes:
@@ -165,6 +167,26 @@ runs:
   BenchmarkPackage:
     BenchmarkPackageSize:
       description: Package size
+      scope: buildkit
+      count: 1
+      metrics:
+        bytes:
+          description: Size (bytes)
+          chart: bar
+          average: true
+
+  BenchmarkBuildx:
+    BenchmarkBuildxVersion:
+      description: Run "buildx version"
+      scope: buildx
+      count: 8
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+    BenchmarkBuildxSize:
+      description: Buildx binary size
+      scope: buildx
       count: 1
       metrics:
         bytes:
