@@ -7,7 +7,22 @@ module.exports = {
       alias: {
         '@': path.resolve(__dirname, 'src')
       }
-    }
+    },
+    module: {
+      rules: [
+        {
+          test: /\.html$/,
+          use: [
+            {
+              loader: 'html-loader',
+              options: {
+                minimize: true,
+              },
+            },
+          ],
+        },
+      ],
+    },
   },
   chainWebpack: config => {
     config.module.rule('text').test(/\.txt$/).type('asset/source');
