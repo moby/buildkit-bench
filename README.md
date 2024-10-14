@@ -22,8 +22,8 @@ make test
 ```
 
 This runs all tests and benchmarks from [./test](./test) package with BuildKit
-changes from default branch. You can also specify a commit to test or multiple
-references and tweak the benchmark settings:
+changes from default branch and latest Buildx stable. You can also specify a
+commit to test or multiple references and tweak the benchmark settings:
 
 ```bash
 # run only tests
@@ -43,8 +43,11 @@ TEST_BENCH_RUN=3 make bench
 # run 5 iterations of each benchmark (default 1x)
 TEST_BENCH_TIME=5x make bench
 
-# run all with master, v0.9.3 and v0.16.0 git references
+# run all with master, v0.9.3 and v0.16.0 buildkit references (with latest buildx stable)
 BUILDKIT_REFS=master,v0.9.3,v0.16.0 make bench
+
+# run all with master, v0.17.0 buildx git references (with latest buildkit stable)
+BUILDX_REFS=master,v0.17.0 make bench
 ```
 
 > [!NOTE]
