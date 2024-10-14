@@ -104,8 +104,10 @@ case "$project" in
     fi
     if find /tests-results -maxdepth 1 -type f -name 'gotestoutput-buildx-*' | grep -q .; then
       args+=("/tests-results/gotestoutput-buildx-*.json")
+    elif [ -f "/tests-results/gotestoutput.json" ]; then
+      args+=("/tests-results/gotestoutput.json")
     else
-      args+=("/tests-results/gotestoutput*.json")
+      exit 0
     fi
     ;;
 esac
