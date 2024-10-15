@@ -89,7 +89,7 @@ jobs:
       -
         name: Copy files
         run: |
-          find ./bin/gh-pages/result/${{ matrix.result }} -type f ! -name '*.html' -exec cp {} ./bin/report/${{ matrix.result }}/ \;
+          rsync -av --exclude='*.html' ./bin/gh-pages/result/${{ matrix.result }}/ ./bin/report/${{ matrix.result }}/
       -
         name: Upload report
         uses: actions/upload-artifact@v4
