@@ -1,3 +1,8 @@
+# always set to true when GitHub Actions is running the workflow.
+variable "GITHUB_ACTIONS" {
+  default = null
+}
+
 variable "BUILDKIT_CACHE_REPO" {
   default = "moby/buildkit-bench-cache"
 }
@@ -170,6 +175,7 @@ target "tests-gen" {
   target = "tests-gen"
   output = ["./bin/gen"]
   args = {
+    GITHUB_ACTIONS = GITHUB_ACTIONS
     GEN_VALIDATION_MODE = GEN_VALIDATION_MODE
   }
 }
