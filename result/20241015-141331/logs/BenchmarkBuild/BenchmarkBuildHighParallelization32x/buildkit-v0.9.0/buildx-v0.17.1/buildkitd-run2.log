@@ -1,0 +1,835 @@
+stdout: /buildkit-binaries/v0.9.0/buildkitd --oci-worker=true --oci-worker-binary=/buildkit-binaries/v0.9.0/buildkit-runc --containerd-worker=false --oci-worker-gc=false --oci-worker-labels=org.mobyproject.buildkit.worker.sandbox=true --config=/tmp/bkbench_config1646848291/buildkitd.toml --root /tmp/bkbench_sandbox2053533937 --addr unix:///tmp/bkbench_sandbox2053533937/buildkitd.sock --debug --debugaddr 127.0.0.1:35277
+stderr: /buildkit-binaries/v0.9.0/buildkitd --oci-worker=true --oci-worker-binary=/buildkit-binaries/v0.9.0/buildkit-runc --containerd-worker=false --oci-worker-gc=false --oci-worker-labels=org.mobyproject.buildkit.worker.sandbox=true --config=/tmp/bkbench_config1646848291/buildkitd.toml --root /tmp/bkbench_sandbox2053533937 --addr unix:///tmp/bkbench_sandbox2053533937/buildkitd.sock --debug --debugaddr 127.0.0.1:35277
+> StartCmd 2024-10-15 13:01:29.404433097 +0000 UTC m=+465.642100658 /buildkit-binaries/v0.9.0/buildkitd --oci-worker=true --oci-worker-binary=/buildkit-binaries/v0.9.0/buildkit-runc --containerd-worker=false --oci-worker-gc=false --oci-worker-labels=org.mobyproject.buildkit.worker.sandbox=true --config=/tmp/bkbench_config1646848291/buildkitd.toml --root /tmp/bkbench_sandbox2053533937 --addr unix:///tmp/bkbench_sandbox2053533937/buildkitd.sock --debug --debugaddr 127.0.0.1:35277
+time="2024-10-15T13:01:29Z" level=debug msg="debug handlers listening at 127.0.0.1:35277"
+time="2024-10-15T13:01:29Z" level=info msg="auto snapshotter: using overlayfs"
+time="2024-10-15T13:01:29Z" level=warning msg="using host network as the default"
+time="2024-10-15T13:01:29Z" level=info msg="found worker \"dj4oewa1ewm8yzt147jrw5d84\", labels=map[org.mobyproject.buildkit.worker.executor:oci org.mobyproject.buildkit.worker.hostname:0876fb53e4cc org.mobyproject.buildkit.worker.sandbox:true org.mobyproject.buildkit.worker.snapshotter:overlayfs], platforms=[linux/amd64 linux/arm64 linux/riscv64 linux/ppc64le linux/s390x linux/386 linux/mips64le linux/mips64 linux/arm/v7 linux/arm/v6]"
+time="2024-10-15T13:01:29Z" level=info msg="found 1 workers, default=\"dj4oewa1ewm8yzt147jrw5d84\""
+time="2024-10-15T13:01:29Z" level=warning msg="currently, only the default worker can be used."
+time="2024-10-15T13:01:29Z" level=info msg="running server on /tmp/bkbench_sandbox2053533937/buildkitd.sock"
+time="2024-10-15T13:01:29Z" level=debug msg="session started" spanID=64b8004a0694952c traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:29Z" level=debug msg="session finished: <nil>" spanID=64b8004a0694952c traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:29Z" level=debug msg="session started" spanID=bede63c9ec0a9863 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:29Z" level=debug msg="new ref for local: ienh3h9kjqysozyssas2snlr0" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:29Z" level=debug msg="diffcopy took: 1.873353ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:29Z" level=debug msg="saved ienh3h9kjqysozyssas2snlr0 as local.sharedKey:dockerfile:dockerfile:001:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:29Z" level=debug msg="new ref for local: 6if5afjv33c4x3i42odubhsn4" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:29Z" level=debug msg="diffcopy took: 938.1µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:29Z" level=debug msg="saved 6if5afjv33c4x3i42odubhsn4 as local.sharedKey:context:context-.dockerignore:001:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:30Z" level=debug msg=resolving spanID=aff3426e93b7c971 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=aff3426e93b7c971 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:30 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=aff3426e93b7c971 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=aff3426e93b7c971 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg=fetch spanID=aff3426e93b7c971 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=GET spanID=aff3426e93b7c971 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:30 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=aff3426e93b7c971 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg=fetch spanID=aff3426e93b7c971 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg="do request" request.header.accept="application/vnd.docker.container.image.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=GET spanID=aff3426e93b7c971 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg="fetch response received" response.header.accept-ranges=bytes response.header.cache-control="max-age=31536000" response.header.content-length=1457 response.header.content-type=application/octet-stream response.header.date="Tue, 15 Oct 2024 13:01:30 GMT" response.header.docker-content-digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824\"" response.status="200 OK" spanID=aff3426e93b7c971 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg=fetch spanID=cb32776ddf5771d7 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg=fetch spanID=cb32776ddf5771d7 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg="new ref for local: i849up5skp2rty444zwp3kvva" span="[internal] load build context"
+time="2024-10-15T13:01:30Z" level=debug msg="diffcopy took: 1.495329ms" span="[internal] load build context"
+time="2024-10-15T13:01:30Z" level=debug msg=fetch spanID=cb32776ddf5771d7 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg="saved i849up5skp2rty444zwp3kvva as local.sharedKey:context:context:001:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:30Z" level=debug msg="do request" request.header.accept="application/vnd.docker.image.rootfs.diff.tar.gzip, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=GET spanID=cb32776ddf5771d7 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg="fetch response received" response.header.accept-ranges=bytes response.header.cache-control="max-age=31536000" response.header.content-length=2219949 response.header.content-type=application/octet-stream response.header.date="Tue, 15 Oct 2024 13:01:30 GMT" response.header.docker-content-digest="sha256:3f4d90098f5b5a6f6a76e9d217da85aa39b2081e30fa1f7d287138d6e7bf0ad7" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:3f4d90098f5b5a6f6a76e9d217da85aa39b2081e30fa1f7d287138d6e7bf0ad7\"" response.status="200 OK" spanID=cb32776ddf5771d7 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg="unpigz not found, falling back to go gzip" error="exec: \"unpigz\": executable file not found in $PATH"
+time="2024-10-15T13:01:30Z" level=debug msg="diff applied" d=72.297273ms digest="sha256:3f4d90098f5b5a6f6a76e9d217da85aa39b2081e30fa1f7d287138d6e7bf0ad7" media=application/vnd.docker.image.rootfs.diff.tar.gzip size=2219949 spanID=cb32776ddf5771d7 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg="> creating k67xwgtc066hqmth71zlnq5bp [/bin/sh -c cp /etc/foo /etc/bar]" span="[3/3] RUN cp /etc/foo /etc/bar"
+time="2024-10-15T13:01:30Z" level=debug msg="Using double walk diff for /tmp/bkbench_sandbox2053533937/tmp/containerd-mount127701329 from /tmp/bkbench_sandbox2053533937/tmp/containerd-mount536720186"
+time="2024-10-15T13:01:30Z" level=debug msg="Using double walk diff for /tmp/bkbench_sandbox2053533937/tmp/containerd-mount536035755 from /tmp/bkbench_sandbox2053533937/tmp/containerd-mount050646140"
+time="2024-10-15T13:01:30Z" level=debug msg="session finished: <nil>" spanID=bede63c9ec0a9863 traceID=a7e05a7bd61f76994c438cb05b82513e
+time="2024-10-15T13:01:30Z" level=debug msg="session started" spanID=6a3f63b7e71622f5 traceID=4cc010952d48a42c5469f077d6d29b24
+time="2024-10-15T13:01:30Z" level=debug msg="session finished: <nil>" spanID=6a3f63b7e71622f5 traceID=4cc010952d48a42c5469f077d6d29b24
+time="2024-10-15T13:01:30Z" level=debug msg="session started" spanID=8bcea954f5df6cae traceID=4cc010952d48a42c5469f077d6d29b24
+time="2024-10-15T13:01:30Z" level=debug msg="new ref for local: xq801htoabuwrwkbes9y9eujc" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:30Z" level=debug msg="diffcopy took: 2.651563ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:30Z" level=debug msg="saved xq801htoabuwrwkbes9y9eujc as local.sharedKey:dockerfile:dockerfile:002:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:30Z" level=debug msg="new ref for local: hbzbqha4t2iqbba7fl2j4wut8" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:30Z" level=debug msg="diffcopy took: 955.529µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:30Z" level=debug msg="saved hbzbqha4t2iqbba7fl2j4wut8 as local.sharedKey:context:context-.dockerignore:002:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:30Z" level=debug msg=resolving spanID=c10d1b1b3129b01a traceID=4cc010952d48a42c5469f077d6d29b24
+time="2024-10-15T13:01:30Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=c10d1b1b3129b01a traceID=4cc010952d48a42c5469f077d6d29b24
+time="2024-10-15T13:01:30Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:30 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=c10d1b1b3129b01a traceID=4cc010952d48a42c5469f077d6d29b24
+time="2024-10-15T13:01:30Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=c10d1b1b3129b01a traceID=4cc010952d48a42c5469f077d6d29b24
+time="2024-10-15T13:01:30Z" level=debug msg=fetch spanID=c10d1b1b3129b01a traceID=4cc010952d48a42c5469f077d6d29b24
+time="2024-10-15T13:01:30Z" level=debug msg=fetch spanID=c10d1b1b3129b01a traceID=4cc010952d48a42c5469f077d6d29b24
+time="2024-10-15T13:01:30Z" level=debug msg=fetch spanID=16c46cd0fef07846 traceID=4cc010952d48a42c5469f077d6d29b24
+time="2024-10-15T13:01:30Z" level=debug msg=fetch spanID=16c46cd0fef07846 traceID=4cc010952d48a42c5469f077d6d29b24
+time="2024-10-15T13:01:30Z" level=debug msg="new ref for local: p7pio55wtdcqeu59trbjs693h" span="[internal] load build context"
+time="2024-10-15T13:01:30Z" level=debug msg="diffcopy took: 1.271309ms" span="[internal] load build context"
+time="2024-10-15T13:01:30Z" level=debug msg="saved p7pio55wtdcqeu59trbjs693h as local.sharedKey:context:context:002:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:30Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:30Z" level=debug msg="session finished: <nil>" spanID=8bcea954f5df6cae traceID=4cc010952d48a42c5469f077d6d29b24
+time="2024-10-15T13:01:30Z" level=debug msg="session started" spanID=7cfa17dfc321ec3e traceID=1d186d7ea58b02944d3f47212d6d612a
+time="2024-10-15T13:01:30Z" level=debug msg="session finished: <nil>" spanID=7cfa17dfc321ec3e traceID=1d186d7ea58b02944d3f47212d6d612a
+time="2024-10-15T13:01:30Z" level=debug msg="session started" spanID=d9874b9971850458 traceID=1d186d7ea58b02944d3f47212d6d612a
+time="2024-10-15T13:01:31Z" level=debug msg="new ref for local: hqlgkl8jum3dd7g738me8mwdi" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:31Z" level=debug msg="diffcopy took: 1.882456ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:31Z" level=debug msg="saved hqlgkl8jum3dd7g738me8mwdi as local.sharedKey:dockerfile:dockerfile:003:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:31Z" level=debug msg="new ref for local: y4ir27fbirrzh74qlhz9wkk61" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:31Z" level=debug msg="diffcopy took: 1.086233ms" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:31Z" level=debug msg="saved y4ir27fbirrzh74qlhz9wkk61 as local.sharedKey:context:context-.dockerignore:003:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:31Z" level=debug msg=resolving spanID=a6418cd46349f05b traceID=1d186d7ea58b02944d3f47212d6d612a
+time="2024-10-15T13:01:31Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=a6418cd46349f05b traceID=1d186d7ea58b02944d3f47212d6d612a
+time="2024-10-15T13:01:31Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:31 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=a6418cd46349f05b traceID=1d186d7ea58b02944d3f47212d6d612a
+time="2024-10-15T13:01:31Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=a6418cd46349f05b traceID=1d186d7ea58b02944d3f47212d6d612a
+time="2024-10-15T13:01:31Z" level=debug msg=fetch spanID=a6418cd46349f05b traceID=1d186d7ea58b02944d3f47212d6d612a
+time="2024-10-15T13:01:31Z" level=debug msg=fetch spanID=a6418cd46349f05b traceID=1d186d7ea58b02944d3f47212d6d612a
+time="2024-10-15T13:01:31Z" level=debug msg=fetch spanID=4911c67507ef773e traceID=1d186d7ea58b02944d3f47212d6d612a
+time="2024-10-15T13:01:31Z" level=debug msg=fetch spanID=4911c67507ef773e traceID=1d186d7ea58b02944d3f47212d6d612a
+time="2024-10-15T13:01:31Z" level=debug msg="new ref for local: vsilw3tcdwtsliwm8azrsj1ci" span="[internal] load build context"
+time="2024-10-15T13:01:31Z" level=debug msg="diffcopy took: 1.453017ms" span="[internal] load build context"
+time="2024-10-15T13:01:31Z" level=debug msg="saved vsilw3tcdwtsliwm8azrsj1ci as local.sharedKey:context:context:003:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:31Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:31Z" level=debug msg="session finished: <nil>" spanID=d9874b9971850458 traceID=1d186d7ea58b02944d3f47212d6d612a
+time="2024-10-15T13:01:31Z" level=debug msg="session started" spanID=3a8a701c26ca5599 traceID=a341e5ac04a7de13a500d30ca9cbc26c
+time="2024-10-15T13:01:31Z" level=debug msg="session finished: <nil>" spanID=3a8a701c26ca5599 traceID=a341e5ac04a7de13a500d30ca9cbc26c
+time="2024-10-15T13:01:31Z" level=debug msg="session started" spanID=3ac9b622156b119d traceID=a341e5ac04a7de13a500d30ca9cbc26c
+time="2024-10-15T13:01:31Z" level=debug msg="new ref for local: 6v6qzoz7vg4fkvlkxe673bnhq" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:31Z" level=debug msg="diffcopy took: 1.923605ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:31Z" level=debug msg="saved 6v6qzoz7vg4fkvlkxe673bnhq as local.sharedKey:dockerfile:dockerfile:004:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:31Z" level=debug msg="new ref for local: 51h8hgshzx2690nm0c1ynwxxt" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:31Z" level=debug msg="diffcopy took: 958.065µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:31Z" level=debug msg="saved 51h8hgshzx2690nm0c1ynwxxt as local.sharedKey:context:context-.dockerignore:004:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:31Z" level=debug msg=resolving spanID=0df125e38447acc5 traceID=a341e5ac04a7de13a500d30ca9cbc26c
+time="2024-10-15T13:01:31Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=0df125e38447acc5 traceID=a341e5ac04a7de13a500d30ca9cbc26c
+time="2024-10-15T13:01:31Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:31 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=0df125e38447acc5 traceID=a341e5ac04a7de13a500d30ca9cbc26c
+time="2024-10-15T13:01:31Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=0df125e38447acc5 traceID=a341e5ac04a7de13a500d30ca9cbc26c
+time="2024-10-15T13:01:31Z" level=debug msg=fetch spanID=0df125e38447acc5 traceID=a341e5ac04a7de13a500d30ca9cbc26c
+time="2024-10-15T13:01:31Z" level=debug msg=fetch spanID=0df125e38447acc5 traceID=a341e5ac04a7de13a500d30ca9cbc26c
+time="2024-10-15T13:01:31Z" level=debug msg=fetch spanID=4299aadabf240c56 traceID=a341e5ac04a7de13a500d30ca9cbc26c
+time="2024-10-15T13:01:31Z" level=debug msg=fetch spanID=4299aadabf240c56 traceID=a341e5ac04a7de13a500d30ca9cbc26c
+time="2024-10-15T13:01:31Z" level=debug msg="new ref for local: 01doavdqgtius2z94qiott1hq" span="[internal] load build context"
+time="2024-10-15T13:01:31Z" level=debug msg="diffcopy took: 1.476873ms" span="[internal] load build context"
+time="2024-10-15T13:01:31Z" level=debug msg="saved 01doavdqgtius2z94qiott1hq as local.sharedKey:context:context:004:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:31Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:31Z" level=debug msg="session finished: <nil>" spanID=3ac9b622156b119d traceID=a341e5ac04a7de13a500d30ca9cbc26c
+time="2024-10-15T13:01:31Z" level=debug msg="session started" spanID=01282d9010933b82 traceID=1095766205ed0c57941076ebcc4c0380
+time="2024-10-15T13:01:31Z" level=debug msg="session finished: <nil>" spanID=01282d9010933b82 traceID=1095766205ed0c57941076ebcc4c0380
+time="2024-10-15T13:01:31Z" level=debug msg="session started" spanID=9b9f72e47c089f16 traceID=1095766205ed0c57941076ebcc4c0380
+time="2024-10-15T13:01:32Z" level=debug msg="new ref for local: bxl043v02oujdx3p6arku9el9" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:32Z" level=debug msg="diffcopy took: 3.010581ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:32Z" level=debug msg="saved bxl043v02oujdx3p6arku9el9 as local.sharedKey:dockerfile:dockerfile:005:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:32Z" level=debug msg="new ref for local: j0lrmzvvxqm3iz5my3741pxi4" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:32Z" level=debug msg="diffcopy took: 970.33µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:32Z" level=debug msg="saved j0lrmzvvxqm3iz5my3741pxi4 as local.sharedKey:context:context-.dockerignore:005:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:32Z" level=debug msg=resolving spanID=d05bbe351f0469ac traceID=1095766205ed0c57941076ebcc4c0380
+time="2024-10-15T13:01:32Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=d05bbe351f0469ac traceID=1095766205ed0c57941076ebcc4c0380
+time="2024-10-15T13:01:32Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:32 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=d05bbe351f0469ac traceID=1095766205ed0c57941076ebcc4c0380
+time="2024-10-15T13:01:32Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=d05bbe351f0469ac traceID=1095766205ed0c57941076ebcc4c0380
+time="2024-10-15T13:01:32Z" level=debug msg=fetch spanID=d05bbe351f0469ac traceID=1095766205ed0c57941076ebcc4c0380
+time="2024-10-15T13:01:32Z" level=debug msg=fetch spanID=d05bbe351f0469ac traceID=1095766205ed0c57941076ebcc4c0380
+time="2024-10-15T13:01:32Z" level=debug msg=fetch spanID=0f29602a2561abc6 traceID=1095766205ed0c57941076ebcc4c0380
+time="2024-10-15T13:01:32Z" level=debug msg=fetch spanID=0f29602a2561abc6 traceID=1095766205ed0c57941076ebcc4c0380
+time="2024-10-15T13:01:32Z" level=debug msg="new ref for local: vsxmjtrr46ohxw5eisbolitbd" span="[internal] load build context"
+time="2024-10-15T13:01:32Z" level=debug msg="diffcopy took: 1.230103ms" span="[internal] load build context"
+time="2024-10-15T13:01:32Z" level=debug msg="saved vsxmjtrr46ohxw5eisbolitbd as local.sharedKey:context:context:005:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:32Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:32Z" level=debug msg="session finished: <nil>" spanID=9b9f72e47c089f16 traceID=1095766205ed0c57941076ebcc4c0380
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=9b5bedbe5fcc5576 traceID=eff9c4c8ac3228a54aa6893be8323d7f
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=d001675a5fdf4018 traceID=cfe1fe7e843247f3348fdc57202ccc23
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=060fb82c5367db50 traceID=137b8309b8167a6636efe060118ed64d
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=16f0f89bd60d9fa2 traceID=27027b52e23112469ca65dc8db3d239a
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=727c2dcbf186cbc5 traceID=b3d7d6e76f09d1e60a16afb1940664ab
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=1ce834db48cf4db0 traceID=10265fc2b3cf7d9c54c1d0ff1f62b93e
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=48feffb3873d5744 traceID=862b87a90727d636152697db3318e5ca
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=bdab65c683771c6f traceID=aa503e3c5160974240e1bc857f2c9c9a
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=7011f89b49f95916 traceID=c0ac12a278404430dcf4873dbf7d1e84
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=920884c5b517760f traceID=64370b393ac239859dd1db84934cc64e
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=267113c8cbe14a00 traceID=f283914f6fdbcc25715f790fd6886acd
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=e494c8bd212409e5 traceID=a14707661e4210fb6c583408c7a65e15
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=3481a37d620b9508 traceID=9bcb4f3ac2e34da44d6dea5d6ea15df6
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=2fa58e8efbc26f39 traceID=a115dc4770012a90e31afb7238e71255
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=70ad95757e560d04 traceID=691c4c95398ed7e6d39cfaeb50b9a00f
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=3c638b1507c2c198 traceID=b418fc8b9835e4bef31ebdd6f2106460
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=4846909211e5d324 traceID=11e0c13399dceba045edd5ceec24c187
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=d47a34d57f604269 traceID=2e19037ad89d177ce8edf632d1d5fd2d
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=f7fdcfd29d7d0c27 traceID=c3f53070bca4a424db78af5662ca4236
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=0e165d92ce071a83 traceID=2e91c87aeb23d66a2ecf88c97c6db37b
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=c1e04adc6ccff2b8 traceID=47fe61124b748485aef8ffe5d9c4950c
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=652076c6002cb5db traceID=8747a44ef5c71ec27a242b7b8c7993e3
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=bdf8372d55344ab4 traceID=75392907c68cd75adff71eba54c5ddc8
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=89dfe8506aced80a traceID=a67a6248da4d97dc484b31ab50f4ad47
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=0e786635f22c184d traceID=11edee4171c6ed9fd030f249749fcb8c
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=51538d42204221ec traceID=1b7f13888e2cad4c6047722a2a15d1d2
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=d3871c0e875464a2 traceID=0418c8843326e139a420cc9d0f8a8119
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=12128e518d96bd43 traceID=21a21c033a8a7ee854aac4f7b6f77800
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=9072e1866a81ce04 traceID=c0aa2cec5ec9f8052bb072c55be159a5
+time="2024-10-15T13:01:33Z" level=debug msg="session finished: <nil>" spanID=9b5bedbe5fcc5576 traceID=eff9c4c8ac3228a54aa6893be8323d7f
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=34dad7db2fcf54b2 traceID=27fac468a30e31d91d2c70b0d0c48d91
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=becc91e72ce0860b traceID=ef5eb5592c3213286a8ed0aa0a1bcd51
+time="2024-10-15T13:01:33Z" level=debug msg="session started" spanID=5f98507745ea0676 traceID=e3f1d462f580b79da8e8c5bda217382a
+time="2024-10-15T13:01:33Z" level=debug msg="session finished: <nil>" spanID=d001675a5fdf4018 traceID=cfe1fe7e843247f3348fdc57202ccc23
+time="2024-10-15T13:01:33Z" level=debug msg="session finished: <nil>" spanID=060fb82c5367db50 traceID=137b8309b8167a6636efe060118ed64d
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=16f0f89bd60d9fa2 traceID=27027b52e23112469ca65dc8db3d239a
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=727c2dcbf186cbc5 traceID=b3d7d6e76f09d1e60a16afb1940664ab
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=1ce834db48cf4db0 traceID=10265fc2b3cf7d9c54c1d0ff1f62b93e
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=48feffb3873d5744 traceID=862b87a90727d636152697db3318e5ca
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=bdab65c683771c6f traceID=aa503e3c5160974240e1bc857f2c9c9a
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=7011f89b49f95916 traceID=c0ac12a278404430dcf4873dbf7d1e84
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=920884c5b517760f traceID=64370b393ac239859dd1db84934cc64e
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=267113c8cbe14a00 traceID=f283914f6fdbcc25715f790fd6886acd
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=e494c8bd212409e5 traceID=a14707661e4210fb6c583408c7a65e15
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=3481a37d620b9508 traceID=9bcb4f3ac2e34da44d6dea5d6ea15df6
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=2fa58e8efbc26f39 traceID=a115dc4770012a90e31afb7238e71255
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=70ad95757e560d04 traceID=691c4c95398ed7e6d39cfaeb50b9a00f
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=3c638b1507c2c198 traceID=b418fc8b9835e4bef31ebdd6f2106460
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=4846909211e5d324 traceID=11e0c13399dceba045edd5ceec24c187
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=d47a34d57f604269 traceID=2e19037ad89d177ce8edf632d1d5fd2d
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=f7fdcfd29d7d0c27 traceID=c3f53070bca4a424db78af5662ca4236
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=0e165d92ce071a83 traceID=2e91c87aeb23d66a2ecf88c97c6db37b
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=c1e04adc6ccff2b8 traceID=47fe61124b748485aef8ffe5d9c4950c
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=652076c6002cb5db traceID=8747a44ef5c71ec27a242b7b8c7993e3
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=bdf8372d55344ab4 traceID=75392907c68cd75adff71eba54c5ddc8
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=89dfe8506aced80a traceID=a67a6248da4d97dc484b31ab50f4ad47
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=0e786635f22c184d traceID=11edee4171c6ed9fd030f249749fcb8c
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=51538d42204221ec traceID=1b7f13888e2cad4c6047722a2a15d1d2
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=d3871c0e875464a2 traceID=0418c8843326e139a420cc9d0f8a8119
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=12128e518d96bd43 traceID=21a21c033a8a7ee854aac4f7b6f77800
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=9072e1866a81ce04 traceID=c0aa2cec5ec9f8052bb072c55be159a5
+time="2024-10-15T13:01:34Z" level=debug msg="session started" spanID=a364083f7d8eca8c traceID=eff9c4c8ac3228a54aa6893be8323d7f
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=34dad7db2fcf54b2 traceID=27fac468a30e31d91d2c70b0d0c48d91
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=becc91e72ce0860b traceID=ef5eb5592c3213286a8ed0aa0a1bcd51
+time="2024-10-15T13:01:34Z" level=debug msg="session finished: <nil>" spanID=5f98507745ea0676 traceID=e3f1d462f580b79da8e8c5bda217382a
+time="2024-10-15T13:01:34Z" level=debug msg="session started" spanID=518c4f0e19958e64 traceID=cfe1fe7e843247f3348fdc57202ccc23
+time="2024-10-15T13:01:34Z" level=debug msg="session started" spanID=3db1194c5ad21d83 traceID=137b8309b8167a6636efe060118ed64d
+time="2024-10-15T13:01:34Z" level=debug msg="session started" spanID=6e044f71fadd6c7b traceID=27027b52e23112469ca65dc8db3d239a
+time="2024-10-15T13:01:34Z" level=debug msg="session started" spanID=66043747745c3c45 traceID=b3d7d6e76f09d1e60a16afb1940664ab
+time="2024-10-15T13:01:34Z" level=debug msg="session started" spanID=ed592f2e76beec25 traceID=10265fc2b3cf7d9c54c1d0ff1f62b93e
+time="2024-10-15T13:01:34Z" level=debug msg="session started" spanID=70b978ee150442cc traceID=862b87a90727d636152697db3318e5ca
+time="2024-10-15T13:01:34Z" level=debug msg="session started" spanID=cc7f4016e33cc451 traceID=aa503e3c5160974240e1bc857f2c9c9a
+time="2024-10-15T13:01:34Z" level=debug msg="session started" spanID=6ca23c8c6708fcdd traceID=c0ac12a278404430dcf4873dbf7d1e84
+time="2024-10-15T13:01:34Z" level=debug msg="session started" spanID=49313aa515034f52 traceID=64370b393ac239859dd1db84934cc64e
+time="2024-10-15T13:01:34Z" level=debug msg="session started" spanID=9f190ae40dc885ec traceID=f283914f6fdbcc25715f790fd6886acd
+time="2024-10-15T13:01:34Z" level=debug msg="session started" spanID=8eff497d8c6c8d55 traceID=a14707661e4210fb6c583408c7a65e15
+time="2024-10-15T13:01:34Z" level=debug msg="session started" spanID=b9f89abaeb76e6f3 traceID=9bcb4f3ac2e34da44d6dea5d6ea15df6
+time="2024-10-15T13:01:34Z" level=debug msg="session started" spanID=7b27a515322ff6a8 traceID=a115dc4770012a90e31afb7238e71255
+time="2024-10-15T13:01:34Z" level=debug msg="session started" spanID=900aba570babe6b2 traceID=691c4c95398ed7e6d39cfaeb50b9a00f
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=ff6cd4b5ed5bd30b traceID=b418fc8b9835e4bef31ebdd6f2106460
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=8cd799b58881873a traceID=11e0c13399dceba045edd5ceec24c187
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=5fa10b6850cb9df5 traceID=2e19037ad89d177ce8edf632d1d5fd2d
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=2615e9602bf8dcbb traceID=c3f53070bca4a424db78af5662ca4236
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=f96f41e8fd2e20f3 traceID=2e91c87aeb23d66a2ecf88c97c6db37b
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=7f3feb4b6da566f1 traceID=47fe61124b748485aef8ffe5d9c4950c
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=dedde40df9dc2a02 traceID=8747a44ef5c71ec27a242b7b8c7993e3
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=ef99afd7768cc72e traceID=75392907c68cd75adff71eba54c5ddc8
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=2fd807f9b7ad6746 traceID=a67a6248da4d97dc484b31ab50f4ad47
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=b0472d119db18edb traceID=11edee4171c6ed9fd030f249749fcb8c
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=911a835dcadc4a7e traceID=1b7f13888e2cad4c6047722a2a15d1d2
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=c7617172a6463b77 traceID=0418c8843326e139a420cc9d0f8a8119
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=e83fb640ee76bd48 traceID=21a21c033a8a7ee854aac4f7b6f77800
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=f7cc180da48c3ecf traceID=c0aa2cec5ec9f8052bb072c55be159a5
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=dae4ab8e32926d47 traceID=27fac468a30e31d91d2c70b0d0c48d91
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=98420b2706c30a81 traceID=ef5eb5592c3213286a8ed0aa0a1bcd51
+time="2024-10-15T13:01:35Z" level=debug msg="session started" spanID=5d6d14f4839d58a7 traceID=e3f1d462f580b79da8e8c5bda217382a
+time="2024-10-15T13:01:41Z" level=debug msg="new ref for local: tapjcbdre01ispuc0m1b83om6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:41Z" level=debug msg="diffcopy took: 1.769528ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:41Z" level=debug msg="saved tapjcbdre01ispuc0m1b83om6 as local.sharedKey:dockerfile:dockerfile:015:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: oz12ge4gh86n5363ezq3l31sx" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.558174ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved oz12ge4gh86n5363ezq3l31sx as local.sharedKey:dockerfile:dockerfile:021:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: uezmzs9h7tqrsxhxr6qnvk1f1" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.580517ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved uezmzs9h7tqrsxhxr6qnvk1f1 as local.sharedKey:dockerfile:dockerfile:012:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: vvv6k813g418fbzgjh25ohivz" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.528489ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved vvv6k813g418fbzgjh25ohivz as local.sharedKey:dockerfile:dockerfile:006:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: o7ivsxf5xz40g2q34bxrxz9me" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.704695ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved o7ivsxf5xz40g2q34bxrxz9me as local.sharedKey:dockerfile:dockerfile:027:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: wehip1o92lbh8rrmrkgtd6g6m" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.815514ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved wehip1o92lbh8rrmrkgtd6g6m as local.sharedKey:dockerfile:dockerfile:013:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: xdpdtfzxwyqzr6gxzzoofshyg" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.521868ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved xdpdtfzxwyqzr6gxzzoofshyg as local.sharedKey:dockerfile:dockerfile:022:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: te5vonmz2g5szknbn6w6crhw7" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.594592ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved te5vonmz2g5szknbn6w6crhw7 as local.sharedKey:dockerfile:dockerfile:010:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: p0hdiw96nw71ktjl7wcda2pc3" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.628635ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved p0hdiw96nw71ktjl7wcda2pc3 as local.sharedKey:dockerfile:dockerfile:020:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: c15qk0jci91z54e205zetgp20" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.602024ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved c15qk0jci91z54e205zetgp20 as local.sharedKey:dockerfile:dockerfile:033:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: lh658t9lr4hfzffgltxnz884o" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.708896ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved lh658t9lr4hfzffgltxnz884o as local.sharedKey:dockerfile:dockerfile:007:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: k5uaatr4aquhdg9c91aufb18m" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.542925ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved k5uaatr4aquhdg9c91aufb18m as local.sharedKey:dockerfile:dockerfile:030:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: z8jd580rxolcvvplhxb7k9rrd" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 2.523483ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved z8jd580rxolcvvplhxb7k9rrd as local.sharedKey:dockerfile:dockerfile:026:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: y6jaczrru6yh18j31js6m1dx8" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.666416ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved y6jaczrru6yh18j31js6m1dx8 as local.sharedKey:dockerfile:dockerfile:008:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: jgkajnwb5vnc2ovkscni10te5" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.634305ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved jgkajnwb5vnc2ovkscni10te5 as local.sharedKey:dockerfile:dockerfile:037:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: xlww5ueih61jmtz12syyguth6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.469319ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved xlww5ueih61jmtz12syyguth6 as local.sharedKey:dockerfile:dockerfile:019:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: jqvu34n1b8fluc0q52h9lvat8" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.492121ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved jqvu34n1b8fluc0q52h9lvat8 as local.sharedKey:dockerfile:dockerfile:009:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: 97z8yfja1rm8wojgxxcyt0qck" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.704847ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved 97z8yfja1rm8wojgxxcyt0qck as local.sharedKey:dockerfile:dockerfile:016:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="new ref for local: rw05nasjjviexjdkyzx93uclc" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="diffcopy took: 1.584263ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:42Z" level=debug msg="saved rw05nasjjviexjdkyzx93uclc as local.sharedKey:dockerfile:dockerfile:032:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="new ref for local: nu9oxdv57viyvxyftl14hqjl9" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="diffcopy took: 1.45927ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="saved nu9oxdv57viyvxyftl14hqjl9 as local.sharedKey:dockerfile:dockerfile:029:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="new ref for local: hzyzrz2t6bp72n6jwu28hp1qw" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="diffcopy took: 1.549858ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="saved hzyzrz2t6bp72n6jwu28hp1qw as local.sharedKey:dockerfile:dockerfile:011:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="new ref for local: k2rimd6wtamrluee6si148xiu" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="diffcopy took: 1.577009ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="saved k2rimd6wtamrluee6si148xiu as local.sharedKey:dockerfile:dockerfile:036:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="new ref for local: 5gk1mitkbm22po5wtlm2u46s5" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="diffcopy took: 1.630017ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="saved 5gk1mitkbm22po5wtlm2u46s5 as local.sharedKey:dockerfile:dockerfile:017:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="new ref for local: owgs2kdxi2dopkw3ptsj171wm" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="diffcopy took: 1.586476ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="saved owgs2kdxi2dopkw3ptsj171wm as local.sharedKey:dockerfile:dockerfile:014:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="new ref for local: 6ft9cohuqqibbuqwwgalocpfu" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="diffcopy took: 1.57776ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="saved 6ft9cohuqqibbuqwwgalocpfu as local.sharedKey:dockerfile:dockerfile:023:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="new ref for local: vbtjrdcgt4nndgr5cjskaph46" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="diffcopy took: 1.468717ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="saved vbtjrdcgt4nndgr5cjskaph46 as local.sharedKey:dockerfile:dockerfile:035:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="new ref for local: qputaqeegudzcgqwv9p9ku3ai" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="diffcopy took: 1.541725ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="saved qputaqeegudzcgqwv9p9ku3ai as local.sharedKey:dockerfile:dockerfile:034:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="new ref for local: owxnzt1f34ix66a81sbpihmc5" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="diffcopy took: 1.633085ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="saved owxnzt1f34ix66a81sbpihmc5 as local.sharedKey:dockerfile:dockerfile:024:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="new ref for local: dg8f4j2c0uur15vnrpd7dluad" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="diffcopy took: 1.670354ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="saved dg8f4j2c0uur15vnrpd7dluad as local.sharedKey:dockerfile:dockerfile:028:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="new ref for local: u1likp8wasccmahjb7x2jz2u2" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:43Z" level=debug msg="diffcopy took: 943.907µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:43Z" level=debug msg="saved u1likp8wasccmahjb7x2jz2u2 as local.sharedKey:context:context-.dockerignore:015:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:43Z" level=debug msg="new ref for local: m6du65p2mlgjz8qmymuecan8h" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="diffcopy took: 1.622856ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="saved m6du65p2mlgjz8qmymuecan8h as local.sharedKey:dockerfile:dockerfile:018:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="new ref for local: 9wkis7zt4o6qdeuu0gdnla9jp" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="diffcopy took: 1.402965ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="saved 9wkis7zt4o6qdeuu0gdnla9jp as local.sharedKey:dockerfile:dockerfile:025:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="new ref for local: 7y816225jnp9va7cslbqeghnt" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="diffcopy took: 1.496839ms" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:43Z" level=debug msg="saved 7y816225jnp9va7cslbqeghnt as local.sharedKey:dockerfile:dockerfile:031:d0535f0d5b96a0e6" span="[internal] load build definition from Dockerfile"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: zokahxhrxqhjax83zk3an1j36" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 1.034238ms" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved zokahxhrxqhjax83zk3an1j36 as local.sharedKey:context:context-.dockerignore:021:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: 4ggh19gopligj59drhq67hlu5" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 939.161µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved 4ggh19gopligj59drhq67hlu5 as local.sharedKey:context:context-.dockerignore:012:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: ti6jtsytg6doso1fsmtx5amv8" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 1.008237ms" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved ti6jtsytg6doso1fsmtx5amv8 as local.sharedKey:context:context-.dockerignore:006:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: ow14g7ordysumw5sbosvbrtxu" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 861.908µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved ow14g7ordysumw5sbosvbrtxu as local.sharedKey:context:context-.dockerignore:027:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: tg4zwjb7ixnz4ggfx6aoecovr" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 2.27044ms" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved tg4zwjb7ixnz4ggfx6aoecovr as local.sharedKey:context:context-.dockerignore:013:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: ccqws5u5ic1jlob8fbmm149th" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 950.251µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved ccqws5u5ic1jlob8fbmm149th as local.sharedKey:context:context-.dockerignore:022:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: drum9ww3nmxu6ir2tfv84jcu3" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 945.812µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved drum9ww3nmxu6ir2tfv84jcu3 as local.sharedKey:context:context-.dockerignore:010:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: wm7zmdg00fcvuf15g3gy79hyo" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 868.209µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved wm7zmdg00fcvuf15g3gy79hyo as local.sharedKey:context:context-.dockerignore:020:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: 0qqm685m8m8a7fhweg2p351u0" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 918.752µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved 0qqm685m8m8a7fhweg2p351u0 as local.sharedKey:context:context-.dockerignore:033:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: ksxsuoh5n1lehsf2raxkyqluw" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 1.020795ms" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved ksxsuoh5n1lehsf2raxkyqluw as local.sharedKey:context:context-.dockerignore:007:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: cb1p4znpxl2osqmwng90mfy6g" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 915.566µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved cb1p4znpxl2osqmwng90mfy6g as local.sharedKey:context:context-.dockerignore:030:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: qj5b0bqqva2d3omiicfw3a7lm" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 980.167µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved qj5b0bqqva2d3omiicfw3a7lm as local.sharedKey:context:context-.dockerignore:026:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: wxwv1f66clyghd1z3engdbciy" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 927.869µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved wxwv1f66clyghd1z3engdbciy as local.sharedKey:context:context-.dockerignore:008:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: wot7mcihtyby4ut4k4htsmk0a" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 964.666µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved wot7mcihtyby4ut4k4htsmk0a as local.sharedKey:context:context-.dockerignore:037:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: eezzj27y0eej6fj3ytpdg4siu" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 1.018458ms" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved eezzj27y0eej6fj3ytpdg4siu as local.sharedKey:context:context-.dockerignore:019:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: ceu08e27d7jqa9z7552vex2gb" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 993.95µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved ceu08e27d7jqa9z7552vex2gb as local.sharedKey:context:context-.dockerignore:009:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: wxpdxtbaju7g6swk3q3kbisld" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 1.069404ms" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved wxpdxtbaju7g6swk3q3kbisld as local.sharedKey:context:context-.dockerignore:016:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: rmoot4kh01bsd1wrxrgfb17wi" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 904.586µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved rmoot4kh01bsd1wrxrgfb17wi as local.sharedKey:context:context-.dockerignore:032:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: bku27kkcvr3l8ncpgols9bwar" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 950.722µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved bku27kkcvr3l8ncpgols9bwar as local.sharedKey:context:context-.dockerignore:029:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: rkmeh370xpaugv43oeuy47coh" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 1.021183ms" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved rkmeh370xpaugv43oeuy47coh as local.sharedKey:context:context-.dockerignore:011:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: jd9rkkdkuh7rdcjmf8zmiq1fx" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 987.22µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved jd9rkkdkuh7rdcjmf8zmiq1fx as local.sharedKey:context:context-.dockerignore:036:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: s6w4fhy927v43cjmkd9nrrabw" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 944.021µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved s6w4fhy927v43cjmkd9nrrabw as local.sharedKey:context:context-.dockerignore:017:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: 3z29u8nqc3xt8kfev7cx2mgee" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 856.745µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved 3z29u8nqc3xt8kfev7cx2mgee as local.sharedKey:context:context-.dockerignore:014:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: na9qwo9o9hwwqzvtksoznj8e9" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 901.739µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved na9qwo9o9hwwqzvtksoznj8e9 as local.sharedKey:context:context-.dockerignore:023:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: mkzjp3xavmwg9h82l7ipt52mo" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 889.776µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved mkzjp3xavmwg9h82l7ipt52mo as local.sharedKey:context:context-.dockerignore:035:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: yivq2hp3nzjtkq3ssryzz145r" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 920.503µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved yivq2hp3nzjtkq3ssryzz145r as local.sharedKey:context:context-.dockerignore:034:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: hyve00c3kd0r3onxfkofy0a0i" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 861.344µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved hyve00c3kd0r3onxfkofy0a0i as local.sharedKey:context:context-.dockerignore:024:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: uuzxhmcn01jn68kmt4bpgvju7" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 918.181µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved uuzxhmcn01jn68kmt4bpgvju7 as local.sharedKey:context:context-.dockerignore:028:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg=resolving spanID=f0c8c7fd1b1e7476 traceID=eff9c4c8ac3228a54aa6893be8323d7f
+time="2024-10-15T13:01:44Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=f0c8c7fd1b1e7476 traceID=eff9c4c8ac3228a54aa6893be8323d7f
+time="2024-10-15T13:01:44Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:44 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=f0c8c7fd1b1e7476 traceID=eff9c4c8ac3228a54aa6893be8323d7f
+time="2024-10-15T13:01:44Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=f0c8c7fd1b1e7476 traceID=eff9c4c8ac3228a54aa6893be8323d7f
+time="2024-10-15T13:01:44Z" level=debug msg=fetch spanID=f0c8c7fd1b1e7476 traceID=eff9c4c8ac3228a54aa6893be8323d7f
+time="2024-10-15T13:01:44Z" level=debug msg=fetch spanID=f0c8c7fd1b1e7476 traceID=eff9c4c8ac3228a54aa6893be8323d7f
+time="2024-10-15T13:01:44Z" level=debug msg=fetch spanID=274ba09930b25e1c traceID=eff9c4c8ac3228a54aa6893be8323d7f
+time="2024-10-15T13:01:44Z" level=debug msg=fetch spanID=274ba09930b25e1c traceID=eff9c4c8ac3228a54aa6893be8323d7f
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: bntj012mpynw03ruy1sbnema2" span="[internal] load build context"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 1.296496ms" span="[internal] load build context"
+time="2024-10-15T13:01:44Z" level=debug msg="saved bntj012mpynw03ruy1sbnema2 as local.sharedKey:context:context:015:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:44Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:44Z" level=debug msg="session finished: <nil>" spanID=a364083f7d8eca8c traceID=eff9c4c8ac3228a54aa6893be8323d7f
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: ku2lrin61di4rhw87601grw4x" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 832.561µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved ku2lrin61di4rhw87601grw4x as local.sharedKey:context:context-.dockerignore:018:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: tubl8qtn7snoz5qx4tr8f8kvs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 1.163741ms" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved tubl8qtn7snoz5qx4tr8f8kvs as local.sharedKey:context:context-.dockerignore:025:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="new ref for local: yfvmtqhi0shql47rw1ujn76su" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="diffcopy took: 823.967µs" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:44Z" level=debug msg="saved yfvmtqhi0shql47rw1ujn76su as local.sharedKey:context:context-.dockerignore:031:d0535f0d5b96a0e6" span="[internal] load .dockerignore"
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=9d66acb12f05c964 traceID=cfe1fe7e843247f3348fdc57202ccc23
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=9d66acb12f05c964 traceID=cfe1fe7e843247f3348fdc57202ccc23
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=9d66acb12f05c964 traceID=cfe1fe7e843247f3348fdc57202ccc23
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=9d66acb12f05c964 traceID=cfe1fe7e843247f3348fdc57202ccc23
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=9d66acb12f05c964 traceID=cfe1fe7e843247f3348fdc57202ccc23
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=9d66acb12f05c964 traceID=cfe1fe7e843247f3348fdc57202ccc23
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=f82e41e5a0ca9d96 traceID=cfe1fe7e843247f3348fdc57202ccc23
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=f82e41e5a0ca9d96 traceID=cfe1fe7e843247f3348fdc57202ccc23
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: cgvbvmsxjjs231bnljdm87s3h" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.440104ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved cgvbvmsxjjs231bnljdm87s3h as local.sharedKey:context:context:021:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=518c4f0e19958e64 traceID=cfe1fe7e843247f3348fdc57202ccc23
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=b9264c3914c0351c traceID=137b8309b8167a6636efe060118ed64d
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=b9264c3914c0351c traceID=137b8309b8167a6636efe060118ed64d
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=b9264c3914c0351c traceID=137b8309b8167a6636efe060118ed64d
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=b9264c3914c0351c traceID=137b8309b8167a6636efe060118ed64d
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=b9264c3914c0351c traceID=137b8309b8167a6636efe060118ed64d
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=b9264c3914c0351c traceID=137b8309b8167a6636efe060118ed64d
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=135f98d95dbdc006 traceID=137b8309b8167a6636efe060118ed64d
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=135f98d95dbdc006 traceID=137b8309b8167a6636efe060118ed64d
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: 3g6xl7ruwm1snaf2zbf2u8040" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.442971ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved 3g6xl7ruwm1snaf2zbf2u8040 as local.sharedKey:context:context:012:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=3db1194c5ad21d83 traceID=137b8309b8167a6636efe060118ed64d
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=c8a2c737500daa4b traceID=27027b52e23112469ca65dc8db3d239a
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=c8a2c737500daa4b traceID=27027b52e23112469ca65dc8db3d239a
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=c8a2c737500daa4b traceID=27027b52e23112469ca65dc8db3d239a
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=c8a2c737500daa4b traceID=27027b52e23112469ca65dc8db3d239a
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=c8a2c737500daa4b traceID=27027b52e23112469ca65dc8db3d239a
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=c8a2c737500daa4b traceID=27027b52e23112469ca65dc8db3d239a
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=9a13c9e7f7529197 traceID=27027b52e23112469ca65dc8db3d239a
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=9a13c9e7f7529197 traceID=27027b52e23112469ca65dc8db3d239a
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: vdrlg3abc054lcupdatzzrwvg" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.333614ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved vdrlg3abc054lcupdatzzrwvg as local.sharedKey:context:context:006:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=6e044f71fadd6c7b traceID=27027b52e23112469ca65dc8db3d239a
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=fa7421d2bf436b8a traceID=b3d7d6e76f09d1e60a16afb1940664ab
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=fa7421d2bf436b8a traceID=b3d7d6e76f09d1e60a16afb1940664ab
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=fa7421d2bf436b8a traceID=b3d7d6e76f09d1e60a16afb1940664ab
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=fa7421d2bf436b8a traceID=b3d7d6e76f09d1e60a16afb1940664ab
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=fa7421d2bf436b8a traceID=b3d7d6e76f09d1e60a16afb1940664ab
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=fa7421d2bf436b8a traceID=b3d7d6e76f09d1e60a16afb1940664ab
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=5f4d03c25ee97960 traceID=b3d7d6e76f09d1e60a16afb1940664ab
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=5f4d03c25ee97960 traceID=b3d7d6e76f09d1e60a16afb1940664ab
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: znnlqtzk4u91vxlv0wuoj1idc" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.494183ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved znnlqtzk4u91vxlv0wuoj1idc as local.sharedKey:context:context:027:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=66043747745c3c45 traceID=b3d7d6e76f09d1e60a16afb1940664ab
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=ce82a7d16e3f348b traceID=10265fc2b3cf7d9c54c1d0ff1f62b93e
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=ce82a7d16e3f348b traceID=10265fc2b3cf7d9c54c1d0ff1f62b93e
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=ce82a7d16e3f348b traceID=10265fc2b3cf7d9c54c1d0ff1f62b93e
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=ce82a7d16e3f348b traceID=10265fc2b3cf7d9c54c1d0ff1f62b93e
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=ce82a7d16e3f348b traceID=10265fc2b3cf7d9c54c1d0ff1f62b93e
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=ce82a7d16e3f348b traceID=10265fc2b3cf7d9c54c1d0ff1f62b93e
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=ac56ee8df21c253c traceID=10265fc2b3cf7d9c54c1d0ff1f62b93e
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=ac56ee8df21c253c traceID=10265fc2b3cf7d9c54c1d0ff1f62b93e
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: faetdlno8gkof5s9kxii7t22d" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.400752ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved faetdlno8gkof5s9kxii7t22d as local.sharedKey:context:context:013:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=ed592f2e76beec25 traceID=10265fc2b3cf7d9c54c1d0ff1f62b93e
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=b0cb138b586f3ef9 traceID=862b87a90727d636152697db3318e5ca
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=b0cb138b586f3ef9 traceID=862b87a90727d636152697db3318e5ca
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=b0cb138b586f3ef9 traceID=862b87a90727d636152697db3318e5ca
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=b0cb138b586f3ef9 traceID=862b87a90727d636152697db3318e5ca
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=b0cb138b586f3ef9 traceID=862b87a90727d636152697db3318e5ca
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=b0cb138b586f3ef9 traceID=862b87a90727d636152697db3318e5ca
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=0cee91ec0e611815 traceID=862b87a90727d636152697db3318e5ca
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=0cee91ec0e611815 traceID=862b87a90727d636152697db3318e5ca
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: iiuskl2t7a7t4c6sr13vyurwo" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.43809ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved iiuskl2t7a7t4c6sr13vyurwo as local.sharedKey:context:context:022:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=70b978ee150442cc traceID=862b87a90727d636152697db3318e5ca
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=bb4555a869621cb1 traceID=aa503e3c5160974240e1bc857f2c9c9a
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=bb4555a869621cb1 traceID=aa503e3c5160974240e1bc857f2c9c9a
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=bb4555a869621cb1 traceID=aa503e3c5160974240e1bc857f2c9c9a
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=bb4555a869621cb1 traceID=aa503e3c5160974240e1bc857f2c9c9a
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=bb4555a869621cb1 traceID=aa503e3c5160974240e1bc857f2c9c9a
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=bb4555a869621cb1 traceID=aa503e3c5160974240e1bc857f2c9c9a
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=4c8a2827bc4009e4 traceID=aa503e3c5160974240e1bc857f2c9c9a
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=4c8a2827bc4009e4 traceID=aa503e3c5160974240e1bc857f2c9c9a
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: vkf38s2jc2eqzeq5mxreqhi08" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.395058ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved vkf38s2jc2eqzeq5mxreqhi08 as local.sharedKey:context:context:010:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=cc7f4016e33cc451 traceID=aa503e3c5160974240e1bc857f2c9c9a
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=61700cd61901c202 traceID=c0ac12a278404430dcf4873dbf7d1e84
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=61700cd61901c202 traceID=c0ac12a278404430dcf4873dbf7d1e84
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=61700cd61901c202 traceID=c0ac12a278404430dcf4873dbf7d1e84
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=61700cd61901c202 traceID=c0ac12a278404430dcf4873dbf7d1e84
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=61700cd61901c202 traceID=c0ac12a278404430dcf4873dbf7d1e84
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=61700cd61901c202 traceID=c0ac12a278404430dcf4873dbf7d1e84
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=029d2124050a74d5 traceID=c0ac12a278404430dcf4873dbf7d1e84
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=029d2124050a74d5 traceID=c0ac12a278404430dcf4873dbf7d1e84
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: zex6hogjywayqjacjcrnha7ka" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.456334ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved zex6hogjywayqjacjcrnha7ka as local.sharedKey:context:context:020:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=6ca23c8c6708fcdd traceID=c0ac12a278404430dcf4873dbf7d1e84
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=3f2bc4a72b1f8999 traceID=64370b393ac239859dd1db84934cc64e
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=3f2bc4a72b1f8999 traceID=64370b393ac239859dd1db84934cc64e
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=3f2bc4a72b1f8999 traceID=64370b393ac239859dd1db84934cc64e
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=3f2bc4a72b1f8999 traceID=64370b393ac239859dd1db84934cc64e
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=3f2bc4a72b1f8999 traceID=64370b393ac239859dd1db84934cc64e
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=3f2bc4a72b1f8999 traceID=64370b393ac239859dd1db84934cc64e
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=1e41546a1433976e traceID=64370b393ac239859dd1db84934cc64e
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=1e41546a1433976e traceID=64370b393ac239859dd1db84934cc64e
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: yqwj2dagv2prf8wst9tq2kog3" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.381062ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved yqwj2dagv2prf8wst9tq2kog3 as local.sharedKey:context:context:033:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=49313aa515034f52 traceID=64370b393ac239859dd1db84934cc64e
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=be9a30e4585b456b traceID=f283914f6fdbcc25715f790fd6886acd
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=be9a30e4585b456b traceID=f283914f6fdbcc25715f790fd6886acd
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=be9a30e4585b456b traceID=f283914f6fdbcc25715f790fd6886acd
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=be9a30e4585b456b traceID=f283914f6fdbcc25715f790fd6886acd
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=be9a30e4585b456b traceID=f283914f6fdbcc25715f790fd6886acd
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=be9a30e4585b456b traceID=f283914f6fdbcc25715f790fd6886acd
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=81297f4329b9e0a4 traceID=f283914f6fdbcc25715f790fd6886acd
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=81297f4329b9e0a4 traceID=f283914f6fdbcc25715f790fd6886acd
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: r1vmi9flxq8621dipslb92p3q" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.597217ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved r1vmi9flxq8621dipslb92p3q as local.sharedKey:context:context:007:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=9f190ae40dc885ec traceID=f283914f6fdbcc25715f790fd6886acd
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=026f5c79181a5065 traceID=a14707661e4210fb6c583408c7a65e15
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=026f5c79181a5065 traceID=a14707661e4210fb6c583408c7a65e15
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=026f5c79181a5065 traceID=a14707661e4210fb6c583408c7a65e15
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=026f5c79181a5065 traceID=a14707661e4210fb6c583408c7a65e15
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=026f5c79181a5065 traceID=a14707661e4210fb6c583408c7a65e15
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=026f5c79181a5065 traceID=a14707661e4210fb6c583408c7a65e15
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=c0da6d3318a74391 traceID=a14707661e4210fb6c583408c7a65e15
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=c0da6d3318a74391 traceID=a14707661e4210fb6c583408c7a65e15
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: nh07ws8ajyxr061sdz81l81hs" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.460221ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved nh07ws8ajyxr061sdz81l81hs as local.sharedKey:context:context:030:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=8eff497d8c6c8d55 traceID=a14707661e4210fb6c583408c7a65e15
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=76719a5d0f10e6e2 traceID=9bcb4f3ac2e34da44d6dea5d6ea15df6
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=76719a5d0f10e6e2 traceID=9bcb4f3ac2e34da44d6dea5d6ea15df6
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=76719a5d0f10e6e2 traceID=9bcb4f3ac2e34da44d6dea5d6ea15df6
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=76719a5d0f10e6e2 traceID=9bcb4f3ac2e34da44d6dea5d6ea15df6
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=76719a5d0f10e6e2 traceID=9bcb4f3ac2e34da44d6dea5d6ea15df6
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=76719a5d0f10e6e2 traceID=9bcb4f3ac2e34da44d6dea5d6ea15df6
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=741c937934b2daa0 traceID=9bcb4f3ac2e34da44d6dea5d6ea15df6
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=741c937934b2daa0 traceID=9bcb4f3ac2e34da44d6dea5d6ea15df6
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: j8xcey0yda6nkma6oad2il4u6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.485559ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved j8xcey0yda6nkma6oad2il4u6 as local.sharedKey:context:context:026:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=b9f89abaeb76e6f3 traceID=9bcb4f3ac2e34da44d6dea5d6ea15df6
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=2780d95ca3440ab9 traceID=a115dc4770012a90e31afb7238e71255
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=2780d95ca3440ab9 traceID=a115dc4770012a90e31afb7238e71255
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=2780d95ca3440ab9 traceID=a115dc4770012a90e31afb7238e71255
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=2780d95ca3440ab9 traceID=a115dc4770012a90e31afb7238e71255
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=2780d95ca3440ab9 traceID=a115dc4770012a90e31afb7238e71255
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=2780d95ca3440ab9 traceID=a115dc4770012a90e31afb7238e71255
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=2115a2e8bb31c4de traceID=a115dc4770012a90e31afb7238e71255
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=2115a2e8bb31c4de traceID=a115dc4770012a90e31afb7238e71255
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: lu3ufhayz8ds66bob6anj82ml" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.310712ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved lu3ufhayz8ds66bob6anj82ml as local.sharedKey:context:context:008:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=7b27a515322ff6a8 traceID=a115dc4770012a90e31afb7238e71255
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=d24f58c6129e72e4 traceID=691c4c95398ed7e6d39cfaeb50b9a00f
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=d24f58c6129e72e4 traceID=691c4c95398ed7e6d39cfaeb50b9a00f
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=d24f58c6129e72e4 traceID=691c4c95398ed7e6d39cfaeb50b9a00f
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=d24f58c6129e72e4 traceID=691c4c95398ed7e6d39cfaeb50b9a00f
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=d24f58c6129e72e4 traceID=691c4c95398ed7e6d39cfaeb50b9a00f
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=d24f58c6129e72e4 traceID=691c4c95398ed7e6d39cfaeb50b9a00f
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=15018714b2eb724d traceID=691c4c95398ed7e6d39cfaeb50b9a00f
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=15018714b2eb724d traceID=691c4c95398ed7e6d39cfaeb50b9a00f
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: 1xn4jy0xuz1cupwnb9l6w90qz" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.355444ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved 1xn4jy0xuz1cupwnb9l6w90qz as local.sharedKey:context:context:037:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=900aba570babe6b2 traceID=691c4c95398ed7e6d39cfaeb50b9a00f
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=f984930016842b5e traceID=b418fc8b9835e4bef31ebdd6f2106460
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=f984930016842b5e traceID=b418fc8b9835e4bef31ebdd6f2106460
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=f984930016842b5e traceID=b418fc8b9835e4bef31ebdd6f2106460
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=f984930016842b5e traceID=b418fc8b9835e4bef31ebdd6f2106460
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=f984930016842b5e traceID=b418fc8b9835e4bef31ebdd6f2106460
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=f984930016842b5e traceID=b418fc8b9835e4bef31ebdd6f2106460
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=280211e0c4f9335e traceID=b418fc8b9835e4bef31ebdd6f2106460
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=280211e0c4f9335e traceID=b418fc8b9835e4bef31ebdd6f2106460
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: ijla2nm42c5v1oj2jfr1whwaj" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.442306ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved ijla2nm42c5v1oj2jfr1whwaj as local.sharedKey:context:context:019:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=ff6cd4b5ed5bd30b traceID=b418fc8b9835e4bef31ebdd6f2106460
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=0d2db428f6b265d8 traceID=11e0c13399dceba045edd5ceec24c187
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=0d2db428f6b265d8 traceID=11e0c13399dceba045edd5ceec24c187
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=0d2db428f6b265d8 traceID=11e0c13399dceba045edd5ceec24c187
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=0d2db428f6b265d8 traceID=11e0c13399dceba045edd5ceec24c187
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=0d2db428f6b265d8 traceID=11e0c13399dceba045edd5ceec24c187
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=0d2db428f6b265d8 traceID=11e0c13399dceba045edd5ceec24c187
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=b301b616108bf0bc traceID=11e0c13399dceba045edd5ceec24c187
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=b301b616108bf0bc traceID=11e0c13399dceba045edd5ceec24c187
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: 0o1he1jn409au1ku9hl6gdu5l" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 4.668799ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved 0o1he1jn409au1ku9hl6gdu5l as local.sharedKey:context:context:009:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=8cd799b58881873a traceID=11e0c13399dceba045edd5ceec24c187
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=1f445eaa0130c95b traceID=2e19037ad89d177ce8edf632d1d5fd2d
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=1f445eaa0130c95b traceID=2e19037ad89d177ce8edf632d1d5fd2d
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=1f445eaa0130c95b traceID=2e19037ad89d177ce8edf632d1d5fd2d
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=1f445eaa0130c95b traceID=2e19037ad89d177ce8edf632d1d5fd2d
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=1f445eaa0130c95b traceID=2e19037ad89d177ce8edf632d1d5fd2d
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=1f445eaa0130c95b traceID=2e19037ad89d177ce8edf632d1d5fd2d
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=06df127c9547c877 traceID=2e19037ad89d177ce8edf632d1d5fd2d
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=06df127c9547c877 traceID=2e19037ad89d177ce8edf632d1d5fd2d
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: mxwp7qw39gms0ms70he9ntx8t" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.43847ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved mxwp7qw39gms0ms70he9ntx8t as local.sharedKey:context:context:016:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=5fa10b6850cb9df5 traceID=2e19037ad89d177ce8edf632d1d5fd2d
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=a6b07031bb031a15 traceID=c3f53070bca4a424db78af5662ca4236
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=a6b07031bb031a15 traceID=c3f53070bca4a424db78af5662ca4236
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=a6b07031bb031a15 traceID=c3f53070bca4a424db78af5662ca4236
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=a6b07031bb031a15 traceID=c3f53070bca4a424db78af5662ca4236
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=a6b07031bb031a15 traceID=c3f53070bca4a424db78af5662ca4236
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=a6b07031bb031a15 traceID=c3f53070bca4a424db78af5662ca4236
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=5d5795d22d9b2162 traceID=c3f53070bca4a424db78af5662ca4236
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=5d5795d22d9b2162 traceID=c3f53070bca4a424db78af5662ca4236
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: tca49ww8tmvvihkwed1md962c" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.362521ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved tca49ww8tmvvihkwed1md962c as local.sharedKey:context:context:032:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=2615e9602bf8dcbb traceID=c3f53070bca4a424db78af5662ca4236
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=e91f7a23e58ed753 traceID=2e91c87aeb23d66a2ecf88c97c6db37b
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=e91f7a23e58ed753 traceID=2e91c87aeb23d66a2ecf88c97c6db37b
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=e91f7a23e58ed753 traceID=2e91c87aeb23d66a2ecf88c97c6db37b
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=e91f7a23e58ed753 traceID=2e91c87aeb23d66a2ecf88c97c6db37b
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=e91f7a23e58ed753 traceID=2e91c87aeb23d66a2ecf88c97c6db37b
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=e91f7a23e58ed753 traceID=2e91c87aeb23d66a2ecf88c97c6db37b
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=b8d5fde4afa84acf traceID=2e91c87aeb23d66a2ecf88c97c6db37b
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=b8d5fde4afa84acf traceID=2e91c87aeb23d66a2ecf88c97c6db37b
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: t39oq97n9bu4361okr4sjulh8" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.347081ms" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="saved t39oq97n9bu4361okr4sjulh8 as local.sharedKey:context:context:029:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:45Z" level=debug msg="session finished: <nil>" spanID=f96f41e8fd2e20f3 traceID=2e91c87aeb23d66a2ecf88c97c6db37b
+time="2024-10-15T13:01:45Z" level=debug msg=resolving spanID=e13ffd10f6914906 traceID=47fe61124b748485aef8ffe5d9c4950c
+time="2024-10-15T13:01:45Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=e13ffd10f6914906 traceID=47fe61124b748485aef8ffe5d9c4950c
+time="2024-10-15T13:01:45Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:45 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=e13ffd10f6914906 traceID=47fe61124b748485aef8ffe5d9c4950c
+time="2024-10-15T13:01:45Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=e13ffd10f6914906 traceID=47fe61124b748485aef8ffe5d9c4950c
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=e13ffd10f6914906 traceID=47fe61124b748485aef8ffe5d9c4950c
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=e13ffd10f6914906 traceID=47fe61124b748485aef8ffe5d9c4950c
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=eeeb778be85fc370 traceID=47fe61124b748485aef8ffe5d9c4950c
+time="2024-10-15T13:01:45Z" level=debug msg=fetch spanID=eeeb778be85fc370 traceID=47fe61124b748485aef8ffe5d9c4950c
+time="2024-10-15T13:01:45Z" level=debug msg="new ref for local: wvg5n1h71gihxcyo0darc7qma" span="[internal] load build context"
+time="2024-10-15T13:01:45Z" level=debug msg="diffcopy took: 1.521236ms" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="saved wvg5n1h71gihxcyo0darc7qma as local.sharedKey:context:context:011:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:46Z" level=debug msg="session finished: <nil>" spanID=7f3feb4b6da566f1 traceID=47fe61124b748485aef8ffe5d9c4950c
+time="2024-10-15T13:01:46Z" level=debug msg=resolving spanID=9e9a9c1af53aaa31 traceID=8747a44ef5c71ec27a242b7b8c7993e3
+time="2024-10-15T13:01:46Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=9e9a9c1af53aaa31 traceID=8747a44ef5c71ec27a242b7b8c7993e3
+time="2024-10-15T13:01:46Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:46 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=9e9a9c1af53aaa31 traceID=8747a44ef5c71ec27a242b7b8c7993e3
+time="2024-10-15T13:01:46Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=9e9a9c1af53aaa31 traceID=8747a44ef5c71ec27a242b7b8c7993e3
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=9e9a9c1af53aaa31 traceID=8747a44ef5c71ec27a242b7b8c7993e3
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=9e9a9c1af53aaa31 traceID=8747a44ef5c71ec27a242b7b8c7993e3
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=a44f6a839354d59b traceID=8747a44ef5c71ec27a242b7b8c7993e3
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=a44f6a839354d59b traceID=8747a44ef5c71ec27a242b7b8c7993e3
+time="2024-10-15T13:01:46Z" level=debug msg="new ref for local: 7o7zm1lvsy757y7r4ksgq685m" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="diffcopy took: 1.456936ms" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="saved 7o7zm1lvsy757y7r4ksgq685m as local.sharedKey:context:context:036:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:46Z" level=debug msg="session finished: <nil>" spanID=dedde40df9dc2a02 traceID=8747a44ef5c71ec27a242b7b8c7993e3
+time="2024-10-15T13:01:46Z" level=debug msg=resolving spanID=1ee9e8d0939dc2f9 traceID=75392907c68cd75adff71eba54c5ddc8
+time="2024-10-15T13:01:46Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=1ee9e8d0939dc2f9 traceID=75392907c68cd75adff71eba54c5ddc8
+time="2024-10-15T13:01:46Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:46 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=1ee9e8d0939dc2f9 traceID=75392907c68cd75adff71eba54c5ddc8
+time="2024-10-15T13:01:46Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=1ee9e8d0939dc2f9 traceID=75392907c68cd75adff71eba54c5ddc8
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=1ee9e8d0939dc2f9 traceID=75392907c68cd75adff71eba54c5ddc8
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=1ee9e8d0939dc2f9 traceID=75392907c68cd75adff71eba54c5ddc8
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=bbeaf9395da76fe9 traceID=75392907c68cd75adff71eba54c5ddc8
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=bbeaf9395da76fe9 traceID=75392907c68cd75adff71eba54c5ddc8
+time="2024-10-15T13:01:46Z" level=debug msg="new ref for local: re413mykds4nzucgrqqfcm6bs" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="diffcopy took: 1.508479ms" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="saved re413mykds4nzucgrqqfcm6bs as local.sharedKey:context:context:017:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:46Z" level=debug msg="session finished: <nil>" spanID=ef99afd7768cc72e traceID=75392907c68cd75adff71eba54c5ddc8
+time="2024-10-15T13:01:46Z" level=debug msg=resolving spanID=5625ed4473e4c751 traceID=a67a6248da4d97dc484b31ab50f4ad47
+time="2024-10-15T13:01:46Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=5625ed4473e4c751 traceID=a67a6248da4d97dc484b31ab50f4ad47
+time="2024-10-15T13:01:46Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:46 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=5625ed4473e4c751 traceID=a67a6248da4d97dc484b31ab50f4ad47
+time="2024-10-15T13:01:46Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=5625ed4473e4c751 traceID=a67a6248da4d97dc484b31ab50f4ad47
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=5625ed4473e4c751 traceID=a67a6248da4d97dc484b31ab50f4ad47
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=5625ed4473e4c751 traceID=a67a6248da4d97dc484b31ab50f4ad47
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=8852752cfe6ba009 traceID=a67a6248da4d97dc484b31ab50f4ad47
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=8852752cfe6ba009 traceID=a67a6248da4d97dc484b31ab50f4ad47
+time="2024-10-15T13:01:46Z" level=debug msg="new ref for local: 828t8rjdnvv22bf08jhp36wu5" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="diffcopy took: 2.533932ms" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="saved 828t8rjdnvv22bf08jhp36wu5 as local.sharedKey:context:context:014:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:46Z" level=debug msg="session finished: <nil>" spanID=2fd807f9b7ad6746 traceID=a67a6248da4d97dc484b31ab50f4ad47
+time="2024-10-15T13:01:46Z" level=debug msg=resolving spanID=a3fa2417e38d8121 traceID=11edee4171c6ed9fd030f249749fcb8c
+time="2024-10-15T13:01:46Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=a3fa2417e38d8121 traceID=11edee4171c6ed9fd030f249749fcb8c
+time="2024-10-15T13:01:46Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:46 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=a3fa2417e38d8121 traceID=11edee4171c6ed9fd030f249749fcb8c
+time="2024-10-15T13:01:46Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=a3fa2417e38d8121 traceID=11edee4171c6ed9fd030f249749fcb8c
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=a3fa2417e38d8121 traceID=11edee4171c6ed9fd030f249749fcb8c
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=a3fa2417e38d8121 traceID=11edee4171c6ed9fd030f249749fcb8c
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=9e0bd6fe9fb22c1d traceID=11edee4171c6ed9fd030f249749fcb8c
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=9e0bd6fe9fb22c1d traceID=11edee4171c6ed9fd030f249749fcb8c
+time="2024-10-15T13:01:46Z" level=debug msg="new ref for local: kddf17notcz3cbwvfwx1b1gte" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="diffcopy took: 1.466031ms" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="saved kddf17notcz3cbwvfwx1b1gte as local.sharedKey:context:context:023:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:46Z" level=debug msg="session finished: <nil>" spanID=b0472d119db18edb traceID=11edee4171c6ed9fd030f249749fcb8c
+time="2024-10-15T13:01:46Z" level=debug msg=resolving spanID=a76d05ea66b75179 traceID=1b7f13888e2cad4c6047722a2a15d1d2
+time="2024-10-15T13:01:46Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=a76d05ea66b75179 traceID=1b7f13888e2cad4c6047722a2a15d1d2
+time="2024-10-15T13:01:46Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:46 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=a76d05ea66b75179 traceID=1b7f13888e2cad4c6047722a2a15d1d2
+time="2024-10-15T13:01:46Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=a76d05ea66b75179 traceID=1b7f13888e2cad4c6047722a2a15d1d2
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=a76d05ea66b75179 traceID=1b7f13888e2cad4c6047722a2a15d1d2
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=a76d05ea66b75179 traceID=1b7f13888e2cad4c6047722a2a15d1d2
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=77316ca593b2fbf5 traceID=1b7f13888e2cad4c6047722a2a15d1d2
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=77316ca593b2fbf5 traceID=1b7f13888e2cad4c6047722a2a15d1d2
+time="2024-10-15T13:01:46Z" level=debug msg="new ref for local: 2adryoew4q8cv0dqsd14caqfm" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="diffcopy took: 1.473937ms" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="saved 2adryoew4q8cv0dqsd14caqfm as local.sharedKey:context:context:035:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:46Z" level=debug msg="session finished: <nil>" spanID=911a835dcadc4a7e traceID=1b7f13888e2cad4c6047722a2a15d1d2
+time="2024-10-15T13:01:46Z" level=debug msg=resolving spanID=633e872281a8cea4 traceID=0418c8843326e139a420cc9d0f8a8119
+time="2024-10-15T13:01:46Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=633e872281a8cea4 traceID=0418c8843326e139a420cc9d0f8a8119
+time="2024-10-15T13:01:46Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:46 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=633e872281a8cea4 traceID=0418c8843326e139a420cc9d0f8a8119
+time="2024-10-15T13:01:46Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=633e872281a8cea4 traceID=0418c8843326e139a420cc9d0f8a8119
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=633e872281a8cea4 traceID=0418c8843326e139a420cc9d0f8a8119
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=633e872281a8cea4 traceID=0418c8843326e139a420cc9d0f8a8119
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=46d391a4e50fda04 traceID=0418c8843326e139a420cc9d0f8a8119
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=46d391a4e50fda04 traceID=0418c8843326e139a420cc9d0f8a8119
+time="2024-10-15T13:01:46Z" level=debug msg="new ref for local: k9itgejh2k4jnxo45lwpafst3" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="diffcopy took: 1.423252ms" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="saved k9itgejh2k4jnxo45lwpafst3 as local.sharedKey:context:context:034:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:46Z" level=debug msg="session finished: <nil>" spanID=c7617172a6463b77 traceID=0418c8843326e139a420cc9d0f8a8119
+time="2024-10-15T13:01:46Z" level=debug msg=resolving spanID=317aea6428ebe6f5 traceID=21a21c033a8a7ee854aac4f7b6f77800
+time="2024-10-15T13:01:46Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=317aea6428ebe6f5 traceID=21a21c033a8a7ee854aac4f7b6f77800
+time="2024-10-15T13:01:46Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:46 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=317aea6428ebe6f5 traceID=21a21c033a8a7ee854aac4f7b6f77800
+time="2024-10-15T13:01:46Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=317aea6428ebe6f5 traceID=21a21c033a8a7ee854aac4f7b6f77800
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=317aea6428ebe6f5 traceID=21a21c033a8a7ee854aac4f7b6f77800
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=317aea6428ebe6f5 traceID=21a21c033a8a7ee854aac4f7b6f77800
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=3d87d9565597cd61 traceID=21a21c033a8a7ee854aac4f7b6f77800
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=3d87d9565597cd61 traceID=21a21c033a8a7ee854aac4f7b6f77800
+time="2024-10-15T13:01:46Z" level=debug msg="new ref for local: k5fgtn1twgwj4amfcx69xea0g" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="diffcopy took: 1.310882ms" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="saved k5fgtn1twgwj4amfcx69xea0g as local.sharedKey:context:context:024:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:46Z" level=debug msg="session finished: <nil>" spanID=e83fb640ee76bd48 traceID=21a21c033a8a7ee854aac4f7b6f77800
+time="2024-10-15T13:01:46Z" level=debug msg=resolving spanID=8ac2576b7a284971 traceID=c0aa2cec5ec9f8052bb072c55be159a5
+time="2024-10-15T13:01:46Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=8ac2576b7a284971 traceID=c0aa2cec5ec9f8052bb072c55be159a5
+time="2024-10-15T13:01:46Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:46 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=8ac2576b7a284971 traceID=c0aa2cec5ec9f8052bb072c55be159a5
+time="2024-10-15T13:01:46Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=8ac2576b7a284971 traceID=c0aa2cec5ec9f8052bb072c55be159a5
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=8ac2576b7a284971 traceID=c0aa2cec5ec9f8052bb072c55be159a5
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=8ac2576b7a284971 traceID=c0aa2cec5ec9f8052bb072c55be159a5
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=54b3a1fd6fd305ce traceID=c0aa2cec5ec9f8052bb072c55be159a5
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=54b3a1fd6fd305ce traceID=c0aa2cec5ec9f8052bb072c55be159a5
+time="2024-10-15T13:01:46Z" level=debug msg="new ref for local: u30vvao9r9t0wazy87jlbnbe1" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="diffcopy took: 1.499947ms" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="saved u30vvao9r9t0wazy87jlbnbe1 as local.sharedKey:context:context:028:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:46Z" level=debug msg="session finished: <nil>" spanID=f7cc180da48c3ecf traceID=c0aa2cec5ec9f8052bb072c55be159a5
+time="2024-10-15T13:01:46Z" level=debug msg=resolving spanID=24dd106e7d378f97 traceID=27fac468a30e31d91d2c70b0d0c48d91
+time="2024-10-15T13:01:46Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=24dd106e7d378f97 traceID=27fac468a30e31d91d2c70b0d0c48d91
+time="2024-10-15T13:01:46Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:46 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=24dd106e7d378f97 traceID=27fac468a30e31d91d2c70b0d0c48d91
+time="2024-10-15T13:01:46Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=24dd106e7d378f97 traceID=27fac468a30e31d91d2c70b0d0c48d91
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=24dd106e7d378f97 traceID=27fac468a30e31d91d2c70b0d0c48d91
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=24dd106e7d378f97 traceID=27fac468a30e31d91d2c70b0d0c48d91
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=841573f986bfc0ed traceID=27fac468a30e31d91d2c70b0d0c48d91
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=841573f986bfc0ed traceID=27fac468a30e31d91d2c70b0d0c48d91
+time="2024-10-15T13:01:46Z" level=debug msg="new ref for local: vi6jonb62bxaa5tr4eyl6c37f" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="diffcopy took: 1.323626ms" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="saved vi6jonb62bxaa5tr4eyl6c37f as local.sharedKey:context:context:018:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:46Z" level=debug msg="session finished: <nil>" spanID=dae4ab8e32926d47 traceID=27fac468a30e31d91d2c70b0d0c48d91
+time="2024-10-15T13:01:46Z" level=debug msg=resolving spanID=c931bfdedaaa1542 traceID=ef5eb5592c3213286a8ed0aa0a1bcd51
+time="2024-10-15T13:01:46Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=c931bfdedaaa1542 traceID=ef5eb5592c3213286a8ed0aa0a1bcd51
+time="2024-10-15T13:01:46Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:46 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=c931bfdedaaa1542 traceID=ef5eb5592c3213286a8ed0aa0a1bcd51
+time="2024-10-15T13:01:46Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=c931bfdedaaa1542 traceID=ef5eb5592c3213286a8ed0aa0a1bcd51
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=c931bfdedaaa1542 traceID=ef5eb5592c3213286a8ed0aa0a1bcd51
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=c931bfdedaaa1542 traceID=ef5eb5592c3213286a8ed0aa0a1bcd51
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=a75b385eebc41db8 traceID=ef5eb5592c3213286a8ed0aa0a1bcd51
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=a75b385eebc41db8 traceID=ef5eb5592c3213286a8ed0aa0a1bcd51
+time="2024-10-15T13:01:46Z" level=debug msg="new ref for local: q8fqscxzvie39qd3ktfnret4l" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="diffcopy took: 1.429365ms" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="saved q8fqscxzvie39qd3ktfnret4l as local.sharedKey:context:context:025:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:46Z" level=debug msg="session finished: <nil>" spanID=98420b2706c30a81 traceID=ef5eb5592c3213286a8ed0aa0a1bcd51
+time="2024-10-15T13:01:46Z" level=debug msg=resolving spanID=54186a93b3d7d72b traceID=e3f1d462f580b79da8e8c5bda217382a
+time="2024-10-15T13:01:46Z" level=debug msg="do request" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=containerd/1.5.3+unknown request.method=HEAD spanID=54186a93b3d7d72b traceID=e3f1d462f580b79da8e8c5bda217382a
+time="2024-10-15T13:01:46Z" level=debug msg="fetch response received" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Tue, 15 Oct 2024 13:01:46 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" spanID=54186a93b3d7d72b traceID=e3f1d462f580b79da8e8c5bda217382a
+time="2024-10-15T13:01:46Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" spanID=54186a93b3d7d72b traceID=e3f1d462f580b79da8e8c5bda217382a
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=54186a93b3d7d72b traceID=e3f1d462f580b79da8e8c5bda217382a
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=54186a93b3d7d72b traceID=e3f1d462f580b79da8e8c5bda217382a
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=3617758f4950b649 traceID=e3f1d462f580b79da8e8c5bda217382a
+time="2024-10-15T13:01:46Z" level=debug msg=fetch spanID=3617758f4950b649 traceID=e3f1d462f580b79da8e8c5bda217382a
+time="2024-10-15T13:01:46Z" level=debug msg="new ref for local: x6wmcifnxotx3a9bs5p98mkyd" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="diffcopy took: 1.16997ms" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="saved x6wmcifnxotx3a9bs5p98mkyd as local.sharedKey:context:context:031:d0535f0d5b96a0e6" span="[internal] load build context"
+time="2024-10-15T13:01:46Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with dj4oewa1ewm8yzt147jrw5d84::rkgj1et0tni7e5s498gsqzd8d"
+time="2024-10-15T13:01:46Z" level=debug msg="session finished: <nil>" spanID=5d6d14f4839d58a7 traceID=e3f1d462f580b79da8e8c5bda217382a
