@@ -1,0 +1,131 @@
+defaults:
+  count: 3
+  benchtime: 1x
+
+runs:
+  BenchmarkBuild:
+    BenchmarkBuildSimple:
+      description: Simple build
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+    BenchmarkBuildMultistage:
+      description: Multistage build
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+    BenchmarkBuildSecret:
+      description: Build with secret
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+    BenchmarkBuildRemote:
+      description: Build from git context
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+    BenchmarkBuildHighParallelization16x:
+      description: Build high parallelization (16x)
+      count: 3
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+    BenchmarkBuildHighParallelization32x:
+      description: Build high parallelization (32x)
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+    BenchmarkBuildHighParallelization64x:
+      description: Build high parallelization (64x)
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+    BenchmarkBuildHighParallelization128x:
+      description: Build high parallelization (128x)
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+    BenchmarkBuildFileTransfer:
+      description: Build with substantial file transfer
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+    BenchmarkBuildEmulator:
+      description: Build with emulator
+      count: 10
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+    BenchmarkBuildExportUncompressed:
+      description: Build export uncompressed
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+    BenchmarkBuildExportGzip:
+      description: Build export gzip
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+    BenchmarkBuildExportEstargz:
+      description: Build export estargz
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+#    BenchmarkBuildExportZstd:
+#      description: Build export zstd
+#      count: 4
+#      metrics:
+#        duration:
+#          description: Time (s)
+#          chart: boxplot
+
+  BenchmarkDaemon:
+    BenchmarkDaemonVersion:
+      description: Run buildkitd --version
+      count: 8
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+    BenchmarkDaemonSize:
+      description: Daemon binary size
+      count: 1
+      metrics:
+        bytes:
+          description: Size (bytes)
+          chart: bar
+          average: true
+
+  BenchmarkPackage:
+    BenchmarkPackageSize:
+      description: Package size
+      count: 1
+      metrics:
+        bytes:
+          description: Size (bytes)
+          chart: bar
+          average: true
