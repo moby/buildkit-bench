@@ -183,6 +183,22 @@ func (c *genCmd) writeHTML(benchmarks map[string]gotest.Benchmark) error {
 				charts.WithDataZoomOpts(opts.DataZoom{
 					Type: "slider",
 				}),
+				charts.WithToolboxOpts(opts.Toolbox{
+					Show:   opts.Bool(true),
+					Orient: "horizontal",
+					Right:  "100",
+					Feature: &opts.ToolBoxFeature{
+						DataZoom: &opts.ToolBoxFeatureDataZoom{
+							Show: opts.Bool(true),
+						},
+						Restore: &opts.ToolBoxFeatureRestore{
+							Show: opts.Bool(true),
+						},
+						SaveAsImage: &opts.ToolBoxFeatureSaveAsImage{
+							Show: opts.Bool(true),
+						},
+					},
+				}),
 			}
 			switch bc.Metrics[unit].Chart {
 			case types.ChartBar:
@@ -262,23 +278,20 @@ func chartBar(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric, sor
 		}
 	}
 
+	var seriesOpts []charts.SeriesOpts
+	if cfg.Average {
+		seriesOpts = append(seriesOpts, charts.WithMarkLineNameTypeItemOpts(
+			opts.MarkLineNameTypeItem{Name: "Avg", Type: "average", LineStyle: &opts.LineStyle{
+				Color: "#91cc75",
+				Width: 2,
+			}},
+		))
+	}
+
 	chart := charts.NewBar()
 	chart.ChartID = chartIdentity(name, unit)
 	chart.SetGlobalOptions(globalOpts...)
-
-	chart.SetXAxis(refs).AddSeries(cfg.Description, data)
-
-	if cfg.Average {
-		avgv := total / float64(len(refs))
-		avgdt := make([]opts.LineData, len(refs))
-		for i := 0; i < len(refs); i++ {
-			avgdt[i] = opts.LineData{Value: avgv}
-		}
-		avgl := charts.NewLine()
-		avgl.SetXAxis(refs).AddSeries("Average", avgdt)
-		chart.Overlap(avgl)
-	}
-
+	chart.SetXAxis(refs).AddSeries(cfg.Description, data).SetSeriesOptions(seriesOpts...)
 	return chart, nil
 }
 
