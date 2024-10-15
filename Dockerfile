@@ -105,7 +105,12 @@ case "$project" in
     if find /tests-results -maxdepth 1 -type f -name 'gotestoutput-buildx-*' | grep -q .; then
       args+=("/tests-results/gotestoutput-buildx-*.json")
     else
-      args+=("/tests-results/gotestoutput*.json")
+      if [ "$GITHUB_ACTIONS" = "true" ]; then
+        # for backward compatibility with old test results in GitHub Pages
+        exit 0
+      else
+        args+=("/tests-results/gotestoutput*.json")
+      fi
     fi
     ;;
 esac
@@ -116,6 +121,7 @@ EOF
 FROM gobuild-base AS tests-gen-run
 COPY --link --from=gotestmetrics /out /usr/bin/
 COPY --from=tests-results . /tests-results
+ARG GITHUB_ACTIONS
 ARG GEN_VALIDATION_MODE
 RUN --mount=type=bind,target=. <<EOT
   set -e
