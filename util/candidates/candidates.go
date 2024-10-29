@@ -206,7 +206,9 @@ func filterFeatureReleases(tags []*ggithub.RepositoryTag, last int) []*ggithub.R
 		}
 		if semver.IsValid(*tag.Name) {
 			if semver.Prerelease(*tag.Name) != "" && len(latestReleases) == 0 && len(zeroReleases) == 0 {
-				latestRC = tag
+				if latestRC == nil {
+					latestRC = tag
+				}
 				continue
 			}
 			mm := semver.MajorMinor(*tag.Name)
