@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
 	"sync"
 	"testing"
@@ -55,6 +56,7 @@ func BenchmarkBuild(b *testing.B) {
 		benchmarkBuildHighParallelization128x,
 		benchmarkBuildFileTransfer,
 		benchmarkBuildFileTransferCachedWithIteration,
+		benchmarkBuildLargeFileTransfer,
 		benchmarkBuildEmulator,
 		benchmarkBuildExportUncompressed,
 		benchmarkBuildExportGzip,
@@ -205,6 +207,37 @@ RUN du -sh . && tree .
 	dir := tmpdir(b,
 		fstest.CreateFile("Dockerfile", dockerfile, 0600),
 		contextDirApplier,
+	)
+	reportBuildkitdAlloc(b, sb, func() {
+		b.StartTimer()
+		out, err := buildxBuildCmd(sb, withArgs(dir))
+		b.StopTimer()
+		sb.WriteLogFile(b, "buildx", []byte(out))
+		require.NoError(b, err, out)
+	})
+}
+
+func benchmarkBuildLargeFileTransfer(b *testing.B, sb testutil.Sandbox) {
+	dockerfile := []byte(`
+FROM busybox:latest
+WORKDIR /src
+COPY . .
+RUN du -sh .
+`)
+
+	var contextDirLargeAppliers []fstest.Applier
+	contextDirLargeAppliers = append(contextDirLargeAppliers,
+		fstest.CreateDir("subdir9", 0755),
+		fstest.CreateFile("subdir9/largefile1.txt", make([]byte, 1024*1024*200), 0600), // 200MB file
+		fstest.CreateFile("subdir9/largefile2.txt", make([]byte, 1024*1024*400), 0600), // 400MB file
+	)
+	for i := 0; i < 10000; i++ {
+		fsize := rand.Intn(100*1024-5*1024) + 5*1024 // random size between 5KB and 100KB
+		contextDirLargeAppliers = append(contextDirLargeAppliers, fstest.CreateFile(fmt.Sprintf("subdir9/file%d.txt", i+5), make([]byte, fsize), 0600))
+	}
+	dir := tmpdir(b,
+		fstest.CreateFile("Dockerfile", dockerfile, 0600),
+		fstest.Apply(append(contextDirLargeAppliers, contextDirApplier)...),
 	)
 	reportBuildkitdAlloc(b, sb, func() {
 		b.StartTimer()
