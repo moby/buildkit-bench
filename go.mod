@@ -4,7 +4,7 @@ go 1.21.0
 
 require (
 	github.com/alecthomas/kong v1.4.0
-	github.com/containerd/containerd v1.7.22
+	github.com/containerd/containerd v1.7.23
 	github.com/containerd/continuity v0.4.3
 	github.com/containerd/platforms v0.2.1
 	github.com/go-echarts/go-echarts/v2 v2.4.3
@@ -28,7 +28,7 @@ require (
 require (
 	github.com/AdaLogics/go-fuzz-headers v0.0.0-20230811130428-ced1acdcaa24 // indirect
 	github.com/bitfield/gotestdox v0.2.2 // indirect
-	github.com/containerd/errdefs v0.1.0 // indirect
+	github.com/containerd/errdefs v0.3.0 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/containerd/typeurl/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
