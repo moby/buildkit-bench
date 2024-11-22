@@ -5,7 +5,7 @@ go 1.21.0
 require (
 	github.com/alecthomas/kong v1.4.0
 	github.com/containerd/containerd v1.7.22
-	github.com/containerd/continuity v0.4.3
+	github.com/containerd/continuity v0.4.5
 	github.com/containerd/platforms v0.2.1
 	github.com/go-echarts/go-echarts/v2 v2.4.5
 	github.com/gofrs/flock v0.12.1
@@ -64,10 +64,10 @@ require (
 	go.opentelemetry.io/otel/trace v1.21.0 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/sys v0.24.0 // indirect
+	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/term v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240123012728-ef4313101c80 // indirect
 	google.golang.org/grpc v1.62.0 // indirect
-	google.golang.org/protobuf v1.33.0 // indirect
+	google.golang.org/protobuf v1.35.1 // indirect
 )
