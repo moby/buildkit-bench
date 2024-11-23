@@ -54,10 +54,14 @@ function "buildkit_ref_info" {
   result = {
     cache_tag = (
       ref == "v0.12.0" || ref == "18fc875d9bfd6e065cd8211abc639434ba65aa56" ? "v0.12.0-pick-pr-4361" :
+      ref == "v0.17.0" || ref == "fd61877fa73693dcd4ef64c538f894ec216409a3" ? "v0.17.0-grpc-fix" :
+      ref == "v0.17.1" || ref == "8b1b83ef4947c03062cdcdb40c69989d8fe3fd04" ? "v0.17.1-grpc-fix" :
       ref
     ),
     context = (
       ref == "v0.12.0" || ref == "18fc875d9bfd6e065cd8211abc639434ba65aa56" ? "https://github.com/crazy-max/buildkit.git#v0.12.0-pick-pr-4361" :
+      ref == "v0.17.0" || ref == "fd61877fa73693dcd4ef64c538f894ec216409a3" ? "https://github.com/crazy-max/buildkit.git#0.17.0-grpc-fix" :
+      ref == "v0.17.1" || ref == "8b1b83ef4947c03062cdcdb40c69989d8fe3fd04" ? "https://github.com/crazy-max/buildkit.git#0.17.1-grpc-fix" :
       can(regex("^pr-(\\d+)$", ref)) ? "https://github.com/${BUILDKIT_REPO}.git#refs/pull/${regex_replace(ref, "^pr-(\\d+)$", "$1")}/merge" :
       "https://github.com/${BUILDKIT_REPO}.git#${ref}"
     )
