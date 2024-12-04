@@ -40,6 +40,7 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
+            const keepResultsPerDay = 1;
 
             const resultDir = './bin/gh-pages/result';
             const results = fs.readdirSync(resultDir).filter(d => {
@@ -57,25 +58,23 @@ jobs:
 
             Object.keys(resultsByDate).forEach(date => {
               const dirs = resultsByDate[date];
-              const keepDirs = [];
               const removeDirs = [];
               dirs.forEach(dir => {
                 const envFilePath = path.join(resultDir, dir, 'env.txt');
                 if (fs.existsSync(envFilePath)) {
                   const envContent = fs.readFileSync(envFilePath, 'utf8');
                   if (envContent.includes('GITHUB_EVENT_NAME=schedule')) {
-                    keepDirs.push(dir);
+                    // always keep scheduled results
                     return;
                   }
                 }
                 removeDirs.push(dir);
               });
-
+              if (removeDirs.length === 0) {
+                return;
+              }
               removeDirs.sort().reverse();
-
-              keepDirs.push(...removeDirs.slice(0, 3));
-
-              removeDirs.slice(3).forEach(dir => {
+              removeDirs.slice(keepResultsPerDay).forEach(dir => {
                 const dirPath = path.join(resultDir, dir);
                 fs.rmSync(dirPath, { recursive: true, force: true });
                 core.info(`Removed ${dirPath}`);
