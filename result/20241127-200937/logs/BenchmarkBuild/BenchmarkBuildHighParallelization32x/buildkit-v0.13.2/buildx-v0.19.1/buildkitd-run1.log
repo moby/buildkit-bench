@@ -1,0 +1,798 @@
+stdout: /buildkit-binaries/v0.13.2/buildkitd --oci-worker=true --oci-worker-binary=/buildkit-binaries/v0.13.2/buildkit-runc --containerd-worker=false --oci-worker-gc=false --oci-worker-labels=org.mobyproject.buildkit.worker.sandbox=true --config=/tmp/bkbench_config3857021595/buildkitd.toml --root /tmp/bkbench_sandbox2723321665 --addr unix:///tmp/bkbench_sandbox2723321665/buildkitd.sock --debug --debugaddr 127.0.0.1:44187
+stderr: /buildkit-binaries/v0.13.2/buildkitd --oci-worker=true --oci-worker-binary=/buildkit-binaries/v0.13.2/buildkit-runc --containerd-worker=false --oci-worker-gc=false --oci-worker-labels=org.mobyproject.buildkit.worker.sandbox=true --config=/tmp/bkbench_config3857021595/buildkitd.toml --root /tmp/bkbench_sandbox2723321665 --addr unix:///tmp/bkbench_sandbox2723321665/buildkitd.sock --debug --debugaddr 127.0.0.1:44187
+> StartCmd 2024-11-27 19:40:39.239485403 +0000 UTC m=+261.600128395 /buildkit-binaries/v0.13.2/buildkitd --oci-worker=true --oci-worker-binary=/buildkit-binaries/v0.13.2/buildkit-runc --containerd-worker=false --oci-worker-gc=false --oci-worker-labels=org.mobyproject.buildkit.worker.sandbox=true --config=/tmp/bkbench_config3857021595/buildkitd.toml --root /tmp/bkbench_sandbox2723321665 --addr unix:///tmp/bkbench_sandbox2723321665/buildkitd.sock --debug --debugaddr 127.0.0.1:44187
+time="2024-11-27T19:40:39Z" level=warning msg="failed to get disk size: no such file or directory"
+time="2024-11-27T19:40:39Z" level=warning msg="failed to get disk size: no such file or directory"
+time="2024-11-27T19:40:39Z" level=debug msg="debug handlers listening at 127.0.0.1:44187"
+time="2024-11-27T19:40:39Z" level=info msg="auto snapshotter: using overlayfs"
+time="2024-11-27T19:40:39Z" level=warning msg="using host network as the default"
+time="2024-11-27T19:40:39Z" level=info msg="found worker \"ozq0btrhwspzu03d5jdvjpp0e\", labels=map[org.mobyproject.buildkit.worker.executor:oci org.mobyproject.buildkit.worker.hostname:4ce0d758d5d2 org.mobyproject.buildkit.worker.network:host org.mobyproject.buildkit.worker.oci.process-mode:sandbox org.mobyproject.buildkit.worker.sandbox:true org.mobyproject.buildkit.worker.selinux.enabled:false org.mobyproject.buildkit.worker.snapshotter:overlayfs], platforms=[linux/amd64 linux/amd64/v2 linux/amd64/v3 linux/arm64 linux/riscv64 linux/ppc64le linux/s390x linux/386 linux/mips64le linux/mips64 linux/arm/v7 linux/arm/v6]"
+time="2024-11-27T19:40:39Z" level=info msg="found 1 workers, default=\"ozq0btrhwspzu03d5jdvjpp0e\""
+time="2024-11-27T19:40:39Z" level=warning msg="currently, only the default worker can be used."
+time="2024-11-27T19:40:39Z" level=info msg="running server on /tmp/bkbench_sandbox2723321665/buildkitd.sock"
+time="2024-11-27T19:40:39Z" level=debug msg="session started" spanID=582c78ff38534bec traceID=c1cc17722fcae8f9795aaa7c59132f1d
+time="2024-11-27T19:40:39Z" level=debug msg="session finished: <nil>" spanID=582c78ff38534bec traceID=c1cc17722fcae8f9795aaa7c59132f1d
+time="2024-11-27T19:40:39Z" level=debug msg="session started" spanID=e09fa0c96b8d7167 traceID=c1cc17722fcae8f9795aaa7c59132f1d
+time="2024-11-27T19:40:39Z" level=debug msg="new ref for local: ljzige0u8up91bgczjd4clmbn" span="[internal] load build definition from Dockerfile" spanID=28f9abcf3be9b41e traceID=c1cc17722fcae8f9795aaa7c59132f1d
+time="2024-11-27T19:40:39Z" level=debug msg="diffcopy took: 1.78996ms" span="[internal] load build definition from Dockerfile" spanID=a0eda24266a3a7cd traceID=c1cc17722fcae8f9795aaa7c59132f1d
+time="2024-11-27T19:40:39Z" level=debug msg="saved ljzige0u8up91bgczjd4clmbn as dockerfile:dockerfile:001:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=28f9abcf3be9b41e traceID=c1cc17722fcae8f9795aaa7c59132f1d
+time="2024-11-27T19:40:39Z" level=debug msg="checked for cached auth handler namespace" cached=false key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:39Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:39Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:39Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:39 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:39Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:39Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:39Z" level=debug msg="do request" digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json request.header.accept="application/vnd.docker.distribution.manifest.v2+json, */*" request.header.user-agent=buildkit/v0.13 request.method=GET size=528 url="http://localhost:44907/v2/library/busybox/manifests/sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee?ns=docker.io"
+time="2024-11-27T19:40:39Z" level=debug msg="fetch response received" digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:39 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" size=528 url="http://localhost:44907/v2/library/busybox/manifests/sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee?ns=docker.io"
+time="2024-11-27T19:40:39Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:39Z" level=debug msg="do request" digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json request.header.accept="application/vnd.docker.container.image.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=GET size=1457 url="http://localhost:44907/v2/library/busybox/blobs/sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824?ns=docker.io"
+time="2024-11-27T19:40:39Z" level=debug msg="fetch response received" digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json response.header.accept-ranges=bytes response.header.cache-control="max-age=31536000" response.header.content-length=1457 response.header.content-type=application/octet-stream response.header.date="Wed, 27 Nov 2024 19:40:39 GMT" response.header.docker-content-digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824\"" response.status="200 OK" size=1457 url="http://localhost:44907/v2/library/busybox/blobs/sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824?ns=docker.io"
+time="2024-11-27T19:40:39Z" level=debug msg="new ref for local: z9epuj3ueb36kwg846ll42b7k" span="[internal] load .dockerignore" spanID=68f420562908b0bc traceID=c1cc17722fcae8f9795aaa7c59132f1d
+time="2024-11-27T19:40:39Z" level=debug msg="diffcopy took: 986.331µs" span="[internal] load .dockerignore" spanID=ef302ce1e0315211 traceID=c1cc17722fcae8f9795aaa7c59132f1d
+time="2024-11-27T19:40:39Z" level=debug msg="saved z9epuj3ueb36kwg846ll42b7k as context:context-.dockerignore:001:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=68f420562908b0bc traceID=c1cc17722fcae8f9795aaa7c59132f1d
+time="2024-11-27T19:40:39Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:39Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:39Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:39Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:39Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:39Z" level=debug msg="new ref for local: v4xllpczeeyhabl116pff1h0h" span="[internal] load build context" spanID=c3e54bc6832954f7 traceID=c1cc17722fcae8f9795aaa7c59132f1d
+time="2024-11-27T19:40:39Z" level=debug msg="diffcopy took: 1.374686ms" span="[internal] load build context" spanID=35e747d120a56b9d traceID=c1cc17722fcae8f9795aaa7c59132f1d
+time="2024-11-27T19:40:39Z" level=debug msg=fetch digest="sha256:3f4d90098f5b5a6f6a76e9d217da85aa39b2081e30fa1f7d287138d6e7bf0ad7" mediatype=application/vnd.docker.image.rootfs.diff.tar.gzip size=2219949
+time="2024-11-27T19:40:39Z" level=debug msg="saved v4xllpczeeyhabl116pff1h0h as context:context:001:97e931c2b6eb5dd4" span="[internal] load build context" spanID=c3e54bc6832954f7 traceID=c1cc17722fcae8f9795aaa7c59132f1d
+time="2024-11-27T19:40:39Z" level=debug msg="do request" digest="sha256:3f4d90098f5b5a6f6a76e9d217da85aa39b2081e30fa1f7d287138d6e7bf0ad7" mediatype=application/vnd.docker.image.rootfs.diff.tar.gzip request.header.accept="application/vnd.docker.image.rootfs.diff.tar.gzip, */*" request.header.user-agent=containerd/1.7.13+unknown request.method=GET size=2219949 url="http://localhost:44907/v2/library/busybox/blobs/sha256:3f4d90098f5b5a6f6a76e9d217da85aa39b2081e30fa1f7d287138d6e7bf0ad7?ns=docker.io"
+time="2024-11-27T19:40:39Z" level=debug msg="fetch response received" digest="sha256:3f4d90098f5b5a6f6a76e9d217da85aa39b2081e30fa1f7d287138d6e7bf0ad7" mediatype=application/vnd.docker.image.rootfs.diff.tar.gzip response.header.accept-ranges=bytes response.header.cache-control="max-age=31536000" response.header.content-length=2219949 response.header.content-type=application/octet-stream response.header.date="Wed, 27 Nov 2024 19:40:39 GMT" response.header.docker-content-digest="sha256:3f4d90098f5b5a6f6a76e9d217da85aa39b2081e30fa1f7d287138d6e7bf0ad7" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:3f4d90098f5b5a6f6a76e9d217da85aa39b2081e30fa1f7d287138d6e7bf0ad7\"" response.status="200 OK" size=2219949 url="http://localhost:44907/v2/library/busybox/blobs/sha256:3f4d90098f5b5a6f6a76e9d217da85aa39b2081e30fa1f7d287138d6e7bf0ad7?ns=docker.io"
+time="2024-11-27T19:40:39Z" level=debug msg="unpigz not found, falling back to go gzip" error="exec: \"unpigz\": executable file not found in $PATH"
+time="2024-11-27T19:40:39Z" level=debug msg="diff applied" d=60.548725ms digest="sha256:3f4d90098f5b5a6f6a76e9d217da85aa39b2081e30fa1f7d287138d6e7bf0ad7" media=application/vnd.docker.image.rootfs.diff.tar.gzip size=2219949
+time="2024-11-27T19:40:39Z" level=debug msg="> creating j3szl6svf2wgl1849mgz8pi7o [/bin/sh -c cp /etc/foo /etc/bar]" span="[3/3] RUN cp /etc/foo /etc/bar" spanID=532dcb58fa787920 traceID=c1cc17722fcae8f9795aaa7c59132f1d
+time="2024-11-27T19:40:39Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=da70fc161f67b9ba traceID=c1cc17722fcae8f9795aaa7c59132f1d
+time="2024-11-27T19:40:39Z" level=debug msg="session finished: <nil>" spanID=e09fa0c96b8d7167 traceID=c1cc17722fcae8f9795aaa7c59132f1d
+time="2024-11-27T19:40:39Z" level=debug msg="session started" spanID=95948e4ad37cf8c8 traceID=cd365dc202a49abdfb0b909fec0d737e
+time="2024-11-27T19:40:39Z" level=debug msg="session finished: <nil>" spanID=95948e4ad37cf8c8 traceID=cd365dc202a49abdfb0b909fec0d737e
+time="2024-11-27T19:40:39Z" level=debug msg="session started" spanID=ad2ca069bf93b8c6 traceID=cd365dc202a49abdfb0b909fec0d737e
+time="2024-11-27T19:40:39Z" level=debug msg="new ref for local: kk5botdq3v7fvsgl2nnfskilm" span="[internal] load build definition from Dockerfile" spanID=3d0216205b4e8b84 traceID=cd365dc202a49abdfb0b909fec0d737e
+time="2024-11-27T19:40:39Z" level=debug msg="diffcopy took: 1.779285ms" span="[internal] load build definition from Dockerfile" spanID=1587b16a331797e7 traceID=cd365dc202a49abdfb0b909fec0d737e
+time="2024-11-27T19:40:39Z" level=debug msg="saved kk5botdq3v7fvsgl2nnfskilm as dockerfile:dockerfile:002:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=3d0216205b4e8b84 traceID=cd365dc202a49abdfb0b909fec0d737e
+time="2024-11-27T19:40:39Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:39Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:39Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:39Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:39 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:39Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:39Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:39Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:39Z" level=debug msg="new ref for local: taa4j4susl37mnwgntogh0thn" span="[internal] load .dockerignore" spanID=f156dd135bb3274e traceID=cd365dc202a49abdfb0b909fec0d737e
+time="2024-11-27T19:40:39Z" level=debug msg="diffcopy took: 1.483379ms" span="[internal] load .dockerignore" spanID=0ac2a5bfdc41f8dc traceID=cd365dc202a49abdfb0b909fec0d737e
+time="2024-11-27T19:40:39Z" level=debug msg="saved taa4j4susl37mnwgntogh0thn as context:context-.dockerignore:002:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=f156dd135bb3274e traceID=cd365dc202a49abdfb0b909fec0d737e
+time="2024-11-27T19:40:39Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:39Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:39Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:39Z" level=debug msg="new ref for local: k10uw9vdwiraag3fjpludvn9l" span="[internal] load build context" spanID=ce8b6174b106c271 traceID=cd365dc202a49abdfb0b909fec0d737e
+time="2024-11-27T19:40:39Z" level=debug msg="diffcopy took: 1.124481ms" span="[internal] load build context" spanID=b5b5c8a2b6b68792 traceID=cd365dc202a49abdfb0b909fec0d737e
+time="2024-11-27T19:40:39Z" level=debug msg="saved k10uw9vdwiraag3fjpludvn9l as context:context:002:97e931c2b6eb5dd4" span="[internal] load build context" spanID=ce8b6174b106c271 traceID=cd365dc202a49abdfb0b909fec0d737e
+time="2024-11-27T19:40:39Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with ozq0btrhwspzu03d5jdvjpp0e::maav43klrvt6pz558dxzzm702"
+time="2024-11-27T19:40:39Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=5ea5a0187d0afb9f traceID=cd365dc202a49abdfb0b909fec0d737e
+time="2024-11-27T19:40:39Z" level=debug msg="session finished: <nil>" spanID=ad2ca069bf93b8c6 traceID=cd365dc202a49abdfb0b909fec0d737e
+time="2024-11-27T19:40:40Z" level=debug msg="session started" spanID=b079f5bab2bcd9fb traceID=963a65d3c82272fdde19dc01a02cb427
+time="2024-11-27T19:40:40Z" level=debug msg="session finished: <nil>" spanID=b079f5bab2bcd9fb traceID=963a65d3c82272fdde19dc01a02cb427
+time="2024-11-27T19:40:40Z" level=debug msg="session started" spanID=f566d8ef72e404b6 traceID=963a65d3c82272fdde19dc01a02cb427
+time="2024-11-27T19:40:40Z" level=debug msg="new ref for local: o2wjn67pmipz3od07diov5ocj" span="[internal] load build definition from Dockerfile" spanID=34022877f631e431 traceID=963a65d3c82272fdde19dc01a02cb427
+time="2024-11-27T19:40:40Z" level=debug msg="diffcopy took: 2.549537ms" span="[internal] load build definition from Dockerfile" spanID=a18ca96a86d648b6 traceID=963a65d3c82272fdde19dc01a02cb427
+time="2024-11-27T19:40:40Z" level=debug msg="saved o2wjn67pmipz3od07diov5ocj as dockerfile:dockerfile:003:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=34022877f631e431 traceID=963a65d3c82272fdde19dc01a02cb427
+time="2024-11-27T19:40:40Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:40Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:40Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:40Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:40 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:40Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:40Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:40Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:40Z" level=debug msg="new ref for local: c5ay4uqxpyum3qwq9t9akt6x7" span="[internal] load .dockerignore" spanID=5f76ddb31224ab95 traceID=963a65d3c82272fdde19dc01a02cb427
+time="2024-11-27T19:40:40Z" level=debug msg="diffcopy took: 793.812µs" span="[internal] load .dockerignore" spanID=f8d37c47ca30d27e traceID=963a65d3c82272fdde19dc01a02cb427
+time="2024-11-27T19:40:40Z" level=debug msg="saved c5ay4uqxpyum3qwq9t9akt6x7 as context:context-.dockerignore:003:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=5f76ddb31224ab95 traceID=963a65d3c82272fdde19dc01a02cb427
+time="2024-11-27T19:40:40Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:40Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:40Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:40Z" level=debug msg="new ref for local: s96m3wmoyd5514rk3x8fi7amv" span="[internal] load build context" spanID=d3714fb55d03bf7c traceID=963a65d3c82272fdde19dc01a02cb427
+time="2024-11-27T19:40:40Z" level=debug msg="diffcopy took: 1.308875ms" span="[internal] load build context" spanID=4ff341cb670312b3 traceID=963a65d3c82272fdde19dc01a02cb427
+time="2024-11-27T19:40:40Z" level=debug msg="saved s96m3wmoyd5514rk3x8fi7amv as context:context:003:97e931c2b6eb5dd4" span="[internal] load build context" spanID=d3714fb55d03bf7c traceID=963a65d3c82272fdde19dc01a02cb427
+time="2024-11-27T19:40:40Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with ozq0btrhwspzu03d5jdvjpp0e::maav43klrvt6pz558dxzzm702"
+time="2024-11-27T19:40:40Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=7811bd2c726e4c55 traceID=963a65d3c82272fdde19dc01a02cb427
+time="2024-11-27T19:40:40Z" level=debug msg="session finished: <nil>" spanID=f566d8ef72e404b6 traceID=963a65d3c82272fdde19dc01a02cb427
+time="2024-11-27T19:40:40Z" level=debug msg="session started" spanID=b02fb4e1bbf275b5 traceID=3b78eae9e7da286d9d460f3d4de78eaa
+time="2024-11-27T19:40:40Z" level=debug msg="session finished: <nil>" spanID=b02fb4e1bbf275b5 traceID=3b78eae9e7da286d9d460f3d4de78eaa
+time="2024-11-27T19:40:40Z" level=debug msg="session started" spanID=de593064b695dbd1 traceID=3b78eae9e7da286d9d460f3d4de78eaa
+time="2024-11-27T19:40:40Z" level=debug msg="new ref for local: w6v3pugdthlxf99xok742hq60" span="[internal] load build definition from Dockerfile" spanID=bd284d3201062b56 traceID=3b78eae9e7da286d9d460f3d4de78eaa
+time="2024-11-27T19:40:40Z" level=debug msg="diffcopy took: 1.585049ms" span="[internal] load build definition from Dockerfile" spanID=7534a91ed8790476 traceID=3b78eae9e7da286d9d460f3d4de78eaa
+time="2024-11-27T19:40:40Z" level=debug msg="saved w6v3pugdthlxf99xok742hq60 as dockerfile:dockerfile:004:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=bd284d3201062b56 traceID=3b78eae9e7da286d9d460f3d4de78eaa
+time="2024-11-27T19:40:40Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:40Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:40Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:40Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:40 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:40Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:40Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:40Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:40Z" level=debug msg="new ref for local: u05yi3ju7c3w3ojkbb7b1vb3y" span="[internal] load .dockerignore" spanID=cfaa6a79a08618a6 traceID=3b78eae9e7da286d9d460f3d4de78eaa
+time="2024-11-27T19:40:40Z" level=debug msg="diffcopy took: 841.631µs" span="[internal] load .dockerignore" spanID=d2820ed1290f6727 traceID=3b78eae9e7da286d9d460f3d4de78eaa
+time="2024-11-27T19:40:40Z" level=debug msg="saved u05yi3ju7c3w3ojkbb7b1vb3y as context:context-.dockerignore:004:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=cfaa6a79a08618a6 traceID=3b78eae9e7da286d9d460f3d4de78eaa
+time="2024-11-27T19:40:40Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:40Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:40Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:40Z" level=debug msg="new ref for local: istd92319yaszht4f1it0leiy" span="[internal] load build context" spanID=c36abfbc3297a22f traceID=3b78eae9e7da286d9d460f3d4de78eaa
+time="2024-11-27T19:40:40Z" level=debug msg="diffcopy took: 1.364106ms" span="[internal] load build context" spanID=4be7fc0c81195993 traceID=3b78eae9e7da286d9d460f3d4de78eaa
+time="2024-11-27T19:40:40Z" level=debug msg="saved istd92319yaszht4f1it0leiy as context:context:004:97e931c2b6eb5dd4" span="[internal] load build context" spanID=c36abfbc3297a22f traceID=3b78eae9e7da286d9d460f3d4de78eaa
+time="2024-11-27T19:40:40Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with ozq0btrhwspzu03d5jdvjpp0e::maav43klrvt6pz558dxzzm702"
+time="2024-11-27T19:40:40Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=185b68b0d6627822 traceID=3b78eae9e7da286d9d460f3d4de78eaa
+time="2024-11-27T19:40:40Z" level=debug msg="session finished: <nil>" spanID=de593064b695dbd1 traceID=3b78eae9e7da286d9d460f3d4de78eaa
+time="2024-11-27T19:40:40Z" level=debug msg="session started" spanID=2aabf6fefe2879b8 traceID=79877da3df2b5860c392a6715f622c56
+time="2024-11-27T19:40:40Z" level=debug msg="session finished: <nil>" spanID=2aabf6fefe2879b8 traceID=79877da3df2b5860c392a6715f622c56
+time="2024-11-27T19:40:40Z" level=debug msg="session started" spanID=78f83557c1e6cced traceID=79877da3df2b5860c392a6715f622c56
+time="2024-11-27T19:40:40Z" level=debug msg="new ref for local: zrnkbut64ebiwf5r9l1nyk4lw" span="[internal] load build definition from Dockerfile" spanID=56922640f1c608a3 traceID=79877da3df2b5860c392a6715f622c56
+time="2024-11-27T19:40:40Z" level=debug msg="diffcopy took: 1.54428ms" span="[internal] load build definition from Dockerfile" spanID=91ae6124e090fc45 traceID=79877da3df2b5860c392a6715f622c56
+time="2024-11-27T19:40:40Z" level=debug msg="saved zrnkbut64ebiwf5r9l1nyk4lw as dockerfile:dockerfile:005:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=56922640f1c608a3 traceID=79877da3df2b5860c392a6715f622c56
+time="2024-11-27T19:40:40Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:40Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:40Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:40Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:40 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:40Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:40Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:40Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:40Z" level=debug msg="new ref for local: lk0ymxsfiazbv67weagb93q3x" span="[internal] load .dockerignore" spanID=7cee465fe3925afd traceID=79877da3df2b5860c392a6715f622c56
+time="2024-11-27T19:40:40Z" level=debug msg="diffcopy took: 885.28µs" span="[internal] load .dockerignore" spanID=1c371bfc42ebc093 traceID=79877da3df2b5860c392a6715f622c56
+time="2024-11-27T19:40:40Z" level=debug msg="saved lk0ymxsfiazbv67weagb93q3x as context:context-.dockerignore:005:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=7cee465fe3925afd traceID=79877da3df2b5860c392a6715f622c56
+time="2024-11-27T19:40:40Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:40Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:40Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:40Z" level=debug msg="new ref for local: lio2v6x5e3m4kdh0lu3cpxf9b" span="[internal] load build context" spanID=d3ad06abaa721dac traceID=79877da3df2b5860c392a6715f622c56
+time="2024-11-27T19:40:40Z" level=debug msg="diffcopy took: 1.552099ms" span="[internal] load build context" spanID=41438f6a87fa6214 traceID=79877da3df2b5860c392a6715f622c56
+time="2024-11-27T19:40:40Z" level=debug msg="saved lio2v6x5e3m4kdh0lu3cpxf9b as context:context:005:97e931c2b6eb5dd4" span="[internal] load build context" spanID=d3ad06abaa721dac traceID=79877da3df2b5860c392a6715f622c56
+time="2024-11-27T19:40:40Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with ozq0btrhwspzu03d5jdvjpp0e::maav43klrvt6pz558dxzzm702"
+time="2024-11-27T19:40:40Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=208caac16a8773b4 traceID=79877da3df2b5860c392a6715f622c56
+time="2024-11-27T19:40:40Z" level=debug msg="session finished: <nil>" spanID=78f83557c1e6cced traceID=79877da3df2b5860c392a6715f622c56
+time="2024-11-27T19:40:41Z" level=debug msg="session started" spanID=ae5fffcd4d9ef25d traceID=e2a19641b2e3cf6d3b771c52c9ae0456
+time="2024-11-27T19:40:41Z" level=debug msg="session finished: <nil>" spanID=ae5fffcd4d9ef25d traceID=e2a19641b2e3cf6d3b771c52c9ae0456
+time="2024-11-27T19:40:41Z" level=debug msg="session started" spanID=67909230d666af1e traceID=772567a8ba3cf2b8aa9e795d46830d7e
+time="2024-11-27T19:40:41Z" level=debug msg="session finished: <nil>" spanID=67909230d666af1e traceID=772567a8ba3cf2b8aa9e795d46830d7e
+time="2024-11-27T19:40:41Z" level=debug msg="session started" spanID=fcb5c5be628f8719 traceID=5c400ccfea0abcae6937ee8d499fbe88
+time="2024-11-27T19:40:41Z" level=debug msg="session finished: <nil>" spanID=fcb5c5be628f8719 traceID=5c400ccfea0abcae6937ee8d499fbe88
+time="2024-11-27T19:40:41Z" level=debug msg="session started" spanID=980e13d82d82896d traceID=b9052c92e7838727171db46591e18f1e
+time="2024-11-27T19:40:41Z" level=debug msg="session finished: <nil>" spanID=980e13d82d82896d traceID=b9052c92e7838727171db46591e18f1e
+time="2024-11-27T19:40:41Z" level=debug msg="session started" spanID=02eea4e268de5dc4 traceID=4f9b638f292bf22088bd2e54cec1fa18
+time="2024-11-27T19:40:41Z" level=debug msg="session finished: <nil>" spanID=02eea4e268de5dc4 traceID=4f9b638f292bf22088bd2e54cec1fa18
+time="2024-11-27T19:40:41Z" level=debug msg="session started" spanID=ff65030be40283c8 traceID=3486d592b55a7c96983003ddf784cb2a
+time="2024-11-27T19:40:41Z" level=debug msg="session finished: <nil>" spanID=ff65030be40283c8 traceID=3486d592b55a7c96983003ddf784cb2a
+time="2024-11-27T19:40:41Z" level=debug msg="session started" spanID=e124798833cab9df traceID=8d06693c33f959d13ef7ba078d465cf6
+time="2024-11-27T19:40:41Z" level=debug msg="session finished: <nil>" spanID=e124798833cab9df traceID=8d06693c33f959d13ef7ba078d465cf6
+time="2024-11-27T19:40:41Z" level=debug msg="session started" spanID=e5c16557b4060fa4 traceID=f3c9c302b056ede8481648587d50bb0d
+time="2024-11-27T19:40:41Z" level=debug msg="session finished: <nil>" spanID=e5c16557b4060fa4 traceID=f3c9c302b056ede8481648587d50bb0d
+time="2024-11-27T19:40:41Z" level=debug msg="session started" spanID=dd1fc00f57c072fc traceID=fce8e9e9cc2615da769e39078e4f925f
+time="2024-11-27T19:40:41Z" level=debug msg="session finished: <nil>" spanID=dd1fc00f57c072fc traceID=fce8e9e9cc2615da769e39078e4f925f
+time="2024-11-27T19:40:41Z" level=debug msg="session started" spanID=4d0eb2406af3ced7 traceID=fa1ddce6f14236472323e7bb3f51cddc
+time="2024-11-27T19:40:41Z" level=debug msg="session finished: <nil>" spanID=4d0eb2406af3ced7 traceID=fa1ddce6f14236472323e7bb3f51cddc
+time="2024-11-27T19:40:41Z" level=debug msg="session started" spanID=87bf416fac606235 traceID=fd76bbea9423635f2e0bd607cc677829
+time="2024-11-27T19:40:41Z" level=debug msg="session finished: <nil>" spanID=87bf416fac606235 traceID=fd76bbea9423635f2e0bd607cc677829
+time="2024-11-27T19:40:41Z" level=debug msg="session started" spanID=ce6802c8aeb7f274 traceID=3d49e03c5fc2921ae115c08141fd5114
+time="2024-11-27T19:40:41Z" level=debug msg="session finished: <nil>" spanID=ce6802c8aeb7f274 traceID=3d49e03c5fc2921ae115c08141fd5114
+time="2024-11-27T19:40:41Z" level=debug msg="session started" spanID=7237deed6fe7766e traceID=c2b5c9abbc16a5bf57b01d1809a87a1a
+time="2024-11-27T19:40:41Z" level=debug msg="session finished: <nil>" spanID=7237deed6fe7766e traceID=c2b5c9abbc16a5bf57b01d1809a87a1a
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=6ffa41f18f2c46bd traceID=5de019f6a809233ad8bba50bab2ce3e3
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=6ffa41f18f2c46bd traceID=5de019f6a809233ad8bba50bab2ce3e3
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=7114f3282d6560e5 traceID=25bd759eeb81ee4c6183686de3bb2b07
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=7114f3282d6560e5 traceID=25bd759eeb81ee4c6183686de3bb2b07
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=6bc02b265a201d06 traceID=2b9f0000c9a6b6491ccf807c1707b381
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=6bc02b265a201d06 traceID=2b9f0000c9a6b6491ccf807c1707b381
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=6ee0447db35d936b traceID=6720c525988c48e8bd9651d9d3b79e4f
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=6ee0447db35d936b traceID=6720c525988c48e8bd9651d9d3b79e4f
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=c28167efb66a01b3 traceID=cbd61a4e6c9d115955a034a34b885f97
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=c28167efb66a01b3 traceID=cbd61a4e6c9d115955a034a34b885f97
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=8cc07a8747251fba traceID=28a841fbe1fe860c037ea774ea5b4e76
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=8cc07a8747251fba traceID=28a841fbe1fe860c037ea774ea5b4e76
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=42d5f42f39848873 traceID=abbd4382f90a4f42aa49192ceda4a650
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=42d5f42f39848873 traceID=abbd4382f90a4f42aa49192ceda4a650
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=be28f490dfa5ab24 traceID=f15534a3ada8cea70c373a2c5d0294dc
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=be28f490dfa5ab24 traceID=f15534a3ada8cea70c373a2c5d0294dc
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=e7fe0a6ef13c651d traceID=93f84740d3acc1054bf381e07f852edb
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=e7fe0a6ef13c651d traceID=93f84740d3acc1054bf381e07f852edb
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=62bb30f0fa64fc4e traceID=fb683453de8a00de49e1c1a0713cc8fb
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=62bb30f0fa64fc4e traceID=fb683453de8a00de49e1c1a0713cc8fb
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=8e5050b2fcaf29b3 traceID=e7d0d1914caa196f36ed347ae03f304b
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=8e5050b2fcaf29b3 traceID=e7d0d1914caa196f36ed347ae03f304b
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=a65b478837e7f310 traceID=9c72cf9aa060f984631185904fef452c
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=a65b478837e7f310 traceID=9c72cf9aa060f984631185904fef452c
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=674b66cce84501b8 traceID=155797f5b2e1bef7ed7e0beae75255a4
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=674b66cce84501b8 traceID=155797f5b2e1bef7ed7e0beae75255a4
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=14eb6651e0c355ae traceID=d1c6dc3f79d164c84732710354000420
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=14eb6651e0c355ae traceID=d1c6dc3f79d164c84732710354000420
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=5855086e2c1edf83 traceID=89b6e6a44abc2740f8db687fbab4f6a8
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=5855086e2c1edf83 traceID=89b6e6a44abc2740f8db687fbab4f6a8
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=8c04b4dc856962bf traceID=31f81fcc7f05130997cc1e933ec1ea02
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=8c04b4dc856962bf traceID=31f81fcc7f05130997cc1e933ec1ea02
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=9e9b79e30bbcb56a traceID=e2a19641b2e3cf6d3b771c52c9ae0456
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: 6vo122zq8r52u2lzzr0i86nir" span="[internal] load build definition from Dockerfile" spanID=21c9eff96dcada0f traceID=e2a19641b2e3cf6d3b771c52c9ae0456
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 1.763415ms" span="[internal] load build definition from Dockerfile" spanID=8804ae74bba28b45 traceID=e2a19641b2e3cf6d3b771c52c9ae0456
+time="2024-11-27T19:40:42Z" level=debug msg="saved 6vo122zq8r52u2lzzr0i86nir as dockerfile:dockerfile:009:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=21c9eff96dcada0f traceID=e2a19641b2e3cf6d3b771c52c9ae0456
+time="2024-11-27T19:40:42Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:42Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:42 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: ypmthkius34hvc59ciq48g4jb" span="[internal] load .dockerignore" spanID=1d9cef87c43e6e41 traceID=e2a19641b2e3cf6d3b771c52c9ae0456
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 1.157929ms" span="[internal] load .dockerignore" spanID=162827b706c3f2a7 traceID=e2a19641b2e3cf6d3b771c52c9ae0456
+time="2024-11-27T19:40:42Z" level=debug msg="saved ypmthkius34hvc59ciq48g4jb as context:context-.dockerignore:009:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=1d9cef87c43e6e41 traceID=e2a19641b2e3cf6d3b771c52c9ae0456
+time="2024-11-27T19:40:42Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=5c7a01c903241c69 traceID=7cfefa5553ec79b78cf49015a85f44c1
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=5c7a01c903241c69 traceID=7cfefa5553ec79b78cf49015a85f44c1
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: ia0vc6pm9sf642esritpcg7n4" span="[internal] load build context" spanID=8499f8ae456c3a75 traceID=e2a19641b2e3cf6d3b771c52c9ae0456
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 1.967308ms" span="[internal] load build context" spanID=e14f60e144ea7ebd traceID=e2a19641b2e3cf6d3b771c52c9ae0456
+time="2024-11-27T19:40:42Z" level=debug msg="saved ia0vc6pm9sf642esritpcg7n4 as context:context:009:97e931c2b6eb5dd4" span="[internal] load build context" spanID=8499f8ae456c3a75 traceID=e2a19641b2e3cf6d3b771c52c9ae0456
+time="2024-11-27T19:40:42Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with ozq0btrhwspzu03d5jdvjpp0e::maav43klrvt6pz558dxzzm702"
+time="2024-11-27T19:40:42Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=69ef38e8d06638fc traceID=e2a19641b2e3cf6d3b771c52c9ae0456
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=fb53a69971d644e7 traceID=4c15fb01bfaf3e1407824b18d2f0bcbb
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=fb53a69971d644e7 traceID=4c15fb01bfaf3e1407824b18d2f0bcbb
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=e45909b4cd05faf4 traceID=ec87adb4c9abcf29125dc545cda4691d
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=9e9b79e30bbcb56a traceID=e2a19641b2e3cf6d3b771c52c9ae0456
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=e45909b4cd05faf4 traceID=ec87adb4c9abcf29125dc545cda4691d
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=22285ba228b1aa9c traceID=772567a8ba3cf2b8aa9e795d46830d7e
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: yv95lglb52wrtthvguyhq3wo5" span="[internal] load build definition from Dockerfile" spanID=d492884275a98ad7 traceID=772567a8ba3cf2b8aa9e795d46830d7e
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 1.859671ms" span="[internal] load build definition from Dockerfile" spanID=2cb21b71e462e0c2 traceID=772567a8ba3cf2b8aa9e795d46830d7e
+time="2024-11-27T19:40:42Z" level=debug msg="saved yv95lglb52wrtthvguyhq3wo5 as dockerfile:dockerfile:007:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=d492884275a98ad7 traceID=772567a8ba3cf2b8aa9e795d46830d7e
+time="2024-11-27T19:40:42Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:42Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:42 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: aug0h3hk8noxkujvibsw02and" span="[internal] load .dockerignore" spanID=a330176b5be2b020 traceID=772567a8ba3cf2b8aa9e795d46830d7e
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 1.146462ms" span="[internal] load .dockerignore" spanID=dff4ec7280838d4c traceID=772567a8ba3cf2b8aa9e795d46830d7e
+time="2024-11-27T19:40:42Z" level=debug msg="saved aug0h3hk8noxkujvibsw02and as context:context-.dockerignore:007:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=a330176b5be2b020 traceID=772567a8ba3cf2b8aa9e795d46830d7e
+time="2024-11-27T19:40:42Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=f9a795e176126bc6 traceID=b9052c92e7838727171db46591e18f1e
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: u4bnb970vd22khzaankbwmb2p" span="[internal] load build context" spanID=e1d178229bb6fa1d traceID=772567a8ba3cf2b8aa9e795d46830d7e
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 2.329961ms" span="[internal] load build context" spanID=a0670ce41ff290f4 traceID=772567a8ba3cf2b8aa9e795d46830d7e
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: 332712gcnykfytmwa75ttna1a" span="[internal] load build definition from Dockerfile" spanID=17834d07adc7936d traceID=b9052c92e7838727171db46591e18f1e
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 2.000015ms" span="[internal] load build definition from Dockerfile" spanID=76ffefe785db08ba traceID=b9052c92e7838727171db46591e18f1e
+time="2024-11-27T19:40:42Z" level=debug msg="saved u4bnb970vd22khzaankbwmb2p as context:context:007:97e931c2b6eb5dd4" span="[internal] load build context" spanID=e1d178229bb6fa1d traceID=772567a8ba3cf2b8aa9e795d46830d7e
+time="2024-11-27T19:40:42Z" level=debug msg="saved 332712gcnykfytmwa75ttna1a as dockerfile:dockerfile:017:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=17834d07adc7936d traceID=b9052c92e7838727171db46591e18f1e
+time="2024-11-27T19:40:42Z" level=debug msg="load cache for [3/3] RUN cp /etc/foo /etc/bar with ozq0btrhwspzu03d5jdvjpp0e::maav43klrvt6pz558dxzzm702"
+time="2024-11-27T19:40:42Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:42Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=b80d52db7f792735 traceID=772567a8ba3cf2b8aa9e795d46830d7e
+time="2024-11-27T19:40:42Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:42 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=7cfe8acb6fcef5da traceID=4f9b638f292bf22088bd2e54cec1fa18
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: y14zyehhmataty4ywju9te21q" span="[internal] load .dockerignore" spanID=ff6a93f626cde891 traceID=b9052c92e7838727171db46591e18f1e
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 1.378645ms" span="[internal] load .dockerignore" spanID=980fbd5797a2e638 traceID=b9052c92e7838727171db46591e18f1e
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: zje9y3wzf326c9p6cfq5lw4z3" span="[internal] load build definition from Dockerfile" spanID=646631c41d78f3c2 traceID=4f9b638f292bf22088bd2e54cec1fa18
+time="2024-11-27T19:40:42Z" level=debug msg="saved y14zyehhmataty4ywju9te21q as context:context-.dockerignore:017:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=ff6a93f626cde891 traceID=b9052c92e7838727171db46591e18f1e
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 1.904226ms" span="[internal] load build definition from Dockerfile" spanID=8c29a91231131177 traceID=4f9b638f292bf22088bd2e54cec1fa18
+time="2024-11-27T19:40:42Z" level=debug msg="saved zje9y3wzf326c9p6cfq5lw4z3 as dockerfile:dockerfile:026:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=646631c41d78f3c2 traceID=4f9b638f292bf22088bd2e54cec1fa18
+time="2024-11-27T19:40:42Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=84ccff45e9dbaee5 traceID=3486d592b55a7c96983003ddf784cb2a
+time="2024-11-27T19:40:42Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:42 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: n3863ocrmrmxawlrq2uvo6gdk" span="[internal] load build context" spanID=1979f3613403ef54 traceID=b9052c92e7838727171db46591e18f1e
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 3.139707ms" span="[internal] load build context" spanID=b5c07b559230a081 traceID=b9052c92e7838727171db46591e18f1e
+time="2024-11-27T19:40:42Z" level=debug msg="saved n3863ocrmrmxawlrq2uvo6gdk as context:context:017:97e931c2b6eb5dd4" span="[internal] load build context" spanID=1979f3613403ef54 traceID=b9052c92e7838727171db46591e18f1e
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: s5o6makp40oitkis77t00wakm" span="[internal] load build definition from Dockerfile" spanID=b5b07c5432ffb461 traceID=3486d592b55a7c96983003ddf784cb2a
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 2.906505ms" span="[internal] load build definition from Dockerfile" spanID=db309b322b8501ac traceID=3486d592b55a7c96983003ddf784cb2a
+time="2024-11-27T19:40:42Z" level=debug msg="saved s5o6makp40oitkis77t00wakm as dockerfile:dockerfile:037:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=b5b07c5432ffb461 traceID=3486d592b55a7c96983003ddf784cb2a
+time="2024-11-27T19:40:42Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=92a8fc82e58cd864 traceID=b9052c92e7838727171db46591e18f1e
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: my5s6uwy1rcd823y6pxpzethd" span="[internal] load .dockerignore" spanID=cd55d41534bc18e5 traceID=4f9b638f292bf22088bd2e54cec1fa18
+time="2024-11-27T19:40:42Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 1.748383ms" span="[internal] load .dockerignore" spanID=9b202b124499ec1a traceID=4f9b638f292bf22088bd2e54cec1fa18
+time="2024-11-27T19:40:42Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg="saved my5s6uwy1rcd823y6pxpzethd as context:context-.dockerignore:026:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=cd55d41534bc18e5 traceID=4f9b638f292bf22088bd2e54cec1fa18
+time="2024-11-27T19:40:42Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:42 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=744f762225df2656 traceID=8d06693c33f959d13ef7ba078d465cf6
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: nsi4zkk6jy73n5hnd9jcafjxe" span="[internal] load build context" spanID=a707da704febe162 traceID=4f9b638f292bf22088bd2e54cec1fa18
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 1.650771ms" span="[internal] load build context" spanID=f9289a709afbb122 traceID=4f9b638f292bf22088bd2e54cec1fa18
+time="2024-11-27T19:40:42Z" level=debug msg="saved nsi4zkk6jy73n5hnd9jcafjxe as context:context:026:97e931c2b6eb5dd4" span="[internal] load build context" spanID=a707da704febe162 traceID=4f9b638f292bf22088bd2e54cec1fa18
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:42Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=1f4a34c76780a8cd traceID=4f9b638f292bf22088bd2e54cec1fa18
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: a8sjap6pan372kagn1o3uect8" span="[internal] load build definition from Dockerfile" spanID=ca525d553bfcda12 traceID=8d06693c33f959d13ef7ba078d465cf6
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 2.16441ms" span="[internal] load build definition from Dockerfile" spanID=a0793a23d2f27c9e traceID=8d06693c33f959d13ef7ba078d465cf6
+time="2024-11-27T19:40:42Z" level=debug msg="saved a8sjap6pan372kagn1o3uect8 as dockerfile:dockerfile:012:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=ca525d553bfcda12 traceID=8d06693c33f959d13ef7ba078d465cf6
+time="2024-11-27T19:40:42Z" level=debug msg="session finished: <nil>" spanID=22285ba228b1aa9c traceID=772567a8ba3cf2b8aa9e795d46830d7e
+time="2024-11-27T19:40:42Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: upji73bm0i48ivqrhf5mrehgi" span="[internal] load .dockerignore" spanID=f1686d8caee5bfa2 traceID=3486d592b55a7c96983003ddf784cb2a
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 1.933992ms" span="[internal] load .dockerignore" spanID=2ed9cbb201aefbcd traceID=3486d592b55a7c96983003ddf784cb2a
+time="2024-11-27T19:40:42Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg="saved upji73bm0i48ivqrhf5mrehgi as context:context-.dockerignore:037:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=f1686d8caee5bfa2 traceID=3486d592b55a7c96983003ddf784cb2a
+time="2024-11-27T19:40:42Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:42 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=74acfb2045e503df traceID=f3c9c302b056ede8481648587d50bb0d
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: 6mf18vd6jfrf4jkczonjgobsp" span="[internal] load build context" spanID=75a048ee4a5d089d traceID=3486d592b55a7c96983003ddf784cb2a
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 1.712463ms" span="[internal] load build context" spanID=8a3a80ca18db3ae3 traceID=3486d592b55a7c96983003ddf784cb2a
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: bpu93041qptppy5sznujfrfy7" span="[internal] load build definition from Dockerfile" spanID=96a3b785962c7be1 traceID=f3c9c302b056ede8481648587d50bb0d
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=bc3db6251a5292b1 traceID=fce8e9e9cc2615da769e39078e4f925f
+time="2024-11-27T19:40:42Z" level=debug msg="saved 6mf18vd6jfrf4jkczonjgobsp as context:context:037:97e931c2b6eb5dd4" span="[internal] load build context" spanID=75a048ee4a5d089d traceID=3486d592b55a7c96983003ddf784cb2a
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 3.275754ms" span="[internal] load build definition from Dockerfile" spanID=7ea3810d9c55eedc traceID=f3c9c302b056ede8481648587d50bb0d
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:42Z" level=debug msg="saved bpu93041qptppy5sznujfrfy7 as dockerfile:dockerfile:024:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=96a3b785962c7be1 traceID=f3c9c302b056ede8481648587d50bb0d
+time="2024-11-27T19:40:42Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:42Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=ce9b1deccafe3ae2 traceID=3486d592b55a7c96983003ddf784cb2a
+time="2024-11-27T19:40:42Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:42 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: 1rmri9gdqgrexarxv94mr8hge" span="[internal] load .dockerignore" spanID=4bc81cbd9f4de8b3 traceID=8d06693c33f959d13ef7ba078d465cf6
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 1.402923ms" span="[internal] load .dockerignore" spanID=f62a94f1d6e060a2 traceID=8d06693c33f959d13ef7ba078d465cf6
+time="2024-11-27T19:40:42Z" level=debug msg="saved 1rmri9gdqgrexarxv94mr8hge as context:context-.dockerignore:012:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=4bc81cbd9f4de8b3 traceID=8d06693c33f959d13ef7ba078d465cf6
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: ot40xs37t35xegunejg8u4rus" span="[internal] load build definition from Dockerfile" spanID=a8b7d5a9756ec570 traceID=fce8e9e9cc2615da769e39078e4f925f
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 2.108698ms" span="[internal] load build definition from Dockerfile" spanID=4ee1b19c54254641 traceID=fce8e9e9cc2615da769e39078e4f925f
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:42Z" level=debug msg="saved ot40xs37t35xegunejg8u4rus as dockerfile:dockerfile:019:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=a8b7d5a9756ec570 traceID=fce8e9e9cc2615da769e39078e4f925f
+time="2024-11-27T19:40:42Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=99a5588653c6ee74 traceID=fa1ddce6f14236472323e7bb3f51cddc
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: 02jxp0eqoh9c7hq27ttwcm9ct" span="[internal] load build context" spanID=8b94507915cd6f79 traceID=8d06693c33f959d13ef7ba078d465cf6
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 3.176805ms" span="[internal] load build context" spanID=d1c911c1aa06e2b7 traceID=8d06693c33f959d13ef7ba078d465cf6
+time="2024-11-27T19:40:42Z" level=debug msg="saved 02jxp0eqoh9c7hq27ttwcm9ct as context:context:012:97e931c2b6eb5dd4" span="[internal] load build context" spanID=8b94507915cd6f79 traceID=8d06693c33f959d13ef7ba078d465cf6
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:42Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=4b48d255b18efa90 traceID=8d06693c33f959d13ef7ba078d465cf6
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: x61f161952t2typszb97zamkk" span="[internal] load .dockerignore" spanID=30716713c8183c34 traceID=f3c9c302b056ede8481648587d50bb0d
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 2.047311ms" span="[internal] load .dockerignore" spanID=ebfd56f8e80991ec traceID=f3c9c302b056ede8481648587d50bb0d
+time="2024-11-27T19:40:42Z" level=debug msg="saved x61f161952t2typszb97zamkk as context:context-.dockerignore:024:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=30716713c8183c34 traceID=f3c9c302b056ede8481648587d50bb0d
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: wtu1a5o15mu28jj16ntni5nt5" span="[internal] load .dockerignore" spanID=7bcd99297b7f4c76 traceID=fce8e9e9cc2615da769e39078e4f925f
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 1.366448ms" span="[internal] load .dockerignore" spanID=0e885a02a7c05767 traceID=fce8e9e9cc2615da769e39078e4f925f
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=be1b418143784438 traceID=fd76bbea9423635f2e0bd607cc677829
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: 9agahskwabogj8f6mc8wn3jri" span="[internal] load build definition from Dockerfile" spanID=42717d36fb5fc0b2 traceID=fa1ddce6f14236472323e7bb3f51cddc
+time="2024-11-27T19:40:42Z" level=debug msg="saved wtu1a5o15mu28jj16ntni5nt5 as context:context-.dockerignore:019:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=7bcd99297b7f4c76 traceID=fce8e9e9cc2615da769e39078e4f925f
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 2.797644ms" span="[internal] load build definition from Dockerfile" spanID=fcfcafd8fe331c7c traceID=fa1ddce6f14236472323e7bb3f51cddc
+time="2024-11-27T19:40:42Z" level=debug msg="saved 9agahskwabogj8f6mc8wn3jri as dockerfile:dockerfile:023:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=42717d36fb5fc0b2 traceID=fa1ddce6f14236472323e7bb3f51cddc
+time="2024-11-27T19:40:42Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:42Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:42 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=139cefde69d5988a traceID=3d49e03c5fc2921ae115c08141fd5114
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: 8swi5tiwsqfx4eu26kw7voe9j" span="[internal] load build context" spanID=7c23504fd60eff7f traceID=f3c9c302b056ede8481648587d50bb0d
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 2.157946ms" span="[internal] load build context" spanID=eb311b4cc3d61cd8 traceID=f3c9c302b056ede8481648587d50bb0d
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: 19jms0ssh9p8f6jpddmc2bpy0" span="[internal] load build definition from Dockerfile" spanID=cb121ba077c2fe25 traceID=fd76bbea9423635f2e0bd607cc677829
+time="2024-11-27T19:40:42Z" level=debug msg="saved 8swi5tiwsqfx4eu26kw7voe9j as context:context:024:97e931c2b6eb5dd4" span="[internal] load build context" spanID=7c23504fd60eff7f traceID=f3c9c302b056ede8481648587d50bb0d
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 2.262462ms" span="[internal] load build definition from Dockerfile" spanID=6af85e8ed5991d99 traceID=fd76bbea9423635f2e0bd607cc677829
+time="2024-11-27T19:40:42Z" level=debug msg="saved 19jms0ssh9p8f6jpddmc2bpy0 as dockerfile:dockerfile:032:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=cb121ba077c2fe25 traceID=fd76bbea9423635f2e0bd607cc677829
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: entw2jh146fc1ts8kdeyz5eo6" span="[internal] load build context" spanID=5c02eb1a65c6eeec traceID=fce8e9e9cc2615da769e39078e4f925f
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:42Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 2.429715ms" span="[internal] load build context" spanID=268d4575770a5f19 traceID=fce8e9e9cc2615da769e39078e4f925f
+time="2024-11-27T19:40:42Z" level=debug msg="saved entw2jh146fc1ts8kdeyz5eo6 as context:context:019:97e931c2b6eb5dd4" span="[internal] load build context" spanID=5c02eb1a65c6eeec traceID=fce8e9e9cc2615da769e39078e4f925f
+time="2024-11-27T19:40:42Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=a14440b7055bbc87 traceID=f3c9c302b056ede8481648587d50bb0d
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:42Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=32d570110eff9b8a traceID=fce8e9e9cc2615da769e39078e4f925f
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: ggf3jx5jtoy2drikvsfy6hf7k" span="[internal] load build definition from Dockerfile" spanID=28a2f5cff369f3b4 traceID=3d49e03c5fc2921ae115c08141fd5114
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 1.857176ms" span="[internal] load build definition from Dockerfile" spanID=258518d86ccb8e95 traceID=3d49e03c5fc2921ae115c08141fd5114
+time="2024-11-27T19:40:42Z" level=debug msg="saved ggf3jx5jtoy2drikvsfy6hf7k as dockerfile:dockerfile:028:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=28a2f5cff369f3b4 traceID=3d49e03c5fc2921ae115c08141fd5114
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=e2e8a419963f5bdd traceID=c2b5c9abbc16a5bf57b01d1809a87a1a
+time="2024-11-27T19:40:42Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:42Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:42 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: sqush7g7q2arafvzpn3b9i9r9" span="[internal] load .dockerignore" spanID=6e84d51a8d258377 traceID=fd76bbea9423635f2e0bd607cc677829
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 2.560016ms" span="[internal] load .dockerignore" spanID=e0e4d0b25faa305e traceID=fd76bbea9423635f2e0bd607cc677829
+time="2024-11-27T19:40:42Z" level=debug msg="saved sqush7g7q2arafvzpn3b9i9r9 as context:context-.dockerignore:032:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=6e84d51a8d258377 traceID=fd76bbea9423635f2e0bd607cc677829
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: xccrzi63xl9lwzg868jiziwug" span="[internal] load .dockerignore" spanID=c74870075dc06bcb traceID=fa1ddce6f14236472323e7bb3f51cddc
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 1.086675ms" span="[internal] load .dockerignore" spanID=0eb929f1670d7881 traceID=fa1ddce6f14236472323e7bb3f51cddc
+time="2024-11-27T19:40:42Z" level=debug msg="saved xccrzi63xl9lwzg868jiziwug as context:context-.dockerignore:023:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=c74870075dc06bcb traceID=fa1ddce6f14236472323e7bb3f51cddc
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=a9ae064a1ef5b96c traceID=5de019f6a809233ad8bba50bab2ce3e3
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: x60syoddgz2b0fgzldb0iejio" span="[internal] load build definition from Dockerfile" spanID=17737732ac864dc4 traceID=c2b5c9abbc16a5bf57b01d1809a87a1a
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 2.374576ms" span="[internal] load build definition from Dockerfile" spanID=c4712850f3b44f84 traceID=c2b5c9abbc16a5bf57b01d1809a87a1a
+time="2024-11-27T19:40:42Z" level=debug msg="saved x60syoddgz2b0fgzldb0iejio as dockerfile:dockerfile:013:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=17737732ac864dc4 traceID=c2b5c9abbc16a5bf57b01d1809a87a1a
+time="2024-11-27T19:40:42Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=52a98be98263a964 traceID=25bd759eeb81ee4c6183686de3bb2b07
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: yfqcjw91fps0j05sgumeql09m" span="[internal] load build context" spanID=1c6e7d458491434b traceID=fd76bbea9423635f2e0bd607cc677829
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 2.018882ms" span="[internal] load build context" spanID=59cc74c32619d9da traceID=fd76bbea9423635f2e0bd607cc677829
+time="2024-11-27T19:40:42Z" level=debug msg="saved yfqcjw91fps0j05sgumeql09m as context:context:032:97e931c2b6eb5dd4" span="[internal] load build context" spanID=1c6e7d458491434b traceID=fd76bbea9423635f2e0bd607cc677829
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: 3woy7rwrynpfxmsx998zmexds" span="[internal] load build context" spanID=aff671ad25b36ad5 traceID=fa1ddce6f14236472323e7bb3f51cddc
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 3.76242ms" span="[internal] load build context" spanID=0e99d5a5307a829e traceID=fa1ddce6f14236472323e7bb3f51cddc
+time="2024-11-27T19:40:42Z" level=debug msg="saved 3woy7rwrynpfxmsx998zmexds as context:context:023:97e931c2b6eb5dd4" span="[internal] load build context" spanID=aff671ad25b36ad5 traceID=fa1ddce6f14236472323e7bb3f51cddc
+time="2024-11-27T19:40:42Z" level=debug msg="new ref for local: vbjdgau1xajhd330ck6inmtkw" span="[internal] load build definition from Dockerfile" spanID=32c549681d62bc08 traceID=5de019f6a809233ad8bba50bab2ce3e3
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:42Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:42Z" level=debug msg="diffcopy took: 2.264385ms" span="[internal] load build definition from Dockerfile" spanID=b7ed220fc6b4894b traceID=5de019f6a809233ad8bba50bab2ce3e3
+time="2024-11-27T19:40:42Z" level=debug msg="saved vbjdgau1xajhd330ck6inmtkw as dockerfile:dockerfile:034:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=32c549681d62bc08 traceID=5de019f6a809233ad8bba50bab2ce3e3
+time="2024-11-27T19:40:42Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:42Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=583ae8896c24de61 traceID=fd76bbea9423635f2e0bd607cc677829
+time="2024-11-27T19:40:42Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=6478fa77ab6028ba traceID=fa1ddce6f14236472323e7bb3f51cddc
+time="2024-11-27T19:40:42Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:42 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:42Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:42Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:42Z" level=debug msg="session started" spanID=e19d809a630221d2 traceID=2b9f0000c9a6b6491ccf807c1707b381
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: ie04ey8sqezrsaluk18vugqfd" span="[internal] load .dockerignore" spanID=139a58ef6498dcca traceID=3d49e03c5fc2921ae115c08141fd5114
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.347477ms" span="[internal] load .dockerignore" spanID=e6b9cdee7ff7eaec traceID=3d49e03c5fc2921ae115c08141fd5114
+time="2024-11-27T19:40:43Z" level=debug msg="saved ie04ey8sqezrsaluk18vugqfd as context:context-.dockerignore:028:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=139a58ef6498dcca traceID=3d49e03c5fc2921ae115c08141fd5114
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: endena4x522724ng5th7i7b1q" span="[internal] load .dockerignore" spanID=c3959545e5319305 traceID=c2b5c9abbc16a5bf57b01d1809a87a1a
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.380356ms" span="[internal] load .dockerignore" spanID=68fd9edfaf6061fa traceID=c2b5c9abbc16a5bf57b01d1809a87a1a
+time="2024-11-27T19:40:43Z" level=debug msg="saved endena4x522724ng5th7i7b1q as context:context-.dockerignore:013:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=c3959545e5319305 traceID=c2b5c9abbc16a5bf57b01d1809a87a1a
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: iwwtfgvpnavkczvkprb4x6ce9" span="[internal] load build definition from Dockerfile" spanID=ee7942f89aea968c traceID=25bd759eeb81ee4c6183686de3bb2b07
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 2.519715ms" span="[internal] load build definition from Dockerfile" spanID=fddf3b86da96a5d8 traceID=25bd759eeb81ee4c6183686de3bb2b07
+time="2024-11-27T19:40:43Z" level=debug msg="saved iwwtfgvpnavkczvkprb4x6ce9 as dockerfile:dockerfile:014:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=ee7942f89aea968c traceID=25bd759eeb81ee4c6183686de3bb2b07
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=2e28e4ae184acc74 traceID=cbd61a4e6c9d115955a034a34b885f97
+time="2024-11-27T19:40:43Z" level=debug msg="session finished: <nil>" spanID=f9a795e176126bc6 traceID=b9052c92e7838727171db46591e18f1e
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: 1zzpkrawcitjptmk64v4s3ww4" span="[internal] load build definition from Dockerfile" spanID=383d990ffa6fdba0 traceID=2b9f0000c9a6b6491ccf807c1707b381
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 2.661908ms" span="[internal] load build definition from Dockerfile" spanID=64c8b0a68d4e683f traceID=2b9f0000c9a6b6491ccf807c1707b381
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=af911988665e88d1 traceID=28a841fbe1fe860c037ea774ea5b4e76
+time="2024-11-27T19:40:43Z" level=debug msg="saved 1zzpkrawcitjptmk64v4s3ww4 as dockerfile:dockerfile:011:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=383d990ffa6fdba0 traceID=2b9f0000c9a6b6491ccf807c1707b381
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: xjex8uspm416g172fx9k03td1" span="[internal] load build context" spanID=0a11b68258ec71a4 traceID=3d49e03c5fc2921ae115c08141fd5114
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: i8o1fxzoxg9c7bx91t2a2dov9" span="[internal] load build context" spanID=97980fa135d17a83 traceID=c2b5c9abbc16a5bf57b01d1809a87a1a
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 2.478607ms" span="[internal] load build context" spanID=5754db583f09429a traceID=3d49e03c5fc2921ae115c08141fd5114
+time="2024-11-27T19:40:43Z" level=debug msg="saved xjex8uspm416g172fx9k03td1 as context:context:028:97e931c2b6eb5dd4" span="[internal] load build context" spanID=0a11b68258ec71a4 traceID=3d49e03c5fc2921ae115c08141fd5114
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.915575ms" span="[internal] load build context" spanID=9151b046fee2af7a traceID=c2b5c9abbc16a5bf57b01d1809a87a1a
+time="2024-11-27T19:40:43Z" level=debug msg="saved i8o1fxzoxg9c7bx91t2a2dov9 as context:context:013:97e931c2b6eb5dd4" span="[internal] load build context" spanID=97980fa135d17a83 traceID=c2b5c9abbc16a5bf57b01d1809a87a1a
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:43Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:43Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:43 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:43Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:43Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: 38mpnfgouecghus83jx1t2b8j" span="[internal] load build definition from Dockerfile" spanID=c73c798a7c98c139 traceID=cbd61a4e6c9d115955a034a34b885f97
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 4.673002ms" span="[internal] load build definition from Dockerfile" spanID=1ffbac02e4a32e2a traceID=cbd61a4e6c9d115955a034a34b885f97
+time="2024-11-27T19:40:43Z" level=debug msg="saved 38mpnfgouecghus83jx1t2b8j as dockerfile:dockerfile:008:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=c73c798a7c98c139 traceID=cbd61a4e6c9d115955a034a34b885f97
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=29c42e0e684c5cef traceID=3d49e03c5fc2921ae115c08141fd5114
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=8eec06dd89ca295b traceID=c2b5c9abbc16a5bf57b01d1809a87a1a
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=8e772d3398a0de9e traceID=abbd4382f90a4f42aa49192ceda4a650
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: xphja650t9rw4c2juilghx98g" span="[internal] load .dockerignore" spanID=a93c87364e9efb7a traceID=5de019f6a809233ad8bba50bab2ce3e3
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: u38k6tn6bo1ci89x39xgbwe8o" span="[internal] load .dockerignore" spanID=68440e245a6d8f88 traceID=25bd759eeb81ee4c6183686de3bb2b07
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.372541ms" span="[internal] load .dockerignore" spanID=7dc245981f1bfd8e traceID=5de019f6a809233ad8bba50bab2ce3e3
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.096531ms" span="[internal] load .dockerignore" spanID=d3ac0c3b8e58f177 traceID=25bd759eeb81ee4c6183686de3bb2b07
+time="2024-11-27T19:40:43Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:43Z" level=debug msg="saved xphja650t9rw4c2juilghx98g as context:context-.dockerignore:034:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=a93c87364e9efb7a traceID=5de019f6a809233ad8bba50bab2ce3e3
+time="2024-11-27T19:40:43Z" level=debug msg="saved u38k6tn6bo1ci89x39xgbwe8o as context:context-.dockerignore:014:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=68440e245a6d8f88 traceID=25bd759eeb81ee4c6183686de3bb2b07
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: q9dmkacufmarmhv7k49803jtn" span="[internal] load build definition from Dockerfile" spanID=c90f62c6a7d968aa traceID=28a841fbe1fe860c037ea774ea5b4e76
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 5.356445ms" span="[internal] load build definition from Dockerfile" spanID=9aa0c4f2798d5644 traceID=28a841fbe1fe860c037ea774ea5b4e76
+time="2024-11-27T19:40:43Z" level=debug msg="saved q9dmkacufmarmhv7k49803jtn as dockerfile:dockerfile:036:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=c90f62c6a7d968aa traceID=28a841fbe1fe860c037ea774ea5b4e76
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=95ab3cceb68249fa traceID=f15534a3ada8cea70c373a2c5d0294dc
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: s213fljp49exc3id5m2x82fp8" span="[internal] load build definition from Dockerfile" spanID=13e3fbe226a7700f traceID=abbd4382f90a4f42aa49192ceda4a650
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.968262ms" span="[internal] load build definition from Dockerfile" spanID=ddd218fbb374b3f0 traceID=abbd4382f90a4f42aa49192ceda4a650
+time="2024-11-27T19:40:43Z" level=debug msg="saved s213fljp49exc3id5m2x82fp8 as dockerfile:dockerfile:029:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=13e3fbe226a7700f traceID=abbd4382f90a4f42aa49192ceda4a650
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=fc6e91517229e53d traceID=93f84740d3acc1054bf381e07f852edb
+time="2024-11-27T19:40:43Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:43Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:43Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:43 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:43Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:43Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: gs3lrcczyobm5u4zzeof6lb6r" span="[internal] load .dockerignore" spanID=059486ab4f819882 traceID=2b9f0000c9a6b6491ccf807c1707b381
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: o72umwhilhqv8quo7o5cmzhwm" span="[internal] load .dockerignore" spanID=5534a55d046296c8 traceID=28a841fbe1fe860c037ea774ea5b4e76
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.584712ms" span="[internal] load .dockerignore" spanID=c42c45d38529cbdc traceID=2b9f0000c9a6b6491ccf807c1707b381
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.397118ms" span="[internal] load .dockerignore" spanID=7b80fc4f52e79de3 traceID=28a841fbe1fe860c037ea774ea5b4e76
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: l00q3ski9f8eoz7jxrhoixshi" span="[internal] load .dockerignore" spanID=c7b6d15588d2bbe2 traceID=cbd61a4e6c9d115955a034a34b885f97
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.422846ms" span="[internal] load .dockerignore" spanID=61c5c178d6a77dba traceID=cbd61a4e6c9d115955a034a34b885f97
+time="2024-11-27T19:40:43Z" level=debug msg="saved o72umwhilhqv8quo7o5cmzhwm as context:context-.dockerignore:036:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=5534a55d046296c8 traceID=28a841fbe1fe860c037ea774ea5b4e76
+time="2024-11-27T19:40:43Z" level=debug msg="saved gs3lrcczyobm5u4zzeof6lb6r as context:context-.dockerignore:011:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=059486ab4f819882 traceID=2b9f0000c9a6b6491ccf807c1707b381
+time="2024-11-27T19:40:43Z" level=debug msg="saved l00q3ski9f8eoz7jxrhoixshi as context:context-.dockerignore:008:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=c7b6d15588d2bbe2 traceID=cbd61a4e6c9d115955a034a34b885f97
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: ugu6vv16yozxr2yq47yt52lzw" span="[internal] load build definition from Dockerfile" spanID=d103352ca3a4a783 traceID=f15534a3ada8cea70c373a2c5d0294dc
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=42a9fc60d9631e5b traceID=e7d0d1914caa196f36ed347ae03f304b
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 4.579477ms" span="[internal] load build definition from Dockerfile" spanID=601d495caa2d5233 traceID=f15534a3ada8cea70c373a2c5d0294dc
+time="2024-11-27T19:40:43Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:43Z" level=debug msg="saved ugu6vv16yozxr2yq47yt52lzw as dockerfile:dockerfile:006:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=d103352ca3a4a783 traceID=f15534a3ada8cea70c373a2c5d0294dc
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: wpv7xybna8rv29p2z1rbic82w" span="[internal] load build definition from Dockerfile" spanID=ebb76f8e2b005eb8 traceID=93f84740d3acc1054bf381e07f852edb
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 2.595905ms" span="[internal] load build definition from Dockerfile" spanID=5f0df07db0b07dee traceID=93f84740d3acc1054bf381e07f852edb
+time="2024-11-27T19:40:43Z" level=debug msg="saved wpv7xybna8rv29p2z1rbic82w as dockerfile:dockerfile:033:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=ebb76f8e2b005eb8 traceID=93f84740d3acc1054bf381e07f852edb
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=c246491a5834797e traceID=9c72cf9aa060f984631185904fef452c
+time="2024-11-27T19:40:43Z" level=debug msg="session finished: <nil>" spanID=7cfe8acb6fcef5da traceID=4f9b638f292bf22088bd2e54cec1fa18
+time="2024-11-27T19:40:43Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:43Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:43Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:43 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:43Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:43Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: ovgdhuanp0a5df33awkdh55tc" span="[internal] load build definition from Dockerfile" spanID=f089efee2d0fcf1e traceID=e7d0d1914caa196f36ed347ae03f304b
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 2.133184ms" span="[internal] load build definition from Dockerfile" spanID=0c6c2e6a2de4a6db traceID=e7d0d1914caa196f36ed347ae03f304b
+time="2024-11-27T19:40:43Z" level=debug msg="saved ovgdhuanp0a5df33awkdh55tc as dockerfile:dockerfile:021:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=f089efee2d0fcf1e traceID=e7d0d1914caa196f36ed347ae03f304b
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: cm58rzcjvdvjqjbru1cptm74r" span="[internal] load build context" spanID=3f7b9788e264b632 traceID=5de019f6a809233ad8bba50bab2ce3e3
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=ea0e7cd48c375e92 traceID=155797f5b2e1bef7ed7e0beae75255a4
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: jbqj7epae8stk583f17786oet" span="[internal] load build context" spanID=9f0331471de8af37 traceID=25bd759eeb81ee4c6183686de3bb2b07
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 2.325401ms" span="[internal] load build context" spanID=f967251d234f82bd traceID=5de019f6a809233ad8bba50bab2ce3e3
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: n4r02r2fedr5ylihrg6hfuh1v" span="[internal] load build context" spanID=b45965ee641542fa traceID=2b9f0000c9a6b6491ccf807c1707b381
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 3.258263ms" span="[internal] load build context" spanID=16f6760b68b62208 traceID=25bd759eeb81ee4c6183686de3bb2b07
+time="2024-11-27T19:40:43Z" level=debug msg="saved cm58rzcjvdvjqjbru1cptm74r as context:context:034:97e931c2b6eb5dd4" span="[internal] load build context" spanID=3f7b9788e264b632 traceID=5de019f6a809233ad8bba50bab2ce3e3
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 2.548347ms" span="[internal] load build context" spanID=82f323d849b41817 traceID=2b9f0000c9a6b6491ccf807c1707b381
+time="2024-11-27T19:40:43Z" level=debug msg="saved n4r02r2fedr5ylihrg6hfuh1v as context:context:011:97e931c2b6eb5dd4" span="[internal] load build context" spanID=b45965ee641542fa traceID=2b9f0000c9a6b6491ccf807c1707b381
+time="2024-11-27T19:40:43Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:43Z" level=debug msg="saved jbqj7epae8stk583f17786oet as context:context:014:97e931c2b6eb5dd4" span="[internal] load build context" spanID=9f0331471de8af37 traceID=25bd759eeb81ee4c6183686de3bb2b07
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: n0lhqf32mouohimnvqiufz7ge" span="[internal] load .dockerignore" spanID=b13c8de0b9e5783d traceID=f15534a3ada8cea70c373a2c5d0294dc
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.534702ms" span="[internal] load .dockerignore" spanID=08634fd10cbe990a traceID=f15534a3ada8cea70c373a2c5d0294dc
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: iev22dqnslochjoxzbxydclie" span="[internal] load .dockerignore" spanID=9dd377a5b8a26128 traceID=abbd4382f90a4f42aa49192ceda4a650
+time="2024-11-27T19:40:43Z" level=debug msg="saved n0lhqf32mouohimnvqiufz7ge as context:context-.dockerignore:006:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=b13c8de0b9e5783d traceID=f15534a3ada8cea70c373a2c5d0294dc
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.136474ms" span="[internal] load .dockerignore" spanID=c90203a989386dcb traceID=abbd4382f90a4f42aa49192ceda4a650
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: srtsoaj6vyk2q9p43th33bxdu" span="[internal] load build definition from Dockerfile" spanID=98b1c56315697bc7 traceID=9c72cf9aa060f984631185904fef452c
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="saved iev22dqnslochjoxzbxydclie as context:context-.dockerignore:029:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=9dd377a5b8a26128 traceID=abbd4382f90a4f42aa49192ceda4a650
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 4.681356ms" span="[internal] load build definition from Dockerfile" spanID=8834d5223ed1dab1 traceID=9c72cf9aa060f984631185904fef452c
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="saved srtsoaj6vyk2q9p43th33bxdu as dockerfile:dockerfile:022:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=98b1c56315697bc7 traceID=9c72cf9aa060f984631185904fef452c
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=b04100dcac7d2e15 traceID=5de019f6a809233ad8bba50bab2ce3e3
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=58e9fa1ae123f68c traceID=d1c6dc3f79d164c84732710354000420
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=eb0042a865a9b4d2 traceID=25bd759eeb81ee4c6183686de3bb2b07
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=fd2913c09d705ddf traceID=2b9f0000c9a6b6491ccf807c1707b381
+time="2024-11-27T19:40:43Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:43Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: kckm5h90xtbfmcbahdjf0kidz" span="[internal] load build definition from Dockerfile" spanID=edff864a15797990 traceID=155797f5b2e1bef7ed7e0beae75255a4
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 2.894863ms" span="[internal] load build definition from Dockerfile" spanID=c67d1d1a1476686a traceID=155797f5b2e1bef7ed7e0beae75255a4
+time="2024-11-27T19:40:43Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:43 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:43Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:43Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:43Z" level=debug msg="saved kckm5h90xtbfmcbahdjf0kidz as dockerfile:dockerfile:030:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=edff864a15797990 traceID=155797f5b2e1bef7ed7e0beae75255a4
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=4daf69474285ab2c traceID=89b6e6a44abc2740f8db687fbab4f6a8
+time="2024-11-27T19:40:43Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: e5368kwcdoi9ihg787cpa5tbu" span="[internal] load build context" spanID=a7b6d36ecd59a929 traceID=cbd61a4e6c9d115955a034a34b885f97
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.818355ms" span="[internal] load build context" spanID=c8da696175aefd8b traceID=cbd61a4e6c9d115955a034a34b885f97
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: kt1vo0p9locp6ds4tjmd3iue6" span="[internal] load build context" spanID=28e7195197449aed traceID=28a841fbe1fe860c037ea774ea5b4e76
+time="2024-11-27T19:40:43Z" level=debug msg="saved e5368kwcdoi9ihg787cpa5tbu as context:context:008:97e931c2b6eb5dd4" span="[internal] load build context" spanID=a7b6d36ecd59a929 traceID=cbd61a4e6c9d115955a034a34b885f97
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 3.442325ms" span="[internal] load build context" spanID=c709185deb9204cf traceID=28a841fbe1fe860c037ea774ea5b4e76
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: 0t0w3p19s4mo2kotfjg6ulb57" span="[internal] load .dockerignore" spanID=bd45927e62228e85 traceID=93f84740d3acc1054bf381e07f852edb
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.362856ms" span="[internal] load .dockerignore" spanID=50905223f20a45fe traceID=93f84740d3acc1054bf381e07f852edb
+time="2024-11-27T19:40:43Z" level=debug msg="saved kt1vo0p9locp6ds4tjmd3iue6 as context:context:036:97e931c2b6eb5dd4" span="[internal] load build context" spanID=28e7195197449aed traceID=28a841fbe1fe860c037ea774ea5b4e76
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: qsto9mukx80ad7dhyk7wr91uj" span="[internal] load .dockerignore" spanID=29c50427a34c6bee traceID=e7d0d1914caa196f36ed347ae03f304b
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=381ea103889bf819 traceID=31f81fcc7f05130997cc1e933ec1ea02
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.489442ms" span="[internal] load .dockerignore" spanID=125a0182c0665d9c traceID=e7d0d1914caa196f36ed347ae03f304b
+time="2024-11-27T19:40:43Z" level=debug msg="saved 0t0w3p19s4mo2kotfjg6ulb57 as context:context-.dockerignore:033:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=bd45927e62228e85 traceID=93f84740d3acc1054bf381e07f852edb
+time="2024-11-27T19:40:43Z" level=debug msg="saved qsto9mukx80ad7dhyk7wr91uj as context:context-.dockerignore:021:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=29c50427a34c6bee traceID=e7d0d1914caa196f36ed347ae03f304b
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: nsi1z3u36smstjzr7njzg135d" span="[internal] load build context" spanID=fd105ffac02af690 traceID=abbd4382f90a4f42aa49192ceda4a650
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: etke4gjam728dgceswk7yjeya" span="[internal] load build context" spanID=5a835726ec640cb9 traceID=f15534a3ada8cea70c373a2c5d0294dc
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 2.339707ms" span="[internal] load build context" spanID=6f09c307879d31b6 traceID=abbd4382f90a4f42aa49192ceda4a650
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 2.056915ms" span="[internal] load build context" spanID=c7ad9e65cea2c844 traceID=f15534a3ada8cea70c373a2c5d0294dc
+time="2024-11-27T19:40:43Z" level=debug msg="saved nsi1z3u36smstjzr7njzg135d as context:context:029:97e931c2b6eb5dd4" span="[internal] load build context" spanID=fd105ffac02af690 traceID=abbd4382f90a4f42aa49192ceda4a650
+time="2024-11-27T19:40:43Z" level=debug msg="saved etke4gjam728dgceswk7yjeya as context:context:006:97e931c2b6eb5dd4" span="[internal] load build context" spanID=5a835726ec640cb9 traceID=f15534a3ada8cea70c373a2c5d0294dc
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: za2u0cfm4gkqytnouh774ire5" span="[internal] load build definition from Dockerfile" spanID=29f567e9b89ed4aa traceID=d1c6dc3f79d164c84732710354000420
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 2.282525ms" span="[internal] load build definition from Dockerfile" spanID=29c06c9b84cdea47 traceID=d1c6dc3f79d164c84732710354000420
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="saved za2u0cfm4gkqytnouh774ire5 as dockerfile:dockerfile:016:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=29f567e9b89ed4aa traceID=d1c6dc3f79d164c84732710354000420
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=54abcb9bb9e21b6f traceID=7cfefa5553ec79b78cf49015a85f44c1
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: ikq8q1hulncr5i97cs2y8tgc2" span="[internal] load build definition from Dockerfile" spanID=88adc6aafd5f842b traceID=89b6e6a44abc2740f8db687fbab4f6a8
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 2.16854ms" span="[internal] load build definition from Dockerfile" spanID=05057bd859afe09c traceID=89b6e6a44abc2740f8db687fbab4f6a8
+time="2024-11-27T19:40:43Z" level=debug msg="saved ikq8q1hulncr5i97cs2y8tgc2 as dockerfile:dockerfile:010:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=88adc6aafd5f842b traceID=89b6e6a44abc2740f8db687fbab4f6a8
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=20d44b12f5457803 traceID=cbd61a4e6c9d115955a034a34b885f97
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=dffdcf14010ea7ff traceID=abbd4382f90a4f42aa49192ceda4a650
+time="2024-11-27T19:40:43Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:43Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=080ef0f1e38d1218 traceID=28a841fbe1fe860c037ea774ea5b4e76
+time="2024-11-27T19:40:43Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:43 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:43Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:43Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=f1c46529eda4674e traceID=f15534a3ada8cea70c373a2c5d0294dc
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=12e5084ccdb97f19 traceID=4c15fb01bfaf3e1407824b18d2f0bcbb
+time="2024-11-27T19:40:43Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: 7oml65br92giug5409tt8vhsd" span="[internal] load build definition from Dockerfile" spanID=603877ca803b0478 traceID=31f81fcc7f05130997cc1e933ec1ea02
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 2.326713ms" span="[internal] load build definition from Dockerfile" spanID=d2455d01f11dcf98 traceID=31f81fcc7f05130997cc1e933ec1ea02
+time="2024-11-27T19:40:43Z" level=debug msg="saved 7oml65br92giug5409tt8vhsd as dockerfile:dockerfile:015:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=603877ca803b0478 traceID=31f81fcc7f05130997cc1e933ec1ea02
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=47ab2234f6cefaa0 traceID=ec87adb4c9abcf29125dc545cda4691d
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: sekrgz1oc9q4flr81wo2006j5" span="[internal] load .dockerignore" spanID=d1a29ecd3c4970c2 traceID=155797f5b2e1bef7ed7e0beae75255a4
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.27809ms" span="[internal] load .dockerignore" spanID=52752a63726dca44 traceID=155797f5b2e1bef7ed7e0beae75255a4
+time="2024-11-27T19:40:43Z" level=debug msg="saved sekrgz1oc9q4flr81wo2006j5 as context:context-.dockerignore:030:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=d1a29ecd3c4970c2 traceID=155797f5b2e1bef7ed7e0beae75255a4
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: 9axs981y2iinz3n1ietkj535q" span="[internal] load .dockerignore" spanID=18e7cf4803ace0a5 traceID=9c72cf9aa060f984631185904fef452c
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.058792ms" span="[internal] load .dockerignore" spanID=514a0346b884be12 traceID=9c72cf9aa060f984631185904fef452c
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: uzq9cdgchixirss8q9r4knhpj" span="[internal] load build context" spanID=3ff45c08f2767b93 traceID=93f84740d3acc1054bf381e07f852edb
+time="2024-11-27T19:40:43Z" level=debug msg="saved 9axs981y2iinz3n1ietkj535q as context:context-.dockerignore:022:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=18e7cf4803ace0a5 traceID=9c72cf9aa060f984631185904fef452c
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.817974ms" span="[internal] load build context" spanID=eb5eaf950b02dbf5 traceID=93f84740d3acc1054bf381e07f852edb
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: 2jbwjbk3z64ysvk3poyqco9xy" span="[internal] load build context" spanID=2188a72ad98031c7 traceID=e7d0d1914caa196f36ed347ae03f304b
+time="2024-11-27T19:40:43Z" level=debug msg="saved uzq9cdgchixirss8q9r4knhpj as context:context:033:97e931c2b6eb5dd4" span="[internal] load build context" spanID=3ff45c08f2767b93 traceID=93f84740d3acc1054bf381e07f852edb
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.804636ms" span="[internal] load build context" spanID=62ebd15aa406ef30 traceID=e7d0d1914caa196f36ed347ae03f304b
+time="2024-11-27T19:40:43Z" level=debug msg="saved 2jbwjbk3z64ysvk3poyqco9xy as context:context:021:97e931c2b6eb5dd4" span="[internal] load build context" spanID=2188a72ad98031c7 traceID=e7d0d1914caa196f36ed347ae03f304b
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: 4miaqhd5h9voy2g0f4tbc30a7" span="[internal] load build definition from Dockerfile" spanID=1fc378593edb703f traceID=7cfefa5553ec79b78cf49015a85f44c1
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 3.480608ms" span="[internal] load build definition from Dockerfile" spanID=498176fceb7d1c75 traceID=7cfefa5553ec79b78cf49015a85f44c1
+time="2024-11-27T19:40:43Z" level=debug msg="saved 4miaqhd5h9voy2g0f4tbc30a7 as dockerfile:dockerfile:035:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=1fc378593edb703f traceID=7cfefa5553ec79b78cf49015a85f44c1
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=8b7bcb6ffdc38d12 traceID=5c400ccfea0abcae6937ee8d499fbe88
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=55d76fb6e3df0e36 traceID=93f84740d3acc1054bf381e07f852edb
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=81677be284672371 traceID=e7d0d1914caa196f36ed347ae03f304b
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=69e15fc5c99355e6 traceID=6720c525988c48e8bd9651d9d3b79e4f
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: itnj00nzie79r786lqg3nme0e" span="[internal] load build definition from Dockerfile" spanID=958851b07a7d7628 traceID=4c15fb01bfaf3e1407824b18d2f0bcbb
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.765052ms" span="[internal] load build definition from Dockerfile" spanID=1adf67006cf38964 traceID=4c15fb01bfaf3e1407824b18d2f0bcbb
+time="2024-11-27T19:40:43Z" level=debug msg="saved itnj00nzie79r786lqg3nme0e as dockerfile:dockerfile:027:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=958851b07a7d7628 traceID=4c15fb01bfaf3e1407824b18d2f0bcbb
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg="session started" spanID=6606a4413bd819b5 traceID=fb683453de8a00de49e1c1a0713cc8fb
+time="2024-11-27T19:40:43Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:43Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:43Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:43 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:43Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:43Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: 2p4y7ri97r0bkbzqp57mndh2x" span="[internal] load build definition from Dockerfile" spanID=47bcfc78e649e108 traceID=ec87adb4c9abcf29125dc545cda4691d
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.690257ms" span="[internal] load build definition from Dockerfile" spanID=87f0a25448313b12 traceID=ec87adb4c9abcf29125dc545cda4691d
+time="2024-11-27T19:40:43Z" level=debug msg="saved 2p4y7ri97r0bkbzqp57mndh2x as dockerfile:dockerfile:031:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=47bcfc78e649e108 traceID=ec87adb4c9abcf29125dc545cda4691d
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: vfcnytbdcd4bt7gvpiyfgr3qb" span="[internal] load .dockerignore" spanID=081ff19591d49c06 traceID=31f81fcc7f05130997cc1e933ec1ea02
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.300329ms" span="[internal] load .dockerignore" spanID=f7febdf784bd49cd traceID=31f81fcc7f05130997cc1e933ec1ea02
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: qzt32ilae5o6l19q3tdtx2ttl" span="[internal] load build definition from Dockerfile" spanID=fe177b25a9bb2240 traceID=5c400ccfea0abcae6937ee8d499fbe88
+time="2024-11-27T19:40:43Z" level=debug msg="saved vfcnytbdcd4bt7gvpiyfgr3qb as context:context-.dockerignore:015:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=081ff19591d49c06 traceID=31f81fcc7f05130997cc1e933ec1ea02
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: tieqlt52d1pdyk4vu36ba3oe3" span="[internal] load .dockerignore" spanID=abc97fdfe38c2ea7 traceID=d1c6dc3f79d164c84732710354000420
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 3.106786ms" span="[internal] load build definition from Dockerfile" spanID=dc68f4732f8e266d traceID=5c400ccfea0abcae6937ee8d499fbe88
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.101228ms" span="[internal] load .dockerignore" spanID=4c6985949489e5c2 traceID=d1c6dc3f79d164c84732710354000420
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: jx759l3n52khf5fxnu322ymtp" span="[internal] load .dockerignore" spanID=470a69a32dd8191c traceID=7cfefa5553ec79b78cf49015a85f44c1
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.051712ms" span="[internal] load .dockerignore" spanID=b8b18f0b36af4c6f traceID=7cfefa5553ec79b78cf49015a85f44c1
+time="2024-11-27T19:40:43Z" level=debug msg="saved tieqlt52d1pdyk4vu36ba3oe3 as context:context-.dockerignore:016:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=abc97fdfe38c2ea7 traceID=d1c6dc3f79d164c84732710354000420
+time="2024-11-27T19:40:43Z" level=debug msg="saved jx759l3n52khf5fxnu322ymtp as context:context-.dockerignore:035:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=470a69a32dd8191c traceID=7cfefa5553ec79b78cf49015a85f44c1
+time="2024-11-27T19:40:43Z" level=debug msg="saved qzt32ilae5o6l19q3tdtx2ttl as dockerfile:dockerfile:025:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=fe177b25a9bb2240 traceID=5c400ccfea0abcae6937ee8d499fbe88
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: pqqnh2v2nvsc8onf0tr0ar2t0" span="[internal] load .dockerignore" spanID=26daeaf60fd13ddc traceID=89b6e6a44abc2740f8db687fbab4f6a8
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 964.352µs" span="[internal] load .dockerignore" spanID=e37a0a12dd7ceab7 traceID=89b6e6a44abc2740f8db687fbab4f6a8
+time="2024-11-27T19:40:43Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:43Z" level=debug msg="saved pqqnh2v2nvsc8onf0tr0ar2t0 as context:context-.dockerignore:010:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=26daeaf60fd13ddc traceID=89b6e6a44abc2740f8db687fbab4f6a8
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: stni0vrk11h0sotoyfc4d48bs" span="[internal] load build definition from Dockerfile" spanID=62b5ed8a65db29ce traceID=6720c525988c48e8bd9651d9d3b79e4f
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 2.03966ms" span="[internal] load build definition from Dockerfile" spanID=094d16f9be87f04e traceID=6720c525988c48e8bd9651d9d3b79e4f
+time="2024-11-27T19:40:43Z" level=debug msg="saved stni0vrk11h0sotoyfc4d48bs as dockerfile:dockerfile:020:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=62b5ed8a65db29ce traceID=6720c525988c48e8bd9651d9d3b79e4f
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: pwdtnu0ld5lg7wublrkft6xhb" span="[internal] load build definition from Dockerfile" spanID=e7212ae470845d7d traceID=fb683453de8a00de49e1c1a0713cc8fb
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.809024ms" span="[internal] load build definition from Dockerfile" spanID=683c152a91292b04 traceID=fb683453de8a00de49e1c1a0713cc8fb
+time="2024-11-27T19:40:43Z" level=debug msg="saved pwdtnu0ld5lg7wublrkft6xhb as dockerfile:dockerfile:018:97e931c2b6eb5dd4" span="[internal] load build definition from Dockerfile" spanID=e7212ae470845d7d traceID=fb683453de8a00de49e1c1a0713cc8fb
+time="2024-11-27T19:40:43Z" level=debug msg="checked for cached auth handler namespace" cached=true key="docker.io/library/busybox::pull" name=docker.io/library/busybox scope=pull
+time="2024-11-27T19:40:43Z" level=debug msg=resolving host="localhost:44907"
+time="2024-11-27T19:40:43Z" level=debug msg="do request" host="localhost:44907" request.header.accept="application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, */*" request.header.user-agent=buildkit/v0.13 request.method=HEAD url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:43Z" level=debug msg="fetch response received" host="localhost:44907" response.header.content-length=528 response.header.content-type=application/vnd.docker.distribution.manifest.v2+json response.header.date="Wed, 27 Nov 2024 19:40:43 GMT" response.header.docker-content-digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" response.header.docker-distribution-api-version=registry/2.0 response.header.etag="\"sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee\"" response.status="200 OK" url="http://localhost:44907/v2/library/busybox/manifests/latest?ns=docker.io"
+time="2024-11-27T19:40:43Z" level=debug msg=resolved desc.digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" host="localhost:44907"
+time="2024-11-27T19:40:43Z" level=debug msg=fetch digest="sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee" mediatype=application/vnd.docker.distribution.manifest.v2+json size=528
+time="2024-11-27T19:40:43Z" level=debug msg=fetch digest="sha256:a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824" mediatype=application/vnd.docker.container.image.v1+json size=1457
+time="2024-11-27T19:40:43Z" level=debug msg="session finished: <nil>" spanID=84ccff45e9dbaee5 traceID=3486d592b55a7c96983003ddf784cb2a
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: mh1ziy33g7zxs0tl4v7ehj36q" span="[internal] load .dockerignore" spanID=02f38eaeeb487c0b traceID=ec87adb4c9abcf29125dc545cda4691d
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.062353ms" span="[internal] load .dockerignore" spanID=2e3e76e40c74238b traceID=ec87adb4c9abcf29125dc545cda4691d
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: gq0n26ij9b3uyt5w4rdef4hm2" span="[internal] load .dockerignore" spanID=e32cff48c77c5294 traceID=6720c525988c48e8bd9651d9d3b79e4f
+time="2024-11-27T19:40:43Z" level=debug msg="saved mh1ziy33g7zxs0tl4v7ehj36q as context:context-.dockerignore:031:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=02f38eaeeb487c0b traceID=ec87adb4c9abcf29125dc545cda4691d
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.159822ms" span="[internal] load .dockerignore" spanID=da9a06d8f56fe083 traceID=6720c525988c48e8bd9651d9d3b79e4f
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: oz2dg467mrujv5sjdv4q3gr5f" span="[internal] load .dockerignore" spanID=c476b10e2b486ead traceID=4c15fb01bfaf3e1407824b18d2f0bcbb
+time="2024-11-27T19:40:43Z" level=debug msg="saved gq0n26ij9b3uyt5w4rdef4hm2 as context:context-.dockerignore:020:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=e32cff48c77c5294 traceID=6720c525988c48e8bd9651d9d3b79e4f
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.042405ms" span="[internal] load .dockerignore" spanID=2b119fa1433894c0 traceID=4c15fb01bfaf3e1407824b18d2f0bcbb
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: tj3doyqjmvjy1mgzt8e9btttk" span="[internal] load .dockerignore" spanID=751bd8f2eb4bf5f7 traceID=5c400ccfea0abcae6937ee8d499fbe88
+time="2024-11-27T19:40:43Z" level=debug msg="saved oz2dg467mrujv5sjdv4q3gr5f as context:context-.dockerignore:027:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=c476b10e2b486ead traceID=4c15fb01bfaf3e1407824b18d2f0bcbb
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.187109ms" span="[internal] load .dockerignore" spanID=3ecb280b7bce634f traceID=5c400ccfea0abcae6937ee8d499fbe88
+time="2024-11-27T19:40:43Z" level=debug msg="saved tj3doyqjmvjy1mgzt8e9btttk as context:context-.dockerignore:025:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=751bd8f2eb4bf5f7 traceID=5c400ccfea0abcae6937ee8d499fbe88
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: v8pvvyehzfb3zw1ljoph8turw" span="[internal] load build context" spanID=4d77d46a060b9678 traceID=89b6e6a44abc2740f8db687fbab4f6a8
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 2.031162ms" span="[internal] load build context" spanID=0b2ee2b27527aa22 traceID=89b6e6a44abc2740f8db687fbab4f6a8
+time="2024-11-27T19:40:43Z" level=debug msg="saved v8pvvyehzfb3zw1ljoph8turw as context:context:010:97e931c2b6eb5dd4" span="[internal] load build context" spanID=4d77d46a060b9678 traceID=89b6e6a44abc2740f8db687fbab4f6a8
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: fl3v15gxaw2q2036puj550jne" span="[internal] load build context" spanID=dd2f6c24d138b913 traceID=9c72cf9aa060f984631185904fef452c
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: f3bjesx7q4wfvy0bamlyut666" span="[internal] load build context" spanID=7304f83c2481a919 traceID=31f81fcc7f05130997cc1e933ec1ea02
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.591278ms" span="[internal] load build context" spanID=0be3ec6c1633e246 traceID=9c72cf9aa060f984631185904fef452c
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: irgx03seqy3mdheyhopub9443" span="[internal] load build context" spanID=46fabc4d3832356c traceID=155797f5b2e1bef7ed7e0beae75255a4
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.704749ms" span="[internal] load build context" spanID=47d44f2ff2355a63 traceID=31f81fcc7f05130997cc1e933ec1ea02
+time="2024-11-27T19:40:43Z" level=debug msg="saved f3bjesx7q4wfvy0bamlyut666 as context:context:015:97e931c2b6eb5dd4" span="[internal] load build context" spanID=7304f83c2481a919 traceID=31f81fcc7f05130997cc1e933ec1ea02
+time="2024-11-27T19:40:43Z" level=debug msg="saved fl3v15gxaw2q2036puj550jne as context:context:022:97e931c2b6eb5dd4" span="[internal] load build context" spanID=dd2f6c24d138b913 traceID=9c72cf9aa060f984631185904fef452c
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 3.424716ms" span="[internal] load build context" spanID=af83c5dc2c2b8de8 traceID=155797f5b2e1bef7ed7e0beae75255a4
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: zpu0m77b6npo2kdcmqr2dpow3" span="[internal] load build context" spanID=909da64af00a6598 traceID=d1c6dc3f79d164c84732710354000420
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.813797ms" span="[internal] load build context" spanID=200a9f9ccde6dd87 traceID=d1c6dc3f79d164c84732710354000420
+time="2024-11-27T19:40:43Z" level=debug msg="saved irgx03seqy3mdheyhopub9443 as context:context:030:97e931c2b6eb5dd4" span="[internal] load build context" spanID=46fabc4d3832356c traceID=155797f5b2e1bef7ed7e0beae75255a4
+time="2024-11-27T19:40:43Z" level=debug msg="saved zpu0m77b6npo2kdcmqr2dpow3 as context:context:016:97e931c2b6eb5dd4" span="[internal] load build context" spanID=909da64af00a6598 traceID=d1c6dc3f79d164c84732710354000420
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=50693eda7c47be88 traceID=89b6e6a44abc2740f8db687fbab4f6a8
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=6b65ba95c5f1d82e traceID=155797f5b2e1bef7ed7e0beae75255a4
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=f6986ac57b5770e8 traceID=d1c6dc3f79d164c84732710354000420
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=be31a3f8ac5e21c2 traceID=31f81fcc7f05130997cc1e933ec1ea02
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=1be77fae20e6efa7 traceID=9c72cf9aa060f984631185904fef452c
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: ltkuok25s7d4fk2y6dpfe55ey" span="[internal] load .dockerignore" spanID=442d61b2d6516bc6 traceID=fb683453de8a00de49e1c1a0713cc8fb
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.120058ms" span="[internal] load .dockerignore" spanID=fe5cbd11a02acc30 traceID=fb683453de8a00de49e1c1a0713cc8fb
+time="2024-11-27T19:40:43Z" level=debug msg="saved ltkuok25s7d4fk2y6dpfe55ey as context:context-.dockerignore:018:97e931c2b6eb5dd4" span="[internal] load .dockerignore" spanID=442d61b2d6516bc6 traceID=fb683453de8a00de49e1c1a0713cc8fb
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: o5m6ohxbijhv78hxjtgvfotn8" span="[internal] load build context" spanID=4cb9c59b53edef17 traceID=7cfefa5553ec79b78cf49015a85f44c1
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.671861ms" span="[internal] load build context" spanID=0941272bc33cb3c0 traceID=7cfefa5553ec79b78cf49015a85f44c1
+time="2024-11-27T19:40:43Z" level=debug msg="saved o5m6ohxbijhv78hxjtgvfotn8 as context:context:035:97e931c2b6eb5dd4" span="[internal] load build context" spanID=4cb9c59b53edef17 traceID=7cfefa5553ec79b78cf49015a85f44c1
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: c9k43834rrlonw5kc7vouq8m4" span="[internal] load build context" spanID=efde88b2242cd99e traceID=ec87adb4c9abcf29125dc545cda4691d
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.388787ms" span="[internal] load build context" spanID=67ced43592707c35 traceID=ec87adb4c9abcf29125dc545cda4691d
+time="2024-11-27T19:40:43Z" level=debug msg="new ref for local: j8689g7emcl66lxhjybdqqqx2" span="[internal] load build context" spanID=6e4052981e2e5118 traceID=4c15fb01bfaf3e1407824b18d2f0bcbb
+time="2024-11-27T19:40:43Z" level=debug msg="saved c9k43834rrlonw5kc7vouq8m4 as context:context:031:97e931c2b6eb5dd4" span="[internal] load build context" spanID=efde88b2242cd99e traceID=ec87adb4c9abcf29125dc545cda4691d
+time="2024-11-27T19:40:43Z" level=debug msg="diffcopy took: 1.829563ms" span="[internal] load build context" spanID=1bfb5f66e29f4044 traceID=4c15fb01bfaf3e1407824b18d2f0bcbb
+time="2024-11-27T19:40:43Z" level=debug msg="saved j8689g7emcl66lxhjybdqqqx2 as context:context:027:97e931c2b6eb5dd4" span="[internal] load build context" spanID=6e4052981e2e5118 traceID=4c15fb01bfaf3e1407824b18d2f0bcbb
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:43Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=4e4e4302acffd8ae traceID=7cfefa5553ec79b78cf49015a85f44c1
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=8d1c076bae16cd2d traceID=ec87adb4c9abcf29125dc545cda4691d
+time="2024-11-27T19:40:43Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=52af721704e7cc62 traceID=4c15fb01bfaf3e1407824b18d2f0bcbb
+time="2024-11-27T19:40:44Z" level=debug msg="session finished: <nil>" spanID=744f762225df2656 traceID=8d06693c33f959d13ef7ba078d465cf6
+time="2024-11-27T19:40:44Z" level=debug msg="new ref for local: tk08lo61sb7to29zrm90t4yqb" span="[internal] load build context" spanID=09bb12df20f14b51 traceID=5c400ccfea0abcae6937ee8d499fbe88
+time="2024-11-27T19:40:44Z" level=debug msg="diffcopy took: 1.489498ms" span="[internal] load build context" spanID=89b9b03d06dfe3a4 traceID=5c400ccfea0abcae6937ee8d499fbe88
+time="2024-11-27T19:40:44Z" level=debug msg="new ref for local: oq9id83i86xy74eydxo402rh8" span="[internal] load build context" spanID=a083a26056cccc8f traceID=6720c525988c48e8bd9651d9d3b79e4f
+time="2024-11-27T19:40:44Z" level=debug msg="saved tk08lo61sb7to29zrm90t4yqb as context:context:025:97e931c2b6eb5dd4" span="[internal] load build context" spanID=09bb12df20f14b51 traceID=5c400ccfea0abcae6937ee8d499fbe88
+time="2024-11-27T19:40:44Z" level=debug msg="diffcopy took: 1.816648ms" span="[internal] load build context" spanID=aac3b1c0ef3371c7 traceID=6720c525988c48e8bd9651d9d3b79e4f
+time="2024-11-27T19:40:44Z" level=debug msg="new ref for local: smerzfes95523p9g3eyhi9dy5" span="[internal] load build context" spanID=4416cc06c7dfc5b4 traceID=fb683453de8a00de49e1c1a0713cc8fb
+time="2024-11-27T19:40:44Z" level=debug msg="saved oq9id83i86xy74eydxo402rh8 as context:context:020:97e931c2b6eb5dd4" span="[internal] load build context" spanID=a083a26056cccc8f traceID=6720c525988c48e8bd9651d9d3b79e4f
+time="2024-11-27T19:40:44Z" level=debug msg="diffcopy took: 1.501214ms" span="[internal] load build context" spanID=38d74f0432466047 traceID=fb683453de8a00de49e1c1a0713cc8fb
+time="2024-11-27T19:40:44Z" level=debug msg="saved smerzfes95523p9g3eyhi9dy5 as context:context:018:97e931c2b6eb5dd4" span="[internal] load build context" spanID=4416cc06c7dfc5b4 traceID=fb683453de8a00de49e1c1a0713cc8fb
+time="2024-11-27T19:40:44Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:44Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:44Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:44Z" level=debug msg="merging edge [2/3] COPY foo /etc/foo[0] to [2/3] COPY foo /etc/foo[0]\n"
+time="2024-11-27T19:40:44Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:44Z" level=debug msg="merging edge [3/3] RUN cp /etc/foo /etc/bar[0] to [3/3] RUN cp /etc/foo /etc/bar[0]\n"
+time="2024-11-27T19:40:44Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=7529419e6269023e traceID=5c400ccfea0abcae6937ee8d499fbe88
+time="2024-11-27T19:40:44Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=4062077afc678d9c traceID=6720c525988c48e8bd9651d9d3b79e4f
+time="2024-11-27T19:40:44Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" spanID=a7a72c6859bf814c traceID=fb683453de8a00de49e1c1a0713cc8fb
+time="2024-11-27T19:40:44Z" level=debug msg="session finished: <nil>" spanID=74acfb2045e503df traceID=f3c9c302b056ede8481648587d50bb0d
+time="2024-11-27T19:40:44Z" level=debug msg="session finished: <nil>" spanID=bc3db6251a5292b1 traceID=fce8e9e9cc2615da769e39078e4f925f
+time="2024-11-27T19:40:44Z" level=debug msg="session finished: <nil>" spanID=be1b418143784438 traceID=fd76bbea9423635f2e0bd607cc677829
+time="2024-11-27T19:40:44Z" level=debug msg="session finished: <nil>" spanID=99a5588653c6ee74 traceID=fa1ddce6f14236472323e7bb3f51cddc
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=e2e8a419963f5bdd traceID=c2b5c9abbc16a5bf57b01d1809a87a1a
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=139cefde69d5988a traceID=3d49e03c5fc2921ae115c08141fd5114
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=a9ae064a1ef5b96c traceID=5de019f6a809233ad8bba50bab2ce3e3
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=52a98be98263a964 traceID=25bd759eeb81ee4c6183686de3bb2b07
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=e19d809a630221d2 traceID=2b9f0000c9a6b6491ccf807c1707b381
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=2e28e4ae184acc74 traceID=cbd61a4e6c9d115955a034a34b885f97
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=95ab3cceb68249fa traceID=f15534a3ada8cea70c373a2c5d0294dc
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=af911988665e88d1 traceID=28a841fbe1fe860c037ea774ea5b4e76
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=8e772d3398a0de9e traceID=abbd4382f90a4f42aa49192ceda4a650
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=fc6e91517229e53d traceID=93f84740d3acc1054bf381e07f852edb
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=42a9fc60d9631e5b traceID=e7d0d1914caa196f36ed347ae03f304b
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=4daf69474285ab2c traceID=89b6e6a44abc2740f8db687fbab4f6a8
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=ea0e7cd48c375e92 traceID=155797f5b2e1bef7ed7e0beae75255a4
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=58e9fa1ae123f68c traceID=d1c6dc3f79d164c84732710354000420
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=381ea103889bf819 traceID=31f81fcc7f05130997cc1e933ec1ea02
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=c246491a5834797e traceID=9c72cf9aa060f984631185904fef452c
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=54abcb9bb9e21b6f traceID=7cfefa5553ec79b78cf49015a85f44c1
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=47ab2234f6cefaa0 traceID=ec87adb4c9abcf29125dc545cda4691d
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=12e5084ccdb97f19 traceID=4c15fb01bfaf3e1407824b18d2f0bcbb
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=69e15fc5c99355e6 traceID=6720c525988c48e8bd9651d9d3b79e4f
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=6606a4413bd819b5 traceID=fb683453de8a00de49e1c1a0713cc8fb
+time="2024-11-27T19:40:45Z" level=debug msg="session finished: <nil>" spanID=8b7bcb6ffdc38d12 traceID=5c400ccfea0abcae6937ee8d499fbe88
