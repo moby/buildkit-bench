@@ -71,8 +71,18 @@ function "buildkit_ref_info" {
 function "buildx_ref_info" {
   params = [ref]
   result = {
-    cache_tag = ref,
+    cache_tag = (
+      ref == "v0.16.0" || ref == "e196e3827016f257b8e36e67de5c38a925f91686" ? "v0.16.0-xx-fix" :
+      ref == "v0.16.2" || ref == "49c8bc58df1c90086733c0b11c01b97e33931b56" ? "v0.16.2-xx-fix" :
+      ref == "v0.17.0" || ref == "8d671a0c7b7206f9d635135fc8b2b3d0278d24be" ? "v0.17.0-xx-fix" :
+      ref == "v0.17.1" || ref == "ac94b87a4da20638b6c25f41fe0a6dbd087cf7bb" ? "v0.17.1-xx-fix" :
+      ref
+    ),
     context = (
+      ref == "v0.16.0" || ref == "e196e3827016f257b8e36e67de5c38a925f91686" ? "https://github.com/crazy-max/buildx.git#v0.16.0-xx-fix" :
+      ref == "v0.16.2" || ref == "49c8bc58df1c90086733c0b11c01b97e33931b56" ? "https://github.com/crazy-max/buildx.git#v0.16.2-xx-fix" :
+      ref == "v0.17.0" || ref == "8d671a0c7b7206f9d635135fc8b2b3d0278d24be" ? "https://github.com/crazy-max/buildx.git#v0.17.0-xx-fix" :
+      ref == "v0.17.1" || ref == "ac94b87a4da20638b6c25f41fe0a6dbd087cf7bb" ? "https://github.com/crazy-max/buildx.git#v0.17.1-xx-fix" :
       can(regex("^pr-(\\d+)$", ref)) ? "https://github.com/${BUILDX_REPO}.git#refs/pull/${regex_replace(ref, "^pr-(\\d+)$", "$1")}/merge" :
       "https://github.com/${BUILDX_REPO}.git#${ref}"
     )
