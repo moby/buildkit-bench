@@ -81,9 +81,8 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Build tests base
-        uses: docker/bake-action@v5
+        uses: docker/bake-action@v6
         with:
-          source: "{{defaultContext}}"
           targets: tests-base
           provenance: false
           set: |
@@ -157,9 +156,8 @@ jobs:
         uses: docker/setup-qemu-action@v3
       -
         name: Build test image
-        uses: docker/bake-action@v5
+        uses: docker/bake-action@v6
         with:
-          source: "{{defaultContext}}"
           targets: tests-buildkit
           provenance: false
           set: |
@@ -254,9 +252,8 @@ jobs:
           fi
       -
         name: Generate HTML report
-        uses: docker/bake-action@v5
+        uses: docker/bake-action@v6
         with:
-          source: "{{defaultContext}}"
           targets: tests-gen
           provenance: false
           set: |
@@ -317,8 +314,9 @@ jobs:
           fi
       -
         name: Build website
-        uses: docker/bake-action@v5
+        uses: docker/bake-action@v6
         with:
+          source: .
           no-cache: true
           targets: website
           provenance: false

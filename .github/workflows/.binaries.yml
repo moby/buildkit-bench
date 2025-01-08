@@ -98,9 +98,6 @@ jobs:
               ;;
           esac
       -
-        name: Checkout
-        uses: actions/checkout@v4
-      -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
@@ -116,7 +113,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Build
-        uses: docker/bake-action@v5
+        uses: docker/bake-action@v6
         with:
           targets: ${{ inputs.target }}-build
           provenance: false
