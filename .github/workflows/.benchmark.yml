@@ -78,9 +78,8 @@ jobs:
         uses: docker/setup-qemu-action@v3
       -
         name: Build test image
-        uses: docker/bake-action@v5
+        uses: docker/bake-action@v6
         with:
-          source: "{{defaultContext}}"
           targets: tests-${{ inputs.target }}
           provenance: false
           set: |
