@@ -89,6 +89,9 @@ jobs:
       -
         name: Copy files
         run: |
+          if [[ -f ./bin/report/${{ matrix.result }}/logs.tar.gz ]] && [[ -d ./bin/gh-pages/result/${{ matrix.result }}/logs ]]; then
+            rm -rf ./bin/gh-pages/result/${{ matrix.result }}/logs
+          fi
           rsync -av --exclude='*.html' ./bin/gh-pages/result/${{ matrix.result }}/ ./bin/report/${{ matrix.result }}/
       -
         name: Upload report

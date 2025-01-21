@@ -265,6 +265,9 @@ jobs:
       -
         name: Include results to report
         run: |
+          if [[ -f ./bin/report/logs.tar.gz ]] && [[ -d /tmp/bench-results/logs ]]; then
+            rm -rf /tmp/bench-results/logs
+          fi
           cp -r /tmp/bench-results/* ./bin/report/
       -
         name: Upload report

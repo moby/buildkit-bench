@@ -125,6 +125,10 @@ ARG GITHUB_ACTIONS
 ARG GEN_VALIDATION_MODE
 RUN --mount=type=bind,target=. <<EOT
   set -e
+  mkdir -p /out
+  if [ -d /tests-results/logs ]; then
+    tar -czvf /out/logs.tar.gz -C /tests-results/logs .
+  fi
   gotestmetrics-gen buildkit
   gotestmetrics-gen buildx
 EOT
