@@ -89,6 +89,9 @@ jobs:
       -
         name: Copy files
         run: |
+          if [[ -f ./bin/report/${{ matrix.result }}/logs.tar.gz ]] && [[ -d ./bin/gh-pages/result/${{ matrix.result }}/logs ]]; then
+            rm -rf ./bin/gh-pages/result/${{ matrix.result }}/logs
+          fi
           rsync -av --exclude='*.html' ./bin/gh-pages/result/${{ matrix.result }}/ ./bin/report/${{ matrix.result }}/
       -
         name: Upload report
@@ -103,6 +106,15 @@ jobs:
     needs:
       - gen
     steps:
+      -
+        name: Free disk space
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+        with:
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
       -
         name: Checkout
         uses: actions/checkout@v4
