@@ -7,7 +7,7 @@ require (
 	github.com/containerd/containerd v1.7.25
 	github.com/containerd/continuity v0.4.5
 	github.com/containerd/platforms v0.2.1
-	github.com/go-echarts/go-echarts/v2 v2.4.6
+	github.com/go-echarts/go-echarts/v2 v2.5.0
 	github.com/gofrs/flock v0.12.1
 	github.com/google/go-github/v65 v65.0.0
 	github.com/google/pprof v0.0.0-20240424215950-a892ee059fd6
