@@ -5,14 +5,15 @@ import (
 	"encoding/json"
 	"html/template"
 
-	"github.com/go-echarts/go-echarts/v2/event"
-	"github.com/go-echarts/go-echarts/v2/types"
-	"github.com/go-echarts/go-echarts/v2/util"
-
 	"github.com/go-echarts/go-echarts/v2/datasets"
+	"github.com/go-echarts/go-echarts/v2/event"
 	"github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/go-echarts/go-echarts/v2/render"
+	"github.com/go-echarts/go-echarts/v2/types"
+	"github.com/go-echarts/go-echarts/v2/util"
 )
+
+var defaultConfigurationVisitor ConfigurationVisitor = BaseConfigurationVisitor{}
 
 // GlobalOpts sets the Global options for charts.
 type GlobalOpts func(bc *BaseConfiguration)
@@ -52,8 +53,7 @@ type BaseConfiguration struct {
 	// Colors is the color list of palette.
 	// If no color is set in series, the colors would be adopted sequentially and circularly
 	// from this list as the colors of series.
-	Colors      []string
-	appendColor []string // append customize color to the Colors(reverse order)
+	Colors []string
 
 	// Animation configs
 	// Animation whether enable the animation, default true
@@ -71,7 +71,7 @@ type BaseConfiguration struct {
 	//By default, progressive is auto-enabled when data amount is bigger than progressiveThreshold
 	Progressive types.Int `json:"progressive,omitempty"`
 	//ProgressiveThreshold number If current data amount is over the threshold, "progressive rendering" is enabled, default 3000
-	ProgressiveTreshold types.Int `json:"progressiveTreshold,omitempty"`
+	ProgressiveThreshold types.Int `json:"progressiveThreshold,omitempty"`
 
 	// Array of datasets, managed by AddDataset()
 	DatasetList []opts.Dataset `json:"dataset,omitempty"`
@@ -79,7 +79,8 @@ type BaseConfiguration struct {
 	DataZoomList  []opts.DataZoom  `json:"datazoom,omitempty"`
 	VisualMapList []opts.VisualMap `json:"visualmap,omitempty"`
 
-	EventListeners []event.Listener `json:"-"`
+	EventListeners       []event.Listener `json:"-"`
+	configurationVisitor ConfigurationVisitor
 
 	// ParallelAxisList represents the component list which is the coordinate axis for parallel coordinate.
 	ParallelAxisList []opts.ParallelAxis
@@ -96,6 +97,10 @@ type BaseConfiguration struct {
 	GridList []opts.Grid `json:"grid,omitempty"`
 }
 
+func (bc *BaseConfiguration) Accept(visitor ConfigurationVisitor) {
+	bc.configurationVisitor = visitor
+}
+
 // JSON wraps all the options to a map so that it could be used in the base template
 //
 // Get data in bytes
@@ -110,17 +115,22 @@ func (bc *BaseConfiguration) JSONNotEscaped() template.HTML {
 	buff := bytes.NewBufferString("")
 	enc := json.NewEncoder(buff)
 	enc.SetEscapeHTML(false)
-	enc.Encode(obj)
+	_ = enc.Encode(obj)
 
 	return template.HTML(buff.String())
 }
 
 func (bc *BaseConfiguration) json() map[string]interface{} {
+	visitor := defaultConfigurationVisitor
+	if bc.configurationVisitor != nil {
+		visitor = bc.configurationVisitor
+	}
+
 	obj := map[string]interface{}{
-		"title":   bc.Title,
-		"legend":  bc.Legend,
-		"tooltip": bc.Tooltip,
-		"series":  bc.MultiSeries,
+		"title":   visitor.VisitTitleOpt(bc.Title),
+		"legend":  visitor.VisitLegendOpt(bc.Legend),
+		"tooltip": visitor.VisitTooltipOpt(bc.Tooltip),
+		"series":  visitor.VisitSeriesOpt(bc.MultiSeries),
 	}
 
 	if bc.Animation != nil {
@@ -132,85 +142,86 @@ func (bc *BaseConfiguration) json() map[string]interface{} {
 
 	}
 
-	if bc.ProgressiveTreshold != nil {
-		obj["progressiveTreshold"] = bc.ProgressiveTreshold
+	if bc.ProgressiveThreshold != nil {
+		obj["progressiveThreshold"] = bc.ProgressiveThreshold
 	}
 
 	// if only one item, use it directly instead of an Array
 	if len(bc.DatasetList) == 1 {
-		obj["dataset"] = bc.DatasetList[0]
+		obj["dataset"] = visitor.VisitDatasets(bc.DatasetList[0])
 	} else if len(bc.DatasetList) > 1 {
-		obj["dataset"] = bc.DatasetList
+		obj["dataset"] = visitor.VisitDatasets(bc.DatasetList...)
 	}
 	if bc.AxisPointer != nil {
-		obj["axisPointer"] = bc.AxisPointer
+		obj["axisPointer"] = visitor.VisitAxisPointer(bc.AxisPointer)
 	}
 
 	if bc.hasPolar {
-		obj["polar"] = bc.Polar
-		obj["angleAxis"] = bc.AngleAxis
-		obj["radiusAxis"] = bc.RadiusAxis
+		obj["polar"] = visitor.VisitPolar(bc.Polar)
+		obj["angleAxis"] = visitor.VisitAngleAxis(bc.AngleAxis)
+		obj["radiusAxis"] = visitor.VisitRadiusAxis(bc.RadiusAxis)
 	}
 
 	if bc.hasGeo {
-		obj["geo"] = bc.GeoComponent
+		obj["geo"] = visitor.VisitGeo(bc.GeoComponent)
 	}
 
 	if bc.hasRadar {
-		obj["radar"] = bc.RadarComponent
+		obj["radar"] = visitor.VisitRadar(bc.RadarComponent)
 	}
 
 	if bc.hasParallel {
-		obj["parallel"] = bc.ParallelComponent
-		obj["parallelAxis"] = bc.ParallelAxisList
+		obj["parallel"] = visitor.VisitParallel(bc.ParallelComponent)
+		obj["parallelAxis"] = visitor.VisitParallelAxis(bc.ParallelAxisList)
 	}
 
 	if bc.hasSingleAxis {
-		obj["singleAxis"] = bc.SingleAxis
+		obj["singleAxis"] = visitor.VisitSingleAxis(bc.SingleAxis)
 	}
 
-	obj["toolbox"] = bc.Toolbox
+	obj["toolbox"] = visitor.VisitToolbox(bc.Toolbox)
 
 	if len(bc.DataZoomList) > 0 {
-		obj["dataZoom"] = bc.DataZoomList
+		obj["dataZoom"] = visitor.VisitDataZooms(bc.DataZoomList)
 	}
 
 	if len(bc.VisualMapList) > 0 {
-		obj["visualMap"] = bc.VisualMapList
+		obj["visualMap"] = visitor.VisitVisualMaps(bc.VisualMapList)
 	}
 
 	if bc.hasXYAxis {
-		obj["xAxis"] = bc.XAxisList
-		obj["yAxis"] = bc.YAxisList
+		obj["xAxis"] = visitor.VisitXAxis(bc.XAxisList)
+		obj["yAxis"] = visitor.VisitYAxis(bc.YAxisList)
 	}
 
 	if bc.has3DAxis {
-		obj["xAxis3D"] = bc.XAxis3D
-		obj["yAxis3D"] = bc.YAxis3D
-		obj["zAxis3D"] = bc.ZAxis3D
-		obj["grid3D"] = bc.Grid3D
+		obj["xAxis3D"] = visitor.VisitXAxis3D(bc.XAxis3D)
+		obj["yAxis3D"] = visitor.VisitYAxis3D(bc.YAxis3D)
+		obj["zAxis3D"] = visitor.VisitZAxis3D(bc.ZAxis3D)
+		obj["grid3D"] = visitor.VisitGrid3D(bc.Grid3D)
 	}
 
 	if bc.Theme == "white" {
 		obj["color"] = bc.Colors
 	}
 
-	if bc.BackgroundColor != "" {
-		obj["backgroundColor"] = bc.BackgroundColor
+	if bc.Initialization.BackgroundColor != "" {
+		obj["backgroundColor"] = bc.Initialization.BackgroundColor
 	}
 
 	if len(bc.GridList) > 0 {
-		obj["grid"] = bc.GridList
+		obj["grid"] = visitor.VisitGrid(bc.GridList)
 	}
 
 	if bc.hasBrush {
-		obj["brush"] = bc.Brush
+		obj["brush"] = visitor.VisitBrush(bc.Brush)
 	}
 
 	if bc.Calendar != nil {
-		obj["calendar"] = bc.Calendar
+		obj["calendar"] = visitor.VisitCalendar(bc.Calendar)
 	}
 
+	visitor.Visit(obj)
 	return obj
 }
 
@@ -311,10 +322,10 @@ func WithProgressive(opt int) GlobalOpts {
 	}
 }
 
-// Allows to set treshold for progressive rendering
+// WithProgressiveThreshold Allows to set treshold for progressive rendering
 func WithProgressiveThreshold(opt int) GlobalOpts {
 	return func(bc *BaseConfiguration) {
-		bc.ProgressiveTreshold = opts.Int(opt)
+		bc.ProgressiveThreshold = opts.Int(opt)
 	}
 }
 
@@ -390,7 +401,10 @@ func WithRadarComponentOpts(opt opts.RadarComponent) GlobalOpts {
 func WithGeoComponentOpts(opt opts.GeoComponent) GlobalOpts {
 	return func(bc *BaseConfiguration) {
 		bc.GeoComponent = opt
-		bc.JSAssets.Add("maps/" + datasets.MapFileNames[opt.Map] + ".js")
+		mapFile, preset := datasets.PresetMapFileNames[opt.Map]
+		if preset {
+			bc.JSAssets.Add("maps/" + mapFile + ".js")
+		}
 	}
 }
 
