@@ -4,6 +4,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  contents: read
+
 on:
   schedule:
     - cron: '0 3 * * 6' # every Saturday at 3:00 UTC
@@ -23,6 +27,9 @@ env:
 jobs:
   gc:
     runs-on: ubuntu-24.04
+    permissions:
+      # required to push to gh-pages
+      contents: write
     steps:
       -
         name: Free disk space
