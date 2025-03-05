@@ -4,7 +4,7 @@ go 1.22.0
 
 require (
 	github.com/alecthomas/kong v1.8.1
-	github.com/containerd/containerd/v2 v2.0.2
+	github.com/containerd/containerd/v2 v2.0.3
 	github.com/containerd/continuity v0.4.5
 	github.com/containerd/platforms v1.0.0-rc.1
 	github.com/go-echarts/go-echarts/v2 v2.5.1
@@ -12,7 +12,7 @@ require (
 	github.com/google/go-github/v65 v65.0.0
 	github.com/google/pprof v0.0.0-20240424215950-a892ee059fd6
 	github.com/joho/godotenv v1.5.1
-	github.com/moby/buildkit v0.20.0
+	github.com/moby/buildkit v0.20.1
 	github.com/montanaflynn/stats v0.7.1
 	github.com/opencontainers/image-spec v1.1.0
 	github.com/pkg/errors v0.9.1
