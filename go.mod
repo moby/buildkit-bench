@@ -7,6 +7,7 @@ require (
 	github.com/containerd/containerd/v2 v2.0.3
 	github.com/containerd/continuity v0.4.5
 	github.com/containerd/platforms v1.0.0-rc.1
+	github.com/docker/cli v27.5.1+incompatible
 	github.com/go-echarts/go-echarts/v2 v2.5.2
 	github.com/gofrs/flock v0.12.1
 	github.com/google/go-github/v65 v65.0.0
@@ -33,6 +34,7 @@ require (
 	github.com/containerd/typeurl/v2 v2.2.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
+	github.com/docker/docker-credential-helpers v0.8.2 // indirect
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect

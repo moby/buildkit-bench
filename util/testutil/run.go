@@ -21,6 +21,7 @@ import (
 	"github.com/containerd/containerd/v2/core/remotes/docker"
 	"github.com/gofrs/flock"
 	"github.com/moby/buildkit/util/appcontext"
+	"github.com/docker/cli/cli/config"
 	"github.com/moby/buildkit/util/bklog"
 	"github.com/moby/buildkit/util/contentutil"
 	ocispecs "github.com/opencontainers/image-spec/specs-go/v1"
@@ -468,7 +469,15 @@ func copyImagesLocal(tb testing.TB, host string, images map[string]string) error
 				defer closer()
 			}
 		} else {
-			desc, provider, err = contentutil.ProviderFromRef(from)
+			dockerConfig := config.LoadDefaultConfigFile(os.Stderr)
+			desc, provider, err = contentutil.ProviderFromRef(from, contentutil.WithCredentials(
+				func(host string) (string, string, error) {
+					ac, err := dockerConfig.GetAuthConfig(host)
+					if err != nil {
+						return "", "", err
+					}
+					return ac.Username, ac.Password, nil
+				}))
 			if err != nil {
 				return err
 			}
