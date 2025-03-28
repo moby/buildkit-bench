@@ -31,13 +31,6 @@ variable "BUILDX_TARGET" {
   default = "binaries"
 }
 
-# https://github.com/docker/buildx/blob/8411a763d99274c7585553f0354a7fdd0df679eb/bake/bake.go#L35
-# TODO: use sanitize func once buildx 0.17.0 is released https://github.com/docker/buildx/pull/2649
-function "sanitize_target" {
-  params = [in]
-  result = regex_replace(in, "[^a-zA-Z0-9_-]+", "-")
-}
-
 function "parse_refs" {
   params = [refs]
   result = [
@@ -95,7 +88,7 @@ target "_common" {
 
 target "buildkit-build" {
   inherits = ["_common"]
-  name = "buildkit-build-${sanitize_target(ref)}"
+  name = "buildkit-build-${sanitize(ref)}"
   matrix = {
     ref = [for item in parse_refs(BUILDKIT_REFS) : item.value]
   }
@@ -107,12 +100,12 @@ target "buildkit-build" {
 
 target "buildkit-binaries" {
   contexts = { for ref in parse_refs(BUILDKIT_REFS) :
-    format("buildkit-build-%s", sanitize_target(ref.value)) => format("target:buildkit-build-%s", sanitize_target(ref.value))
+    format("buildkit-build-%s", sanitize(ref.value)) => format("target:buildkit-build-%s", sanitize(ref.value))
   }
   dockerfile-inline = <<EOT
 FROM scratch
 ${join("\n", [for ref in parse_refs(BUILDKIT_REFS) :
-  format("COPY --link --from=buildkit-build-%s / /%s", sanitize_target(ref.value), ref.key)
+  format("COPY --link --from=buildkit-build-%s / /%s", sanitize(ref.value), ref.key)
 ])}
 EOT
   output = ["type=cacheonly"]
@@ -120,7 +113,7 @@ EOT
 
 target "buildx-build" {
   inherits = ["_common"]
-  name = "buildx-build-${sanitize_target(ref)}"
+  name = "buildx-build-${sanitize(ref)}"
   matrix = {
     ref = [for item in parse_refs(BUILDX_REFS) : item.value]
   }
@@ -132,12 +125,12 @@ target "buildx-build" {
 
 target "buildx-binaries" {
   contexts = { for ref in parse_refs(BUILDX_REFS) :
-    format("buildx-build-%s", sanitize_target(ref.value)) => format("target:buildx-build-%s", sanitize_target(ref.value))
+    format("buildx-build-%s", sanitize(ref.value)) => format("target:buildx-build-%s", sanitize(ref.value))
   }
   dockerfile-inline = <<EOT
 FROM scratch
 ${join("\n", [for ref in parse_refs(BUILDX_REFS) :
-  format("COPY --link --from=buildx-build-%s / /%s", sanitize_target(ref.value), ref.key)
+  format("COPY --link --from=buildx-build-%s / /%s", sanitize(ref.value), ref.key)
 ])}
 EOT
   output = ["type=cacheonly"]
