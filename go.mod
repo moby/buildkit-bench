@@ -20,7 +20,7 @@ require (
 	github.com/sethvargo/go-githubactions v1.3.1
 	github.com/stretchr/testify v1.10.0
 	github.com/zeebo/xxh3 v1.0.2
-	golang.org/x/mod v0.24.0
+	golang.org/x/mod v0.25.0
 	golang.org/x/sync v0.15.0
 	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools/gotestsum v1.12.2
