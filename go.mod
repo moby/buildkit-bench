@@ -13,7 +13,7 @@ require (
 	github.com/google/go-github/v65 v65.0.0
 	github.com/google/pprof v0.0.0-20250403155104-27863c87afa6
 	github.com/joho/godotenv v1.5.1
-	github.com/moby/buildkit v0.23.1
+	github.com/moby/buildkit v0.23.2
 	github.com/montanaflynn/stats v0.7.1
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/pkg/errors v0.9.1
