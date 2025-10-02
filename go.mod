@@ -8,7 +8,7 @@ require (
 	github.com/containerd/continuity v0.4.5
 	github.com/containerd/platforms v1.0.0-rc.1
 	github.com/docker/cli v28.3.3+incompatible
-	github.com/go-echarts/go-echarts/v2 v2.6.2
+	github.com/go-echarts/go-echarts/v2 v2.6.3
 	github.com/gofrs/flock v0.12.1
 	github.com/google/go-github/v65 v65.0.0
 	github.com/google/pprof v0.0.0-20250403155104-27863c87afa6
