@@ -9,7 +9,7 @@ require (
 	github.com/containerd/platforms v1.0.0-rc.1
 	github.com/docker/cli v28.5.1+incompatible
 	github.com/go-echarts/go-echarts/v2 v2.6.3
-	github.com/gofrs/flock v0.12.1
+	github.com/gofrs/flock v0.13.0
 	github.com/google/go-github/v65 v65.0.0
 	github.com/google/pprof v0.0.0-20250403155104-27863c87afa6
 	github.com/joho/godotenv v1.5.1
@@ -64,7 +64,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	golang.org/x/crypto v0.41.0 // indirect
 	golang.org/x/net v0.43.0 // indirect
-	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
 	golang.org/x/term v0.35.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250218202821-56aae31c358a // indirect
