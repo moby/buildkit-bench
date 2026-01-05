@@ -136,7 +136,7 @@ jobs:
     steps:
       -
         name: Download binaries
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: /tmp/buildkit-binaries
           pattern: ${{ env.BUILDKIT_ARTIFACT_KEY }}-*
@@ -223,14 +223,14 @@ jobs:
     steps:
       -
         name: Download results
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: /tmp/bench-results
           pattern: bench-results-*
           merge-multiple: true
       -
         name: Download candidates
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: /tmp/bench-results
           pattern: "*-candidates"
@@ -309,7 +309,7 @@ jobs:
           path: bin/gh-pages
       -
         name: Download report
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: report
           path: /tmp/bench-report
