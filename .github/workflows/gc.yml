@@ -57,6 +57,14 @@ jobs:
             const fs = require('fs');
             const path = require('path');
             const keepResultsPerDay = 1;
+            const monthsToKeep = 6;
+            
+            function parseDate(dateStr) {
+              const year = parseInt(dateStr.substring(0, 4), 10);
+              const month = parseInt(dateStr.substring(4, 6), 10) - 1;
+              const day = parseInt(dateStr.substring(6, 8), 10);
+              return new Date(year, month, day);
+            }
 
             const resultDir = './bin/gh-pages/result';
             const results = fs.readdirSync(resultDir).filter(d => {
@@ -71,10 +79,23 @@ jobs:
               acc[date].push(dir);
               return acc;
             }, {});
+            
+            const cutoff = new Date();
+            cutoff.setMonth(cutoff.getMonth() - monthsToKeep);
 
             Object.keys(resultsByDate).forEach(date => {
               const dirs = resultsByDate[date];
-              const removeDirs = [];
+              let removeDirs = [];
+              
+              const pdate = parseDate(date);
+              if (isNaN(pdate)) {
+                core.warning(`Skipping unrecognized date format in ${date}`);
+                return;
+              } else if (pdate > cutoff) {
+                removeDirs = [...dirs];
+                return;
+              }
+              
               dirs.forEach(dir => {
                 const envFilePath = path.join(resultDir, dir, 'env.txt');
                 if (fs.existsSync(envFilePath)) {
