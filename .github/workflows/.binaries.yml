@@ -72,7 +72,7 @@ jobs:
           jq . ./bin/${{ inputs.candidates_key }}.json
       -
         name: Upload candidates
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.candidates_key }}
           path: ./bin/${{ inputs.candidates_key }}.json
@@ -133,7 +133,7 @@ jobs:
         run: tar -czvf ../binaries-${{ matrix.name }}.tar.gz *
       -
         name: Upload binaries
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.artifact_key }}-${{ matrix.name }}
           path: ./bin/binaries-${{ matrix.name }}.tar.gz
