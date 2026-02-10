@@ -19,9 +19,9 @@ import (
 
 	"github.com/containerd/containerd/v2/core/content"
 	"github.com/containerd/containerd/v2/core/remotes/docker"
+	"github.com/docker/cli/cli/config"
 	"github.com/gofrs/flock"
 	"github.com/moby/buildkit/util/appcontext"
-	"github.com/docker/cli/cli/config"
 	"github.com/moby/buildkit/util/bklog"
 	"github.com/moby/buildkit/util/contentutil"
 	ocispecs "github.com/opencontainers/image-spec/specs-go/v1"
@@ -266,7 +266,7 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 
 							runWithSandbox := func(tb testing.TB) {
 								sb, closer, err := newSandbox(ctx, br, mirror, mv)
-								require.NoError(tb, err, errors.Unwrap(err))
+								require.NoError(tb, err)
 								tb.Cleanup(func() { _ = closer() })
 								defer func() {
 									sb.WriteLogs(tb)
@@ -328,7 +328,7 @@ func writeConfig(updaters []ConfigUpdater) (string, error) {
 		s = upt.UpdateConfigFile(s)
 	}
 
-	if err := os.WriteFile(filepath.Join(tmpdir, buildkitdConfigFile), []byte(s), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(tmpdir, buildkitdConfigFile), []byte(s), 0600); err != nil {
 		return "", err
 	}
 	return filepath.Join(tmpdir, buildkitdConfigFile), nil

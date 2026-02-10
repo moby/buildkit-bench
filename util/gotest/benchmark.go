@@ -150,15 +150,16 @@ func (b *BenchmarkInfo) update(output string) bool {
 		return false
 	}
 	// https://github.com/golang/go/blob/f38d42f2c4c6ad0d7cbdad5e1417cac3be2a5dcb/src/testing/benchmark.go#L246-L255
-	if strings.HasPrefix(output, "goos: ") {
+	switch {
+	case strings.HasPrefix(output, "goos: "):
 		b.OS = strings.TrimPrefix(output, "goos: ")
-	} else if strings.HasPrefix(output, "goarch: ") {
+	case strings.HasPrefix(output, "goarch: "):
 		b.Architecture = strings.TrimPrefix(output, "goarch: ")
-	} else if strings.HasPrefix(output, "pkg: ") {
+	case strings.HasPrefix(output, "pkg: "):
 		b.Package = strings.TrimPrefix(output, "pkg: ")
-	} else if strings.HasPrefix(output, "cpu: ") {
+	case strings.HasPrefix(output, "cpu: "):
 		b.CPU = strings.TrimPrefix(output, "cpu: ")
-	} else {
+	default:
 		return false
 	}
 	return true
