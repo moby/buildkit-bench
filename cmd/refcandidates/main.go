@@ -1,13 +1,13 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"log"
-	"math/rand"
+	"math/big"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/alecthomas/kong"
 	"github.com/moby/buildkit-bench/util/candidates"
@@ -60,7 +60,7 @@ func writeFile(f string, c *candidates.Candidates) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal candidates")
 	}
-	if err := os.WriteFile(f, dt, 0644); err != nil {
+	if err := os.WriteFile(f, dt, 0600); err != nil {
 		return errors.Wrap(err, "failed to write candidates to output file")
 	}
 	log.Printf("Candidates written to %q", f)
@@ -106,12 +106,15 @@ func setGhaOutput(name string, c *candidates.Candidates) error {
 	}
 
 	if gha.IsPullRequestEvent() {
-		r := rand.New(rand.NewSource(time.Now().UnixNano()))
 		if len(includes) > 2 {
 			s := make([]include, 0, 2)
 			si := make(map[int]struct{})
 			for len(s) < 2 {
-				idx := r.Intn(len(includes))
+				n, err := rand.Int(rand.Reader, big.NewInt(int64(len(includes))))
+				if err != nil {
+					return errors.Wrap(err, "failed to sample candidate")
+				}
+				idx := int(n.Int64())
 				if _, exists := si[idx]; !exists {
 					si[idx] = struct{}{}
 					s = append(s, includes[idx])

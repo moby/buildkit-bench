@@ -5,10 +5,11 @@ package benchmark
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 // Flags used by Benchmark.Measured to indicate
@@ -40,10 +41,10 @@ func ParseLine(line string) (*Benchmark, error) {
 
 	// Two required, positional fields: Name and iterations.
 	if len(fields) < 2 {
-		return nil, fmt.Errorf("two fields required, have %d", len(fields))
+		return nil, errors.Errorf("two fields required, have %d", len(fields))
 	}
 	if !strings.HasPrefix(fields[0], "Benchmark") {
-		return nil, fmt.Errorf(`first field does not start with "Benchmark"`)
+		return nil, errors.Errorf(`first field does not start with "Benchmark"`)
 	}
 	n, err := strconv.Atoi(fields[1])
 	if err != nil {

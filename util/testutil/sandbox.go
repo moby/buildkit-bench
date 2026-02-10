@@ -62,7 +62,7 @@ func (sb *sandbox) WriteLogFile(tb testing.TB, name string, dt []byte) {
 	if err := os.MkdirAll(testLogsDir, 0755); err != nil {
 		tb.Fatalf("failed to create logs directory: %v", err)
 	}
-	if err := os.WriteFile(filepath.Join(testLogsDir, fmt.Sprintf("%s-run%s.log", name, run)), dt, 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(testLogsDir, fmt.Sprintf("%s-run%s.log", name, run)), dt, 0600); err != nil {
 		tb.Fatalf("writing log file: %v", err)
 	}
 }
