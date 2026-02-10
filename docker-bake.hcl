@@ -77,7 +77,7 @@ group "default" {
 }
 
 group "validate" {
-  targets = ["validate-vendor"]
+  targets = ["lint", "validate-vendor"]
 }
 
 target "_common" {
@@ -189,6 +189,12 @@ target "vendor" {
   dockerfile = "./hack/dockerfiles/vendor.Dockerfile"
   target = "update"
   output = ["."]
+}
+
+target "lint" {
+  inherits = ["_common"]
+  dockerfile = "./hack/dockerfiles/lint.Dockerfile"
+  output = ["type=cacheonly"]
 }
 
 variable "WEBSITE_PUBLIC_PATH" {
