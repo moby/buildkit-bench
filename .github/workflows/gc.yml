@@ -82,17 +82,24 @@ jobs:
             
             const cutoff = new Date();
             cutoff.setMonth(cutoff.getMonth() - monthsToKeep);
+            cutoff.setHours(0, 0, 0, 0);
 
             Object.keys(resultsByDate).forEach(date => {
               const dirs = resultsByDate[date];
-              let removeDirs = [];
+              const removeDirs = [];
               
               const pdate = parseDate(date);
-              if (isNaN(pdate)) {
+              if (Number.isNaN(pdate.getTime())) {
                 core.warning(`Skipping unrecognized date format in ${date}`);
                 return;
-              } else if (pdate > cutoff) {
-                removeDirs = [...dirs];
+              }
+
+              if (pdate < cutoff) {
+                dirs.forEach(dir => {
+                  const dirPath = path.join(resultDir, dir);
+                  fs.rmSync(dirPath, { recursive: true, force: true });
+                  core.info(`Removed ${dirPath} (older than ${monthsToKeep} months)`);
+                });
                 return;
               }
               
