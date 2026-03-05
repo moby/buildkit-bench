@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"testing"
@@ -9,6 +10,7 @@ import (
 	"github.com/containerd/continuity/fs/fstest"
 	"github.com/containerd/platforms"
 	"github.com/moby/buildkit-bench/util/testutil"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 )
 
@@ -59,7 +61,7 @@ func BenchmarkBuild(b *testing.B) {
 		benchmarkBuildExportUncompressed,
 		benchmarkBuildExportGzip,
 		benchmarkBuildExportEstargz,
-		//benchmarkBuildExportZstd, https://github.com/moby/buildkit-bench/pull/146#discussion_r1771519112
+		// benchmarkBuildExportZstd, https://github.com/moby/buildkit-bench/pull/146#discussion_r1771519112
 	),
 		testutil.WithMirroredImages(mirroredImages),
 	)
@@ -172,20 +174,31 @@ RUN cp /etc/foo /etc/bar
 	}
 
 	var wg sync.WaitGroup
+	errCh := make(chan error, n)
 	for i := 0; i < n; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			dir := tmpdir(
-				b,
+			dir, err := os.MkdirTemp("", "bkbench-build-context")
+			if err != nil {
+				errCh <- err
+				return
+			}
+			defer os.RemoveAll(dir)
+			if err := fstest.Apply(
 				fstest.CreateFile("Dockerfile", dockerfile, 0600),
 				fstest.CreateFile("foo", []byte("foo"), 0600),
-			)
+			).Apply(dir); err != nil {
+				errCh <- err
+				return
+			}
 			out, err := buildxBuildCmd(sb, withArgs("--output=type=image", dir))
 			// TODO: use sb.WriteLogFile to write buildx logs in a defer with a
 			//  semaphore using a buffered channel to limit the number of
 			//  concurrent goroutines. This might affect timing.
-			require.NoError(b, err, out)
+			if err != nil {
+				errCh <- errors.Wrap(err, out)
+			}
 		}()
 	}
 	reportBuildkitdAlloc(b, sb, func() {
@@ -193,6 +206,10 @@ RUN cp /etc/foo /etc/bar
 		wg.Wait()
 		b.StopTimer()
 	})
+	close(errCh)
+	for err := range errCh {
+		require.NoError(b, err)
+	}
 }
 
 func benchmarkBuildFileTransfer(b *testing.B, sb testutil.Sandbox) {
@@ -290,9 +307,7 @@ func benchmarkBuildExportGzip(b *testing.B, sb testutil.Sandbox) {
 func benchmarkBuildExportEstargz(b *testing.B, sb testutil.Sandbox) {
 	benchmarkBuildExport(b, sb, "gzip")
 }
-func benchmarkBuildExportZstd(b *testing.B, sb testutil.Sandbox) {
-	benchmarkBuildExport(b, sb, "zstd")
-}
+
 func benchmarkBuildExport(b *testing.B, sb testutil.Sandbox, compression string) {
 	dockerfile := []byte(`
 FROM python:latest

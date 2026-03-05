@@ -29,7 +29,7 @@ func runBuildkitd(conf *BackendConfig, tmpdir string, args []string, logs map[st
 		}
 	}()
 
-	cfgfile, err := writeConfig(append(conf.DaemonConfig))
+	cfgfile, err := writeConfig(conf.DaemonConfig)
 	if err != nil {
 		return "", "", nil, err
 	}
@@ -40,7 +40,7 @@ func runBuildkitd(conf *BackendConfig, tmpdir string, args []string, logs map[st
 	args = append(args, "--config="+cfgfile)
 	address = getBuildkitdAddr(tmpdir)
 
-	l, err := net.Listen("tcp", "localhost:0")
+	l, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", "localhost:0")
 	if err != nil {
 		return "", "", nil, err
 	}
@@ -50,7 +50,7 @@ func runBuildkitd(conf *BackendConfig, tmpdir string, args []string, logs map[st
 	}
 
 	args = append(args, "--root", tmpdir, "--addr", address, "--debug", "--debugaddr", debugAddress)
-	cmd := exec.Command(args[0], args[1:]...) //nolint:gosec // test utility
+	cmd := exec.CommandContext(context.Background(), args[0], args[1:]...) //nolint:gosec // test utility
 	cmd.Env = append(
 		os.Environ(),
 		"BUILDKIT_DEBUG_EXEC_OUTPUT=1",
