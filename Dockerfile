@@ -6,7 +6,7 @@ ARG XX_VERSION=1.9.0
 
 ARG BUILDKIT_VERSION=v0.29.0-rc1
 ARG BUILDX_VERSION=v0.33.0-rc1
-ARG REGISTRY_VERSION=v2.8.3
+ARG REGISTRY_VERSION=v3.0.0
 
 # named contexts
 FROM scratch AS buildkit-binaries
@@ -16,11 +16,9 @@ FROM scratch AS tests-results
 # xx is a helper for cross-compilation
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
-# default buildkit
 FROM moby/buildkit:${BUILDKIT_VERSION} AS buildkit
-
-# default buildx
 FROM docker/buildx-bin:${BUILDX_VERSION#v} AS buildx
+FROM registry:${REGISTRY_VERSION#v} AS registry
 
 # go base image
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS golatest
@@ -29,22 +27,6 @@ FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS g
 FROM golatest AS gobuild-base
 RUN apk add --no-cache file bash clang lld musl-dev pkgconfig git make tree findutils
 COPY --link --from=xx / /
-
-FROM gobuild-base AS registry
-WORKDIR /go/src/github.com/docker/distribution
-ARG REGISTRY_VERSION
-ADD --keep-git-dir=true "https://github.com/distribution/distribution.git#$REGISTRY_VERSION" .
-ARG TARGETPLATFORM
-RUN --mount=type=cache,target=/root/.cache <<EOT
-  set -ex
-  mkdir /out
-  export GOPATH="$(pwd)/Godeps/_workspace:$GOPATH"
-  GO111MODULE=off CGO_ENABLED=0 xx-go build -o /out/registry ./cmd/registry
-  xx-verify --static /out/registry
-  if [ "$(xx-info os)" = "windows" ]; then
-    mv /out/registry /out/registry.exe
-  fi
-EOT
 
 FROM gobuild-base AS gotestmetrics
 WORKDIR /src
@@ -137,7 +119,7 @@ FROM scratch AS tests-gen
 COPY --from=tests-gen-run /out /
 
 FROM scratch AS binaries
-COPY --link --from=registry /out /
+COPY --link --from=registry /bin/registry /
 COPY --link --from=gotestmetrics /out /
 
 FROM gobuild-base AS tests-base
