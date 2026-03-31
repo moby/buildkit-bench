@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -32,7 +33,7 @@ func BenchmarkDaemon(b *testing.B) {
 func testDaemonVersion(t *testing.T, sb testutil.Sandbox) {
 	buildkitdPath := path.Join(sb.BuildKitBinsDir(), sb.Name(), "buildkitd")
 
-	output, err := exec.Command(buildkitdPath, "--version").Output()
+	output, err := exec.CommandContext(context.Background(), buildkitdPath, "--version").Output()
 	require.NoError(t, err)
 
 	versionParts := strings.Fields(string(output))
@@ -46,7 +47,9 @@ func testDaemonVersion(t *testing.T, sb testutil.Sandbox) {
 func testDaemonDebugHeap(t *testing.T, sb testutil.Sandbox) {
 	client := &http.Client{}
 
-	resp, err := client.Get(fmt.Sprintf("http://%s/debug/pprof/heap?debug=1", sb.DebugAddress()))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, fmt.Sprintf("http://%s/debug/pprof/heap?debug=1", sb.DebugAddress()), nil)
+	require.NoError(t, err)
+	resp, err := client.Do(req)
 	require.NoError(t, err)
 	defer resp.Body.Close()
 
@@ -63,7 +66,7 @@ func testDaemonDebugHeap(t *testing.T, sb testutil.Sandbox) {
 func benchmarkDaemonVersion(b *testing.B, sb testutil.Sandbox) {
 	buildkitdPath := path.Join(sb.BuildKitBinsDir(), sb.Name(), "buildkitd")
 	b.StartTimer()
-	err := exec.Command(buildkitdPath, "--version").Run()
+	err := exec.CommandContext(context.Background(), buildkitdPath, "--version").Run()
 	b.StopTimer()
 	require.NoError(b, err)
 }
