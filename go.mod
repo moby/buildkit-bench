@@ -3,7 +3,7 @@ module github.com/moby/buildkit-bench
 go 1.25.5
 
 require (
-	github.com/alecthomas/kong v1.14.0
+	github.com/alecthomas/kong v1.15.0
 	github.com/containerd/containerd/v2 v2.2.2
 	github.com/containerd/continuity v0.4.5
 	github.com/containerd/platforms v1.0.0-rc.2
