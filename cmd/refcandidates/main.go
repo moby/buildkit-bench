@@ -3,11 +3,9 @@ package main
 import (
 	"encoding/json"
 	"log"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/alecthomas/kong"
 	"github.com/moby/buildkit-bench/util/candidates"
@@ -105,22 +103,22 @@ func setGhaOutput(name string, c *candidates.Candidates) error {
 		})
 	}
 
-	if gha.IsPullRequestEvent() {
-		r := rand.New(rand.NewSource(time.Now().UnixNano()))
-		if len(includes) > 2 {
-			s := make([]include, 0, 2)
-			si := make(map[int]struct{})
-			for len(s) < 2 {
-				idx := r.Intn(len(includes))
-				if _, exists := si[idx]; !exists {
-					si[idx] = struct{}{}
-					s = append(s, includes[idx])
-				}
-			}
-			includes = s
-		}
-		log.Printf("Reducing candidates to %d for pull request event in GHA output", len(includes))
-	}
+	//if gha.IsPullRequestEvent() {
+	//	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	//	if len(includes) > 2 {
+	//		s := make([]include, 0, 2)
+	//		si := make(map[int]struct{})
+	//		for len(s) < 2 {
+	//			idx := r.Intn(len(includes))
+	//			if _, exists := si[idx]; !exists {
+	//				si[idx] = struct{}{}
+	//				s = append(s, includes[idx])
+	//			}
+	//		}
+	//		includes = s
+	//	}
+	//	log.Printf("Reducing candidates to %d for pull request event in GHA output", len(includes))
+	//}
 
 	dt, err := json.Marshal(includes)
 	if err != nil {
