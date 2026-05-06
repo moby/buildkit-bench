@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"testing"
 
 	"github.com/containerd/continuity/fs/fstest"
@@ -20,6 +21,14 @@ func tmpdir(tb testing.TB, appliers ...fstest.Applier) string {
 	err := fstest.Apply(appliers...).Apply(tmpdir)
 	require.NoError(tb, err)
 	return tmpdir
+}
+
+func fixtureDir(tb testing.TB, name string) string {
+	tb.Helper()
+	dir := tb.TempDir()
+	err := os.CopyFS(dir, os.DirFS(filepath.Join("fixtures", name)))
+	require.NoError(tb, err)
+	return dir
 }
 
 type cmdOpt func(*exec.Cmd)
@@ -59,6 +68,13 @@ func buildxCmd(sb testutil.Sandbox, opts ...cmdOpt) *exec.Cmd {
 
 func buildxBuildCmd(sb testutil.Sandbox, opts ...cmdOpt) (string, error) {
 	opts = append([]cmdOpt{withArgs("build")}, opts...)
+	cmd := buildxCmd(sb, opts...)
+	out, err := cmd.CombinedOutput()
+	return string(out), err
+}
+
+func buildxBakeCmd(sb testutil.Sandbox, opts ...cmdOpt) (string, error) {
+	opts = append([]cmdOpt{withArgs("bake")}, opts...)
 	cmd := buildxCmd(sb, opts...)
 	out, err := cmd.CombinedOutput()
 	return string(out), err

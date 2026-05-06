@@ -49,6 +49,7 @@ func BenchmarkBuild(b *testing.B) {
 		benchmarkBuildMultistage,
 		benchmarkBuildSecret,
 		benchmarkBuildRemote,
+		benchmarkBuildBakeFrontendInputsFanIn,
 		benchmarkBuildHighParallelization16x,
 		benchmarkBuildHighParallelization32x,
 		benchmarkBuildHighParallelization64x,
@@ -135,6 +136,22 @@ func benchmarkBuildRemote(b *testing.B, sb testutil.Sandbox) {
 			"--build-arg=BUILDKIT_SYNTAX="+dockerfileImagePin,
 			"https://github.com/dvdksn/buildme.git#eb6279e0ad8a10003718656c6867539bd9426ad8",
 		))
+		b.StopTimer()
+		sb.WriteLogFile(b, "buildx", []byte(out))
+		require.NoError(b, err, out)
+	})
+}
+
+func benchmarkBuildBakeFrontendInputsFanIn(b *testing.B, sb testutil.Sandbox) {
+	if sb.Name() != "pr-6745" {
+		b.Skipf("only runs for BuildKit candidate pr-6745")
+	}
+
+	dir := fixtureDir(b, "frontend-inputs-fan-in")
+	reportBuildkitdAlloc(b, sb, func() {
+		b.StartTimer()
+		// p19 exceeds buildx's current uncompressed gateway Solve limit.
+		out, err := buildxBakeCmd(sb, withDir(dir), withArgs("--set", "*.output=type=cacheonly", "p18"))
 		b.StopTimer()
 		sb.WriteLogFile(b, "buildx", []byte(out))
 		require.NoError(b, err, out)
