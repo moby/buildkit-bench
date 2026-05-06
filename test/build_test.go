@@ -143,6 +143,10 @@ func benchmarkBuildRemote(b *testing.B, sb testutil.Sandbox) {
 }
 
 func benchmarkBuildBakeFrontendInputsFanIn(b *testing.B, sb testutil.Sandbox) {
+	if sb.Name() != "pr-6745" {
+		b.Skipf("only runs for BuildKit candidate pr-6745")
+	}
+
 	dir := fixtureDir(b, "frontend-inputs-fan-in")
 	reportBuildkitdAlloc(b, sb, func() {
 		b.StartTimer()
