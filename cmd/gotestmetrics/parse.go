@@ -40,7 +40,7 @@ func (c *parseCmd) Run(ctx *Context) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to marshal result")
 		}
-		if err := os.WriteFile(c.Output, dt, 0644); err != nil {
+		if err := os.WriteFile(c.Output, dt, 0600); err != nil {
 			return errors.Wrap(err, "failed to write result to output file")
 		}
 	}

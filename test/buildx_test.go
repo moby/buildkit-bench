@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"os"
 	"os/exec"
 	"testing"
@@ -23,14 +24,14 @@ func BenchmarkBuildx(b *testing.B) {
 }
 
 func testBuildxVersion(t *testing.T, sb testutil.Sandbox) {
-	output, err := exec.Command(sb.BuildxBin(), "version").Output()
+	output, err := exec.CommandContext(context.Background(), sb.BuildxBin(), "version").Output() //nolint:gosec // test utility
 	require.NoError(t, err)
 	t.Log(string(output))
 }
 
 func benchmarkBuildxVersion(b *testing.B, sb testutil.Sandbox) {
 	b.StartTimer()
-	err := exec.Command(sb.BuildxBin(), "version").Run()
+	err := exec.CommandContext(context.Background(), sb.BuildxBin(), "version").Run() //nolint:gosec // test utility
 	b.StopTimer()
 	require.NoError(b, err)
 }

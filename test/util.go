@@ -1,11 +1,11 @@
 package test
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
 	"os/exec"
-	"path"
 	"testing"
 
 	"github.com/containerd/continuity/fs/fstest"
@@ -24,12 +24,6 @@ func tmpdir(tb testing.TB, appliers ...fstest.Applier) string {
 
 type cmdOpt func(*exec.Cmd)
 
-func withEnv(env ...string) cmdOpt {
-	return func(cmd *exec.Cmd) {
-		cmd.Env = append(cmd.Env, env...)
-	}
-}
-
 func withArgs(args ...string) cmdOpt {
 	return func(cmd *exec.Cmd) {
 		cmd.Args = append(cmd.Args, args...)
@@ -43,7 +37,7 @@ func withDir(dir string) cmdOpt {
 }
 
 func buildxCmd(sb testutil.Sandbox, opts ...cmdOpt) *exec.Cmd {
-	cmd := exec.Command(sb.BuildxBin())
+	cmd := exec.CommandContext(context.Background(), sb.BuildxBin()) //nolint:gosec // test utility
 	cmd.Env = append([]string{}, os.Environ()...)
 	for _, opt := range opts {
 		opt(cmd)
@@ -64,26 +58,6 @@ func buildxBuildCmd(sb testutil.Sandbox, opts ...cmdOpt) (string, error) {
 	return string(out), err
 }
 
-func buildctlCmd(sb testutil.Sandbox, opts ...cmdOpt) *exec.Cmd {
-	cmd := exec.Command(path.Join(sb.BuildKitBinsDir(), sb.Name(), "buildctl"))
-	cmd.Args = append(cmd.Args, "--debug")
-	if buildkitAddr := sb.Address(); buildkitAddr != "" {
-		cmd.Args = append(cmd.Args, "--addr", buildkitAddr)
-	}
-	cmd.Env = append([]string{}, os.Environ()...)
-	for _, opt := range opts {
-		opt(cmd)
-	}
-	return cmd
-}
-
-func buildctlBuildCmd(sb testutil.Sandbox, opts ...cmdOpt) (string, error) {
-	opts = append([]cmdOpt{withArgs("build", "--frontend=dockerfile.v0")}, opts...)
-	cmd := buildctlCmd(sb, opts...)
-	out, err := cmd.CombinedOutput()
-	return string(out), err
-}
-
 func reportBuildkitdAlloc(b *testing.B, sb testutil.Sandbox, cb func()) {
 	beforeAlloc, errb := buildkitdAlloc(sb)
 	cb()
@@ -95,7 +69,11 @@ func reportBuildkitdAlloc(b *testing.B, sb testutil.Sandbox, cb func()) {
 
 func buildkitdAlloc(sb testutil.Sandbox) (int64, error) {
 	client := &http.Client{}
-	resp, err := client.Get(fmt.Sprintf("http://%s/debug/pprof/heap?gc=1", sb.DebugAddress()))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, fmt.Sprintf("http://%s/debug/pprof/heap?gc=1", sb.DebugAddress()), nil)
+	if err != nil {
+		return 0, err
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return 0, err
 	}
