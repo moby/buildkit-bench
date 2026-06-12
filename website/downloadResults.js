@@ -80,24 +80,14 @@ function normalizeManifest(manifest) {
 async function readManifest() {
   const manifestUrl = new URL('result/manifest.json', pagesUrl).toString();
   const response = await fetch(manifestUrl);
-
-  if (response.status === 404) {
-    console.warn(`No Pages result manifest found at ${manifestUrl}`);
-    process.exitCode = 2;
-    return null;
-  }
   if (!response.ok) {
     throw new Error(`Failed to download ${manifestUrl}: ${response.status} ${response.statusText}`);
   }
-
   return normalizeManifest(await response.json());
 }
 
 async function main() {
   const manifest = await readManifest();
-  if (!manifest) {
-    return;
-  }
   if (listOnly) {
     console.log(JSON.stringify(manifest.map(result => result.name), null, 2));
     return;

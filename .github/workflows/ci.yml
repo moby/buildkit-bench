@@ -287,48 +287,19 @@ jobs:
       - report
     steps:
       -
-        name: Free disk space
-        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
-        with:
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          swap-storage: true
-      -
         name: Checkout
         uses: actions/checkout@v6
       -
         name: Download deployed results
-        id: pages-results
         uses: actions/github-script@v9
         with:
           script: |
             const { exitCode } = await exec.getExecOutput('node', ['./website/downloadResults.js'], {
               ignoreReturnCode: true,
             });
-            if (exitCode === 0) {
-              core.setOutput('downloaded', 'true');
-            } else if (exitCode === 2) {
-              core.setOutput('downloaded', 'false');
-            } else {
+            if (exitCode !== 0) {
               core.setFailed(`downloadResults.js failed with exit code ${exitCode}`);
             }
-      -
-        name: Checkout gh-pages fallback
-        if: steps.pages-results.outputs.downloaded != 'true'
-        uses: actions/checkout@v6
-        with:
-          ref: gh-pages
-          path: bin/gh-pages
-      -
-        name: Copy gh-pages fallback results
-        if: steps.pages-results.outputs.downloaded != 'true'
-        run: |
-          if [ -d ./bin/gh-pages/result ]; then
-            mkdir -p ./website/public/result
-            cp -a ./bin/gh-pages/result/. ./website/public/result/
-          fi
       -
         name: Download report
         uses: actions/download-artifact@v8
