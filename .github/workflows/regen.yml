@@ -32,7 +32,7 @@ jobs:
   prepare:
     runs-on: ubuntu-24.04
     outputs:
-      results: ${{ steps.set.outputs.results }}
+      results: ${{ steps.pages-results.outputs.results }}
     steps:
       -
         name: Checkout
@@ -46,51 +46,11 @@ jobs:
             const { exitCode, stdout } = await exec.getExecOutput('node', ['./website/downloadResults.js', '--list'], {
               ignoreReturnCode: true,
             });
-            if (exitCode === 0) {
-              core.setOutput('listed', 'true');
-              core.setOutput('results', stdout.trim());
-            } else if (exitCode === 2) {
-              core.setOutput('listed', 'false');
-            } else {
+            if (exitCode !== 0) {
               core.setFailed(`downloadResults.js failed with exit code ${exitCode}`);
+            } else {
+              core.setOutput('results', stdout.trim());
             }
-      -
-        name: Checkout gh-pages fallback
-        if: steps.pages-results.outputs.listed != 'true'
-        uses: actions/checkout@v6
-        with:
-          ref: gh-pages
-          path: bin/gh-pages
-      -
-        name: Copy gh-pages fallback results
-        if: steps.pages-results.outputs.listed != 'true'
-        run: |
-          if [ -d ./bin/gh-pages/result ]; then
-            mkdir -p ./website/public/result
-            cp -a ./bin/gh-pages/result/. ./website/public/result/
-          fi
-      -
-        name: Create results matrix
-        uses: actions/github-script@v9
-        id: set
-        with:
-          script: |
-            const deployedResults = process.env.DEPLOYED_RESULTS;
-            if (deployedResults) {
-              core.info(deployedResults);
-              core.setOutput('results', deployedResults);
-              return;
-            }
-            const fs = require('fs');
-            const path = require('path');
-            const resultDir = './website/public/result';
-            const results = JSON.stringify(fs.readdirSync(resultDir).filter(d => {
-              return fs.statSync(path.join(resultDir, d)).isDirectory();
-            }), null, 2);
-            core.info(results);
-            core.setOutput('results', results);
-        env:
-          DEPLOYED_RESULTS: ${{ steps.pages-results.outputs.results }}
 
   gen:
     runs-on: ubuntu-24.04
@@ -113,28 +73,11 @@ jobs:
             const { exitCode } = await exec.getExecOutput('node', ['./website/downloadResults.js', process.env.RESULT_NAME], {
               ignoreReturnCode: true,
             });
-            if (exitCode === 0) {
-              core.setOutput('downloaded', 'true');
-            } else if (exitCode === 2) {
-              core.setOutput('downloaded', 'false');
-            } else {
+            if (exitCode !== 0) {
               core.setFailed(`downloadResults.js failed with exit code ${exitCode}`);
             }
         env:
           RESULT_NAME: ${{ matrix.result }}
-      -
-        name: Checkout gh-pages fallback
-        if: steps.pages-result.outputs.downloaded != 'true'
-        uses: actions/checkout@v6
-        with:
-          ref: gh-pages
-          path: bin/gh-pages
-      -
-        name: Copy gh-pages fallback result
-        if: steps.pages-result.outputs.downloaded != 'true'
-        run: |
-          mkdir -p ./website/public/result/${{ matrix.result }}
-          cp -a ./bin/gh-pages/result/${{ matrix.result }}/. ./website/public/result/${{ matrix.result }}/
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -175,15 +118,6 @@ jobs:
     needs:
       - gen
     steps:
-      -
-        name: Free disk space
-        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
-        with:
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          swap-storage: true
       -
         name: Checkout
         uses: actions/checkout@v6
