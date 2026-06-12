@@ -98,7 +98,7 @@ export default {
         }
         this.metadataLinks.push({
           text: `Logs`,
-          url: `https://github.com/${repo}/raw/refs/heads/gh-pages/result/${resultName}/logs.tar.gz`,
+          url: `${process.env.BASE_URL}result/${resultName}/logs.tar.gz`,
           icon: require('../assets/logs.svg')
         });
       } catch (error) {
