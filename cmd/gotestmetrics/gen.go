@@ -37,6 +37,12 @@ type genCmd struct {
 	ValidationMode string `kong:"name='validation-mode',enum='sloppy,strict',default='sloppy',help='Validation mode.'"`
 }
 
+type metricChart struct {
+	unit   string
+	cfg    testutil.TestConfigMetric
+	values map[string][]float64
+}
+
 func (c *genCmd) Run(ctx *Context) error {
 	benchmarks, err := gotest.MergeBenchmarks(c.Files)
 	if err != nil {
@@ -166,7 +172,7 @@ func (c *genCmd) writeHTML(benchmarks map[string]gotest.Benchmark) error {
 				}
 				if v, ok := run.Extra[unit]; ok {
 					metrics[unit][ref] = append(metrics[unit][ref], v)
-				} else if unit == "duration" {
+				} else if unit == string(testutil.MetricDuration) {
 					metrics[unit][ref] = append(metrics[unit][ref], time.Duration(run.NsPerOp).Seconds())
 				} else {
 					return errors.Errorf("missing metric %q for run %s", unit, ref)
@@ -174,49 +180,11 @@ func (c *genCmd) writeHTML(benchmarks map[string]gotest.Benchmark) error {
 			}
 		}
 
-		for unit, values := range metrics {
-			globalOptions := []charts.GlobalOpts{
-				charts.WithTitleOpts(opts.Title{
-					Title:    bc.Description,
-					Subtitle: name,
-				}),
-				charts.WithDataZoomOpts(opts.DataZoom{
-					Type: "slider",
-				}),
-				charts.WithToolboxOpts(opts.Toolbox{
-					Show:   opts.Bool(true),
-					Orient: "horizontal",
-					Right:  "100",
-					Feature: &opts.ToolBoxFeature{
-						DataZoom: &opts.ToolBoxFeatureDataZoom{
-							Show: opts.Bool(true),
-						},
-						Restore: &opts.ToolBoxFeatureRestore{
-							Show: opts.Bool(true),
-						},
-						SaveAsImage: &opts.ToolBoxFeatureSaveAsImage{
-							Show: opts.Bool(true),
-						},
-					},
-				}),
-			}
-			switch bc.Metrics[unit].Chart {
-			case types.ChartBar:
-				chart, err := chartBar(globalOptions, bc.Metrics[unit], sortedRefs, name, unit, values)
-				if err != nil {
-					return err
-				}
-				cps = append(cps, chart)
-			case types.ChartBoxPlot:
-				chart, err := chartBoxPlot(globalOptions, bc.Metrics[unit], sortedRefs, name, unit, values)
-				if err != nil {
-					return err
-				}
-				cps = append(cps, chart)
-			default:
-				return errors.Errorf("unknown chart type %q for metric %q", bc.Metrics[unit].Chart, unit)
-			}
+		chartComponents, err := benchmarkChartComponents(chartGlobalOptions(bc.Description, name), bc, sortedRefs, name, metrics)
+		if err != nil {
+			return err
 		}
+		cps = append(cps, chartComponents...)
 	}
 
 	page := components.NewPage()
@@ -237,45 +205,119 @@ func (c *genCmd) writeHTML(benchmarks map[string]gotest.Benchmark) error {
 	return nil
 }
 
+func chartGlobalOptions(title, subtitle string) []charts.GlobalOpts {
+	return []charts.GlobalOpts{
+		charts.WithTitleOpts(opts.Title{
+			Title:    title,
+			Subtitle: subtitle,
+		}),
+		charts.WithDataZoomOpts(opts.DataZoom{
+			Type: "slider",
+		}),
+		charts.WithToolboxOpts(opts.Toolbox{
+			Show:   opts.Bool(true),
+			Orient: "horizontal",
+			Right:  "100",
+			Feature: &opts.ToolBoxFeature{
+				DataZoom: &opts.ToolBoxFeatureDataZoom{
+					Show: opts.Bool(true),
+				},
+				Restore: &opts.ToolBoxFeatureRestore{
+					Show: opts.Bool(true),
+				},
+				SaveAsImage: &opts.ToolBoxFeatureSaveAsImage{
+					Show: opts.Bool(true),
+				},
+			},
+		}),
+	}
+}
+
+func benchmarkChartComponents(globalOpts []charts.GlobalOpts, bc *testutil.TestConfigBenchmark, sortedRefs []candidates.Ref, name string, metrics map[string]map[string][]float64) ([]components.Charter, error) {
+	var cps []components.Charter
+	combinedMetrics := make(map[string]struct{})
+	if chart, ok, err := chartDurationAlloc(globalOpts, bc, sortedRefs, name, metrics); err != nil {
+		return nil, err
+	} else if ok {
+		cps = append(cps, chart)
+		combinedMetrics[string(testutil.MetricDuration)] = struct{}{}
+		combinedMetrics[string(testutil.MetricAlloc)] = struct{}{}
+	}
+
+	for _, unit := range sortedMetricUnits(metrics) {
+		if _, ok := combinedMetrics[unit]; ok {
+			continue
+		}
+		cfg := bc.Metrics[unit]
+		switch cfg.Chart {
+		case types.ChartBar:
+			chart, err := chartBar(globalOpts, cfg, sortedRefs, name, unit, metrics[unit])
+			if err != nil {
+				return nil, err
+			}
+			cps = append(cps, chart)
+		case types.ChartBoxPlot:
+			chart, err := chartBoxPlot(globalOpts, cfg, sortedRefs, name, unit, metrics[unit])
+			if err != nil {
+				return nil, err
+			}
+			cps = append(cps, chart)
+		default:
+			return nil, errors.Errorf("unknown chart type %q for metric %q", cfg.Chart, unit)
+		}
+	}
+
+	return cps, nil
+}
+
+func chartDurationAlloc(globalOpts []charts.GlobalOpts, bc *testutil.TestConfigBenchmark, sortedRefs []candidates.Ref, name string, metrics map[string]map[string][]float64) (components.Charter, bool, error) {
+	durationUnit := string(testutil.MetricDuration)
+	allocUnit := string(testutil.MetricAlloc)
+
+	durationCfg, ok := bc.Metrics[durationUnit]
+	if !ok {
+		return nil, false, nil
+	}
+	allocCfg, ok := bc.Metrics[allocUnit]
+	if !ok {
+		return nil, false, nil
+	}
+	if durationCfg.Chart != types.ChartBoxPlot || allocCfg.Chart != types.ChartBoxPlot {
+		return nil, false, nil
+	}
+
+	durationValues, ok := metrics[durationUnit]
+	if !ok {
+		return nil, false, nil
+	}
+	allocValues, ok := metrics[allocUnit]
+	if !ok {
+		return nil, false, nil
+	}
+
+	chart, err := chartBoxPlotOverlay(globalOpts, sortedRefs, name,
+		metricChart{unit: durationUnit, cfg: durationCfg, values: durationValues},
+		metricChart{unit: allocUnit, cfg: allocCfg, values: allocValues},
+	)
+	if err != nil {
+		return nil, false, err
+	}
+	return chart, true, nil
+}
+
 func chartBar(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric, sortedRefs []candidates.Ref, name, unit string, values map[string][]float64) (components.Charter, error) {
-	var refs []string
 	var data []opts.BarData
-	var allv []float64
-	var total float64
-	if len(sortedRefs) == 0 {
-		for ref, v := range values {
-			allv = append(allv, v...)
-			m, err := stats.Median(v)
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to calculate median")
-			}
-			total += m
-			refs = append(refs, ref)
-			mr, err := stats.Round(m, 5)
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to round median")
-			}
-			data = append(data, opts.BarData{Value: mr})
+	refs, valueSets := orderedMetricValues(sortedRefs, values)
+	for _, v := range valueSets {
+		m, err := stats.Median(v)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to calculate median")
 		}
-	} else {
-		for _, ref := range sortedRefs {
-			v, ok := values[ref.Name]
-			if !ok {
-				continue
-			}
-			allv = append(allv, v...)
-			m, err := stats.Median(v)
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to calculate median")
-			}
-			total += m
-			refs = append(refs, ref.Name)
-			mr, err := stats.Round(m, 5)
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to round median")
-			}
-			data = append(data, opts.BarData{Value: mr})
+		mr, err := stats.Round(m, 5)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to round median")
 		}
+		data = append(data, opts.BarData{Value: mr})
 	}
 
 	var seriesOpts []charts.SeriesOpts
@@ -296,33 +338,10 @@ func chartBar(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric, sor
 }
 
 func chartBoxPlot(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric, sortedRefs []candidates.Ref, name, unit string, values map[string][]float64) (components.Charter, error) {
-	var refs []string
-	var data []opts.BoxPlotData
-	var allv []float64
-	if len(sortedRefs) == 0 {
-		for ref, v := range values {
-			allv = append(allv, v...)
-			refs = append(refs, ref)
-			plotData, err := createBoxPlotData(v)
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to create box plot data")
-			}
-			data = append(data, opts.BoxPlotData{Value: plotData})
-		}
-	} else {
-		for _, ref := range sortedRefs {
-			v, ok := values[ref.Name]
-			if !ok {
-				continue
-			}
-			allv = append(allv, v...)
-			refs = append(refs, ref.Name)
-			plotData, err := createBoxPlotData(v)
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to create box plot data")
-			}
-			data = append(data, opts.BoxPlotData{Value: plotData})
-		}
+	refs, valueSets := orderedMetricValues(sortedRefs, values)
+	data, err := boxPlotSeriesData(valueSets)
+	if err != nil {
+		return nil, err
 	}
 
 	chart := charts.NewBoxPlot()
@@ -332,6 +351,134 @@ func chartBoxPlot(globalOpts []charts.GlobalOpts, cfg testutil.TestConfigMetric,
 	chart.SetXAxis(refs).AddSeries(cfg.Description, data)
 
 	return chart, nil
+}
+
+func chartBoxPlotOverlay(globalOpts []charts.GlobalOpts, sortedRefs []candidates.Ref, name string, primary, secondary metricChart) (components.Charter, error) {
+	refs, primaryValues, secondaryValues := orderedCommonMetricValues(sortedRefs, primary.values, secondary.values)
+	primaryData, err := boxPlotSeriesData(primaryValues)
+	if err != nil {
+		return nil, err
+	}
+	secondaryData, err := boxPlotSeriesData(secondaryValues)
+	if err != nil {
+		return nil, err
+	}
+
+	chart := charts.NewBoxPlot()
+	chart.ChartID = chartIdentity(name, primary.unit+"+"+secondary.unit)
+	chart.ExtendYAxis(opts.YAxis{})
+	chartOpts := append([]charts.GlobalOpts{}, globalOpts...)
+	chartOpts = append(chartOpts,
+		charts.WithYAxisOpts(metricYAxis(primary.cfg, "left"), 0),
+		charts.WithYAxisOpts(metricYAxis(secondary.cfg, "right"), 1),
+	)
+	chart.SetGlobalOptions(chartOpts...)
+	chart.SetXAxis(refs).AddSeries(primary.cfg.Description, primaryData, withYAxisIndex(0))
+
+	overlay := charts.NewBoxPlot()
+	overlay.AddSeries(secondary.cfg.Description, secondaryData, withYAxisIndex(1))
+	chart.Overlap(overlay)
+
+	return chart, nil
+}
+
+func metricYAxis(cfg testutil.TestConfigMetric, position string) opts.YAxis {
+	return opts.YAxis{
+		Name:         cfg.Description,
+		NameLocation: "middle",
+		NameGap:      45,
+		Type:         "value",
+		Position:     position,
+		AlignTicks:   opts.Bool(true),
+	}
+}
+
+func withYAxisIndex(index int) charts.SeriesOpts {
+	return charts.WithSeriesOpts(func(s *charts.SingleSeries) {
+		s.YAxisIndex = index
+	})
+}
+
+func sortedMetricUnits(metrics map[string]map[string][]float64) []string {
+	units := make([]string, 0, len(metrics))
+	for unit := range metrics {
+		units = append(units, unit)
+	}
+	sort.Strings(units)
+	return units
+}
+
+func orderedMetricValues(sortedRefs []candidates.Ref, values map[string][]float64) ([]string, [][]float64) {
+	var refs []string
+	var valueSets [][]float64
+	if len(sortedRefs) == 0 {
+		refs = make([]string, 0, len(values))
+		for ref := range values {
+			refs = append(refs, ref)
+		}
+		sort.Strings(refs)
+		for _, ref := range refs {
+			valueSets = append(valueSets, values[ref])
+		}
+		return refs, valueSets
+	}
+
+	for _, ref := range sortedRefs {
+		v, ok := values[ref.Name]
+		if !ok {
+			continue
+		}
+		refs = append(refs, ref.Name)
+		valueSets = append(valueSets, v)
+	}
+	return refs, valueSets
+}
+
+func orderedCommonMetricValues(sortedRefs []candidates.Ref, primary, secondary map[string][]float64) ([]string, [][]float64, [][]float64) {
+	var refs []string
+	var primaryValues [][]float64
+	var secondaryValues [][]float64
+	if len(sortedRefs) == 0 {
+		refs = make([]string, 0, len(primary))
+		for ref := range primary {
+			if _, ok := secondary[ref]; ok {
+				refs = append(refs, ref)
+			}
+		}
+		sort.Strings(refs)
+		for _, ref := range refs {
+			primaryValues = append(primaryValues, primary[ref])
+			secondaryValues = append(secondaryValues, secondary[ref])
+		}
+		return refs, primaryValues, secondaryValues
+	}
+
+	for _, ref := range sortedRefs {
+		pv, ok := primary[ref.Name]
+		if !ok {
+			continue
+		}
+		sv, ok := secondary[ref.Name]
+		if !ok {
+			continue
+		}
+		refs = append(refs, ref.Name)
+		primaryValues = append(primaryValues, pv)
+		secondaryValues = append(secondaryValues, sv)
+	}
+	return refs, primaryValues, secondaryValues
+}
+
+func boxPlotSeriesData(valueSets [][]float64) ([]opts.BoxPlotData, error) {
+	var data []opts.BoxPlotData
+	for _, v := range valueSets {
+		plotData, err := createBoxPlotData(v)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create box plot data")
+		}
+		data = append(data, opts.BoxPlotData{Value: plotData})
+	}
+	return data, nil
 }
 
 func chartIdentity(name, unit string) string {
