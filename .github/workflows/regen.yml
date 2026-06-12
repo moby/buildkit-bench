@@ -35,24 +35,62 @@ jobs:
       results: ${{ steps.set.outputs.results }}
     steps:
       -
-        name: Checkout gh-pages
+        name: Checkout
+        uses: actions/checkout@v6
+      -
+        name: List deployed results
+        id: pages-results
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { exitCode, stdout } = await exec.getExecOutput('node', ['./website/downloadResults.js', '--list'], {
+              ignoreReturnCode: true,
+            });
+            if (exitCode === 0) {
+              core.setOutput('listed', 'true');
+              core.setOutput('results', stdout.trim());
+            } else if (exitCode === 2) {
+              core.setOutput('listed', 'false');
+            } else {
+              core.setFailed(`downloadResults.js failed with exit code ${exitCode}`);
+            }
+      -
+        name: Checkout gh-pages fallback
+        if: steps.pages-results.outputs.listed != 'true'
         uses: actions/checkout@v6
         with:
           ref: gh-pages
+          path: bin/gh-pages
+      -
+        name: Copy gh-pages fallback results
+        if: steps.pages-results.outputs.listed != 'true'
+        run: |
+          if [ -d ./bin/gh-pages/result ]; then
+            mkdir -p ./website/public/result
+            cp -a ./bin/gh-pages/result/. ./website/public/result/
+          fi
       -
         name: Create results matrix
         uses: actions/github-script@v9
         id: set
         with:
           script: |
+            const deployedResults = process.env.DEPLOYED_RESULTS;
+            if (deployedResults) {
+              core.info(deployedResults);
+              core.setOutput('results', deployedResults);
+              return;
+            }
             const fs = require('fs');
             const path = require('path');
-            const resultDir = './result';
+            const resultDir = './website/public/result';
             const results = JSON.stringify(fs.readdirSync(resultDir).filter(d => {
               return fs.statSync(path.join(resultDir, d)).isDirectory();
             }), null, 2);
             core.info(results);
             core.setOutput('results', results);
+        env:
+          DEPLOYED_RESULTS: ${{ steps.pages-results.outputs.results }}
 
   gen:
     runs-on: ubuntu-24.04
@@ -67,11 +105,36 @@ jobs:
         name: Checkout
         uses: actions/checkout@v6
       -
-        name: Checkout gh-pages
+        name: Download deployed result
+        id: pages-result
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { exitCode } = await exec.getExecOutput('node', ['./website/downloadResults.js', process.env.RESULT_NAME], {
+              ignoreReturnCode: true,
+            });
+            if (exitCode === 0) {
+              core.setOutput('downloaded', 'true');
+            } else if (exitCode === 2) {
+              core.setOutput('downloaded', 'false');
+            } else {
+              core.setFailed(`downloadResults.js failed with exit code ${exitCode}`);
+            }
+        env:
+          RESULT_NAME: ${{ matrix.result }}
+      -
+        name: Checkout gh-pages fallback
+        if: steps.pages-result.outputs.downloaded != 'true'
         uses: actions/checkout@v6
         with:
           ref: gh-pages
           path: bin/gh-pages
+      -
+        name: Copy gh-pages fallback result
+        if: steps.pages-result.outputs.downloaded != 'true'
+        run: |
+          mkdir -p ./website/public/result/${{ matrix.result }}
+          cp -a ./bin/gh-pages/result/${{ matrix.result }}/. ./website/public/result/${{ matrix.result }}/
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -88,15 +151,15 @@ jobs:
           provenance: false
           set: |
             *.cache-from=type=registry,ref=${{ env.BUILDKIT_CACHE_REPO }}:tests-base
-            *.contexts.tests-results=cwd://bin/gh-pages/result/${{ matrix.result }}
+            *.contexts.tests-results=cwd://website/public/result/${{ matrix.result }}
             *.output=./bin/report/${{ matrix.result }}
       -
         name: Copy files
         run: |
-          if [[ -f ./bin/report/${{ matrix.result }}/logs.tar.gz ]] && [[ -d ./bin/gh-pages/result/${{ matrix.result }}/logs ]]; then
-            rm -rf ./bin/gh-pages/result/${{ matrix.result }}/logs
+          if [[ -f ./bin/report/${{ matrix.result }}/logs.tar.gz ]] && [[ -d ./website/public/result/${{ matrix.result }}/logs ]]; then
+            rm -rf ./website/public/result/${{ matrix.result }}/logs
           fi
-          rsync -av --exclude='*.html' ./bin/gh-pages/result/${{ matrix.result }}/ ./bin/report/${{ matrix.result }}/
+          rsync -av --exclude='*.html' ./website/public/result/${{ matrix.result }}/ ./bin/report/${{ matrix.result }}/
       -
         name: Upload report
         uses: actions/upload-artifact@v7
@@ -108,8 +171,7 @@ jobs:
   publish:
     runs-on: ubuntu-24.04
     permissions:
-      # required to push to gh-pages
-      contents: write
+      contents: read
     needs:
       - gen
     steps:
@@ -136,15 +198,29 @@ jobs:
         name: Build website
         uses: docker/bake-action@v7
         with:
+          source: .
+          no-cache: true
           targets: website
           provenance: false
       -
-        name: Publish
-        uses: crazy-max/ghaction-github-pages@v5
+        name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v5
         with:
-          target_branch: gh-pages
-          build_dir: ./bin/website
-          jekyll: false
-          dry_run: ${{ github.event_name == 'pull_request' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          path: ./bin/website
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    needs:
+      - publish
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      -
+        name: Deploy GitHub Pages site
+        id: deployment
+        uses: actions/deploy-pages@v5
