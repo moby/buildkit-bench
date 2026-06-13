@@ -117,6 +117,8 @@ jobs:
       contents: read
     needs:
       - gen
+    outputs:
+      pages_artifact_id: ${{ steps.upload-pages-artifact.outputs.artifact-id }}
     steps:
       -
         name: Checkout
@@ -137,10 +139,19 @@ jobs:
           targets: website
           provenance: false
       -
+        name: Archive GitHub Pages artifact
+        run: |
+          tar --dereference --hard-dereference --directory ./bin/website -cvf "$RUNNER_TEMP/artifact.tar" .
+      -
         name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v5
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        id: upload-pages-artifact
+        uses: actions/upload-artifact@v7
         with:
-          path: ./bin/website
+          name: github-pages
+          path: ${{ runner.temp }}/artifact.tar
+          retention-days: 1
+          if-no-files-found: error
 
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
@@ -158,3 +169,25 @@ jobs:
         name: Deploy GitHub Pages site
         id: deployment
         uses: actions/deploy-pages@v5
+
+  cleanup-pages-artifact:
+    if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && needs.publish.result == 'success' && needs.deploy.result != 'skipped' && needs.publish.outputs.pages_artifact_id != ''
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+    needs:
+      - publish
+      - deploy
+    steps:
+      -
+        name: Delete GitHub Pages artifact
+        uses: actions/github-script@v9
+        env:
+          ARTIFACT_ID: ${{ needs.publish.outputs.pages_artifact_id }}
+        with:
+          script: |
+            await github.rest.actions.deleteArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: Number(process.env.ARTIFACT_ID),
+            });
