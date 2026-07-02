@@ -1,7 +1,6 @@
 # reusable workflow
 name: .binaries
 
-# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
 permissions:
   contents: read
 
@@ -32,6 +31,9 @@ on:
       last_releases:
         type: string
         default: 3
+    secrets:
+      DOCKERHUB_TOKEN:
+        required: false
 
 env:
   GO_VERSION: 1.26
@@ -47,10 +49,10 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       -
         name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
           go-version: ${{ env.GO_VERSION }}
       -
@@ -58,21 +60,28 @@ jobs:
         id: set
         run: |
           go run -mod=vendor ./cmd/refcandidates \
-            --repo "${{ inputs.repo }}" \
-            --refs "${{ inputs.refs }}" \
-            --last-days "${{ inputs.last_days }}" \
-            --last-releases "${{ inputs.last_releases }}" \
-            --file-output ./bin/${{ inputs.candidates_key }}.json \
+            --repo "$INPUT_REPO" \
+            --refs "$INPUT_REFS" \
+            --last-days "$LAST_DAYS" \
+            --last-releases "$LAST_RELEASES" \
+            --file-output "./bin/${CANDIDATES_KEY}.json" \
             --gha-output includes
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CANDIDATES_KEY: ${{ inputs.candidates_key }}
+          GITHUB_TOKEN: ${{ github.token }}
+          INPUT_REPO: ${{ inputs.repo }}
+          INPUT_REFS: ${{ inputs.refs }}
+          LAST_DAYS: ${{ inputs.last_days }}
+          LAST_RELEASES: ${{ inputs.last_releases }}
       -
         name: List candidates
         run: |
-          jq . ./bin/${{ inputs.candidates_key }}.json
+          jq . "./bin/${CANDIDATES_KEY}.json"
+        env:
+          CANDIDATES_KEY: ${{ inputs.candidates_key }}
       -
         name: Upload candidates
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ inputs.candidates_key }}
           path: ./bin/${{ inputs.candidates_key }}.json
@@ -91,19 +100,27 @@ jobs:
       -
         name: Prepare
         run: |
-          case ${{ inputs.target }} in
+          case "$TARGET" in
             buildkit)
-              echo "BUILDKIT_REPO=${{ inputs.repo }}" >> $GITHUB_ENV
-              echo "BUILDKIT_REFS=${{ matrix.ref }}" >> $GITHUB_ENV
+              echo "BUILDKIT_REPO=$INPUT_REPO" >> "$GITHUB_ENV"
+              echo "BUILDKIT_REFS=$REF" >> "$GITHUB_ENV"
               ;;
             buildx)
-              echo "BUILDX_REPO=${{ inputs.repo }}" >> $GITHUB_ENV
-              echo "BUILDX_REFS=${{ matrix.ref }}" >> $GITHUB_ENV
+              echo "BUILDX_REPO=$INPUT_REPO" >> "$GITHUB_ENV"
+              echo "BUILDX_REFS=$REF" >> "$GITHUB_ENV"
+              ;;
+            *)
+              echo "unsupported target: $TARGET" >&2
+              exit 1
               ;;
           esac
+        env:
+          INPUT_REPO: ${{ inputs.repo }}
+          REF: ${{ matrix.ref }}
+          TARGET: ${{ inputs.target }}
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
         with:
           version: ${{ env.SETUP_BUILDX_VERSION }}
           driver-opts: image=${{ env.SETUP_BUILDKIT_IMAGE }}
@@ -111,13 +128,13 @@ jobs:
       -
         name: Login to Docker Hub
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v4
+        uses: docker/login-action@c99871dec2022cc055c062a10cc1a1310835ceb4 # v4.3.0
         with:
           username: ${{ vars.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Build
-        uses: docker/bake-action@v7
+        uses: docker/bake-action@d3418bd7d0e9324001bca92fa8ba175ea7e6dc9b # v7.3.0
         with:
           targets: ${{ inputs.target }}-build
           provenance: false
@@ -130,10 +147,12 @@ jobs:
         # https://github.com/actions/upload-artifact/?tab=readme-ov-file#permission-loss
         name: Tar binaries
         working-directory: ./bin/binaries
-        run: tar -czvf ../binaries-${{ matrix.name }}.tar.gz *
+        run: tar -czvf "../binaries-${BINARY_NAME}.tar.gz" *
+        env:
+          BINARY_NAME: ${{ matrix.name }}
       -
         name: Upload binaries
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ inputs.artifact_key }}-${{ matrix.name }}
           path: ./bin/binaries-${{ matrix.name }}.tar.gz
