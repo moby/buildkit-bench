@@ -4,7 +4,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
 permissions:
   contents: read
 
@@ -27,11 +26,11 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       -
         name: Generate matrix
         id: generate
-        uses: docker/bake-action/subaction/matrix@v7
+        uses: docker/bake-action/subaction/matrix@d3418bd7d0e9324001bca92fa8ba175ea7e6dc9b # v7.3.0
         with:
           target: validate
 
@@ -46,6 +45,6 @@ jobs:
     steps:
       -
         name: Validate
-        uses: docker/bake-action@v7
+        uses: docker/bake-action@d3418bd7d0e9324001bca92fa8ba175ea7e6dc9b # v7.3.0
         with:
           targets: ${{ matrix.target }}
