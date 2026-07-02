@@ -65,7 +65,7 @@ func (e *eventHandler) Event(event testjson.TestEvent, _ *testjson.Execution) er
 		return nil
 	}
 	if e.log != nil {
-		log.Printf(event.Output)
+		e.log.Printf("%s", event.Output)
 	}
 
 	e.mu.Lock()
