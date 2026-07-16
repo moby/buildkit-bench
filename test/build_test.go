@@ -1,7 +1,12 @@
 package test
 
 import (
+	"archive/tar"
 	"fmt"
+	"io"
+	"math/rand"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -15,6 +20,16 @@ import (
 const dockerfileImagePin = "docker/dockerfile:1.9.0"
 
 var contextDirApplier fstest.Applier
+
+const (
+	addTarManyFileDirs          = 100
+	addTarManyFilesPerDir       = 100
+	addTarManyFileMinSizeBytes  = 10 * 1024
+	addTarManyFileMaxSizeBytes  = 2 * 1024 * 1024
+	addTarManyFileMaxTotalBytes = 512 * 1024 * 1024
+	addTarManyFileRandSeed      = 1
+	addTarLargeFileSizeBytes    = 512 * 1024 * 1024
+)
 
 func BenchmarkBuild(b *testing.B) {
 	mirroredImages := testutil.OfficialImages(
@@ -55,6 +70,8 @@ func BenchmarkBuild(b *testing.B) {
 		benchmarkBuildHighParallelization128x,
 		benchmarkBuildFileTransfer,
 		benchmarkBuildFileTransferCachedWithIteration,
+		benchmarkBuildAddTarManyFiles,
+		benchmarkBuildAddTarLargeFile,
 		benchmarkBuildEmulator,
 		benchmarkBuildExportUncompressed,
 		benchmarkBuildExportGzip,
@@ -240,6 +257,153 @@ RUN du -sh . && tree .
 			require.NoError(b, err, out)
 		})
 	}
+}
+
+func benchmarkBuildAddTarManyFiles(b *testing.B, sb testutil.Sandbox) {
+	dockerfile := []byte(`
+FROM busybox:latest
+ADD payload.tar /src/
+RUN test -f /src/payload/dir-099/file-099.txt
+`)
+	dir := tmpdir(b, fstest.CreateFile("Dockerfile", dockerfile, 0600))
+	writeManyFilesTar(b, filepath.Join(dir, "payload.tar"))
+
+	reportBuildkitdAlloc(b, sb, func() {
+		b.StartTimer()
+		out, err := buildxBuildCmd(sb, withArgs(dir))
+		b.StopTimer()
+		sb.WriteLogFile(b, "buildx", []byte(out))
+		require.NoError(b, err, out)
+	})
+}
+
+func benchmarkBuildAddTarLargeFile(b *testing.B, sb testutil.Sandbox) {
+	dockerfile := []byte(fmt.Sprintf(`
+FROM busybox:latest
+ADD payload.tar /src/
+RUN test "$(stat -c %%s /src/payload/blob.bin)" = "%d"
+`, addTarLargeFileSizeBytes))
+	dir := tmpdir(b, fstest.CreateFile("Dockerfile", dockerfile, 0600))
+	writeLargeFileTar(b, filepath.Join(dir, "payload.tar"), addTarLargeFileSizeBytes)
+
+	reportBuildkitdAlloc(b, sb, func() {
+		b.StartTimer()
+		out, err := buildxBuildCmd(sb, withArgs(dir))
+		b.StopTimer()
+		sb.WriteLogFile(b, "buildx", []byte(out))
+		require.NoError(b, err, out)
+	})
+}
+
+func writeManyFilesTar(tb testing.TB, name string) {
+	tb.Helper()
+
+	f, err := os.Create(name)
+	require.NoError(tb, err)
+
+	tw := tar.NewWriter(f)
+
+	writeTarDir(tb, tw, "payload")
+	sizes := addTarManyFileSizes(tb)
+	fileNum := 0
+	for dirIndex := 0; dirIndex < addTarManyFileDirs; dirIndex++ {
+		dirName := fmt.Sprintf("payload/dir-%03d", dirIndex)
+		writeTarDir(tb, tw, dirName)
+		for fileIndex := 0; fileIndex < addTarManyFilesPerDir; fileIndex++ {
+			fileName := fmt.Sprintf("%s/file-%03d.txt", dirName, fileIndex)
+			writeTarFile(tb, tw, fileName, sizes[fileNum], zeroReader{})
+			fileNum++
+		}
+	}
+	require.NoError(tb, tw.Close())
+	require.NoError(tb, f.Close())
+}
+
+func addTarManyFileSizes(tb testing.TB) []int64 {
+	tb.Helper()
+
+	totalFiles := addTarManyFileDirs * addTarManyFilesPerDir
+	require.LessOrEqual(tb, int64(totalFiles*addTarManyFileMinSizeBytes), int64(addTarManyFileMaxTotalBytes))
+
+	rng := rand.New(rand.NewSource(addTarManyFileRandSeed))
+	sizes := make([]int64, 0, totalFiles)
+	remainingBudget := int64(addTarManyFileMaxTotalBytes)
+	for fileNum := 0; fileNum < totalFiles; fileNum++ {
+		remainingFiles := totalFiles - fileNum
+		maxSize := remainingBudget - int64(remainingFiles-1)*addTarManyFileMinSizeBytes
+		require.GreaterOrEqual(tb, maxSize, int64(addTarManyFileMinSizeBytes))
+		maxSize = min(maxSize, int64(addTarManyFileMaxSizeBytes))
+
+		size := randomAddTarManyFileSize(rng)
+		size = min(size, maxSize)
+		sizes = append(sizes, size)
+		remainingBudget -= size
+	}
+	return sizes
+}
+
+func randomAddTarManyFileSize(rng *rand.Rand) int64 {
+	switch rng.Intn(100) {
+	case 0:
+		return randInt64Range(rng, 512*1024, addTarManyFileMaxSizeBytes)
+	case 1, 2, 3, 4, 5, 6, 7, 8:
+		return randInt64Range(rng, 64*1024, 512*1024)
+	default:
+		return randInt64Range(rng, addTarManyFileMinSizeBytes, 32*1024)
+	}
+}
+
+func randInt64Range(rng *rand.Rand, minValue, maxValue int64) int64 {
+	if maxValue <= minValue {
+		return minValue
+	}
+	return minValue + rng.Int63n(maxValue-minValue+1)
+}
+
+func writeLargeFileTar(tb testing.TB, name string, size int64) {
+	tb.Helper()
+
+	f, err := os.Create(name)
+	require.NoError(tb, err)
+
+	tw := tar.NewWriter(f)
+
+	writeTarDir(tb, tw, "payload")
+	writeTarFile(tb, tw, "payload/blob.bin", size, zeroReader{})
+	require.NoError(tb, tw.Close())
+	require.NoError(tb, f.Close())
+}
+
+func writeTarDir(tb testing.TB, tw *tar.Writer, name string) {
+	tb.Helper()
+
+	err := tw.WriteHeader(&tar.Header{
+		Name:     name,
+		Typeflag: tar.TypeDir,
+		Mode:     0755,
+	})
+	require.NoError(tb, err)
+}
+
+func writeTarFile(tb testing.TB, tw *tar.Writer, name string, size int64, r io.Reader) {
+	tb.Helper()
+
+	err := tw.WriteHeader(&tar.Header{
+		Name: name,
+		Mode: 0644,
+		Size: size,
+	})
+	require.NoError(tb, err)
+
+	_, err = io.CopyN(tw, r, size)
+	require.NoError(tb, err)
+}
+
+type zeroReader struct{}
+
+func (zeroReader) Read(p []byte) (int, error) {
+	clear(p)
+	return len(p), nil
 }
 
 // https://github.com/moby/buildkit/pull/4949
