@@ -1,11 +1,22 @@
 package gotest
 
 import (
+	"bytes"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
+
+func TestParseWritesOutputToConfiguredLogger(t *testing.T) {
+	var logs bytes.Buffer
+	_, _, err := Parse(ParseConfig{
+		Stdout: strings.NewReader(`{"Time":"2024-09-03T14:40:54.564305995Z","Action":"output","Package":"pkg","Output":"literal %s\n"}`),
+		Logger: &logs,
+	})
+	require.NoError(t, err)
+	require.Contains(t, logs.String(), "literal %s")
+}
 
 func TestParse(t *testing.T) {
 	res, _, err := Parse(ParseConfig{
