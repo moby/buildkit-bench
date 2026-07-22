@@ -9,6 +9,8 @@ const resultsDir = process.env.RESULTS_DIR || path.join(__dirname, 'public', 're
 const args = process.argv.slice(2);
 const listOnly = args.includes('--list');
 const requestedResults = new Set(args.filter(arg => arg && arg !== '--list'));
+const fetchAttempts = 5;
+const fetchRetryBaseDelayMs = 1000;
 
 function ensureTrailingSlash(value) {
   return value.endsWith('/') ? value : `${value}/`;
@@ -41,12 +43,58 @@ function resultUrl(resultName, filePath) {
   return new URL(encodedPath, pagesUrl).toString();
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function isRetryableStatus(status) {
+  return status === 408 || status === 429 || status >= 500;
+}
+
+function retryDelayMs(attempt) {
+  return fetchRetryBaseDelayMs * (2 ** (attempt - 1));
+}
+
+function formatFetchError(err) {
+  return err instanceof Error ? err.message : String(err);
+}
+
+async function waitBeforeRetry(url, reason, attempt) {
+  const delay = retryDelayMs(attempt);
+  console.warn(`Failed to download ${url}: ${reason}; retrying in ${delay}ms (${attempt + 1}/${fetchAttempts})`);
+  await sleep(delay);
+}
+
 async function fetchRequired(url) {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to download ${url}: ${response.status} ${response.statusText}`);
+  for (let attempt = 1; attempt <= fetchAttempts; attempt++) {
+    let response;
+    try {
+      response = await fetch(url);
+    } catch (err) {
+      const reason = formatFetchError(err);
+      if (attempt === fetchAttempts) {
+        throw new Error(`Failed to download ${url}: ${reason}`);
+      }
+      await waitBeforeRetry(url, reason, attempt);
+      continue;
+    }
+
+    if (response.ok) {
+      return response;
+    }
+
+    const reason = `${response.status} ${response.statusText}`;
+    if (!isRetryableStatus(response.status) || attempt === fetchAttempts) {
+      throw new Error(`Failed to download ${url}: ${reason}`);
+    }
+
+    if (response.body) {
+      await response.body.cancel().catch(() => {});
+    }
+    await waitBeforeRetry(url, reason, attempt);
   }
-  return response;
+
+  throw new Error(`Failed to download ${url}`);
 }
 
 async function downloadFile(resultName, filePath) {
@@ -79,10 +127,7 @@ function normalizeManifest(manifest) {
 
 async function readManifest() {
   const manifestUrl = new URL('result/manifest.json', pagesUrl).toString();
-  const response = await fetch(manifestUrl);
-  if (!response.ok) {
-    throw new Error(`Failed to download ${manifestUrl}: ${response.status} ${response.statusText}`);
-  }
+  const response = await fetchRequired(manifestUrl);
   return normalizeManifest(await response.json());
 }
 
