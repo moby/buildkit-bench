@@ -1,0 +1,152 @@
+name: update-deps
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * *'
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    strategy:
+      fail-fast: false
+      matrix:
+        dep:
+          - buildkit
+          - buildx
+          - registry
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      -
+        name: Update dependency
+        id: update
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          INPUT_DEP: ${{ matrix.dep }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const dep = core.getInput('dep');
+
+            function escapeRegExp(value) {
+              return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+
+            function dockerfileArgPattern(key) {
+              return new RegExp(`^(ARG ${escapeRegExp(key)}=)(.+)$`, 'm');
+            }
+
+            function stripLeadingV(value) {
+              return value.startsWith('v') ? value.slice(1) : value;
+            }
+
+            function isSemverTag(value) {
+              return /^v?\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.test(value);
+            }
+
+            async function latestReleaseOrPrereleaseTag({owner, repo}) {
+              for (let page = 1; page <= 10; page++) {
+                const releases = await github.rest.repos.listReleases({
+                  owner,
+                  repo,
+                  page,
+                  per_page: 100
+                });
+                const release = releases.data.find(release => !release.draft && isSemverTag(release.tag_name));
+                if (release) {
+                  return release.tag_name;
+                }
+                if (releases.data.length < 100) {
+                  break;
+                }
+              }
+              throw new Error(`Unable to resolve latest semver release or pre-release for ${owner}/${repo}`);
+            }
+
+            const dependencyConfigs = {
+              buildkit: {
+                name: 'BuildKit version',
+                branch: 'deps/buildkit-version',
+                owner: 'moby',
+                repo: 'buildkit',
+                arg: 'BUILDKIT_VERSION',
+                sourceUrl: 'https://github.com/moby/buildkit/releases'
+              },
+              buildx: {
+                name: 'Buildx version',
+                branch: 'deps/buildx-version',
+                owner: 'docker',
+                repo: 'buildx',
+                arg: 'BUILDX_VERSION',
+                sourceUrl: 'https://github.com/docker/buildx/releases'
+              },
+              registry: {
+                name: 'Registry version',
+                branch: 'deps/registry-version',
+                owner: 'distribution',
+                repo: 'distribution',
+                arg: 'REGISTRY_VERSION',
+                sourceUrl: 'https://github.com/distribution/distribution/releases'
+              }
+            };
+
+            const config = dependencyConfigs[dep];
+            if (!config) {
+              throw new Error(`Unknown dependency ${dep}`);
+            }
+
+            const tag = await latestReleaseOrPrereleaseTag(config);
+            const absolutePath = path.join(process.env.GITHUB_WORKSPACE, 'Dockerfile');
+            const content = fs.readFileSync(absolutePath, 'utf8');
+            const pattern = dockerfileArgPattern(config.arg);
+            const match = content.match(pattern);
+            if (!match) {
+              throw new Error(`Missing ${config.arg} in Dockerfile`);
+            }
+
+            if (match[2] !== tag) {
+              fs.writeFileSync(absolutePath, content.replace(pattern, `$1${tag}`), 'utf8');
+              core.info(`New ${config.name} ${tag} found`);
+            } else {
+              core.info(`No workspace changes needed for ${config.name}`);
+            }
+
+            core.info(`Resolved ${config.name} from ${config.sourceUrl}`);
+            core.setOutput('branch', config.branch);
+            core.setOutput('title', `dockerfile: update ${dep} ${stripLeadingV(tag)}`);
+            core.setOutput('before', match[2]);
+            core.setOutput('after', tag);
+            core.setOutput('source-url', config.sourceUrl);
+      -
+        name: Create pull request
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          base: master
+          branch: ${{ steps.update.outputs.branch }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: ${{ steps.update.outputs.title }}
+          title: ${{ steps.update.outputs.title }}
+          signoff: true
+          delete-branch: true
+          body: |
+            This updates `Dockerfile` from `${{ steps.update.outputs.before }}` to `${{ steps.update.outputs.after }}`.
+
+            The source of truth for this update is ${{ steps.update.outputs.source-url }}.
