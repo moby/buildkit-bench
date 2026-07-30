@@ -187,9 +187,12 @@ func (c *genCmd) writeHTML(benchmarks map[string]gotest.Benchmark) error {
 		cps = append(cps, chartComponents...)
 	}
 
+	const benchmarkPageStyle = `<style> .box .container { flex: 0 0 100%; max-width: 100%; } .box .item { width: 100% !important; } </style>`
+	const benchmarkPageScript = `<script>(function () { function resizeCharts() { window.requestAnimationFrame(function () { document.querySelectorAll(".box .item").forEach(function (element) { var chart = echarts.getInstanceByDom(element); if (chart) { chart.resize(); } }); }); } window.addEventListener("resize", resizeCharts); window.addEventListener("load", resizeCharts); if (window.ResizeObserver) { window.addEventListener("load", function () { new ResizeObserver(resizeCharts).observe(document.body); }); } })();</script>`
 	page := components.NewPage()
 	page.PageTitle = "BuildKit Benchmarks"
 	page.Layout = components.PageFlexLayout
+	page.AddCustomizedHeaders(benchmarkPageStyle, benchmarkPageScript)
 	page.AddCharts(cps...)
 
 	f, err := os.Create(c.Output)
@@ -207,6 +210,9 @@ func (c *genCmd) writeHTML(benchmarks map[string]gotest.Benchmark) error {
 
 func chartGlobalOptions(title, subtitle string) []charts.GlobalOpts {
 	return []charts.GlobalOpts{
+		charts.WithInitializationOpts(opts.Initialization{
+			Width: "100%",
+		}),
 		charts.WithTitleOpts(opts.Title{
 			Title:    title,
 			Subtitle: subtitle,
