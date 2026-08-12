@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	ggithub "github.com/google/go-github/v65/github"
+	ggithub "github.com/google/go-github/v90/github"
 	"github.com/moby/buildkit-bench/util/github"
 	"github.com/pkg/errors"
 	"golang.org/x/mod/semver"

@@ -10,7 +10,7 @@ require (
 	github.com/docker/cli v29.6.2+incompatible
 	github.com/go-echarts/go-echarts/v2 v2.7.2
 	github.com/gofrs/flock v0.13.0
-	github.com/google/go-github/v65 v65.0.0
+	github.com/google/go-github/v90 v90.0.0
 	github.com/google/pprof v0.0.0-20260402051712-545e8a4df936
 	github.com/joho/godotenv v1.5.1
 	github.com/moby/buildkit v0.32.0
@@ -40,7 +40,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/in-toto/attestation v1.2.0 // indirect
 	github.com/in-toto/in-toto-golang v0.11.0 // indirect

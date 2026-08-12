@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	ggithub "github.com/google/go-github/v65/github"
+	ggithub "github.com/google/go-github/v90/github"
 	"github.com/stretchr/testify/require"
 )
 

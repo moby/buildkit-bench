@@ -3,7 +3,7 @@ package gha
 import (
 	"os"
 
-	"github.com/google/go-github/v65/github"
+	"github.com/google/go-github/v90/github"
 )
 
 func ParseEventFile(name string, fp string) (interface{}, error) {

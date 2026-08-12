@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v65/github"
+	"github.com/google/go-github/v90/github"
 	"github.com/pkg/errors"
 )
 
@@ -27,9 +27,13 @@ func NewClient(repo, token string) (*Client, error) {
 	if len(repoParts) != 2 {
 		return nil, errors.New("invalid GitHub repository format")
 	}
+	client, err := github.NewClient(github.WithAuthToken(token))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create GitHub API client")
+	}
 	return &Client{
 		ctx:    context.Background(),
-		client: github.NewClient(nil).WithAuthToken(token),
+		client: client,
 		owner:  repoParts[0],
 		repo:   repoParts[1],
 	}, nil
