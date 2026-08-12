@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	ggithub "github.com/google/go-github/v65/github"
+	ggithub "github.com/google/go-github/v90/github"
 	"github.com/moby/buildkit-bench/util/github"
 	"github.com/pkg/errors"
 	"golang.org/x/mod/semver"
@@ -26,7 +26,7 @@ type Candidates struct {
 	Releases map[string]Commit `json:"releases"`
 	Commits  map[string]Commit `json:"commits"`
 
-	ghc *github.Client
+	ghc githubClient
 }
 
 type Commit struct {
@@ -38,6 +38,13 @@ type Commit struct {
 type Ref struct {
 	Name   string
 	Commit Commit
+}
+
+type githubClient interface {
+	GetCommit(ref string) (*ggithub.RepositoryCommit, error)
+	GetCommits(since time.Time) ([]*ggithub.RepositoryCommit, error)
+	GetPullRequest(number int) (*ggithub.PullRequest, error)
+	GetTags() ([]*ggithub.RepositoryTag, error)
 }
 
 func New(ghc *github.Client, refs []string, lastDays int, lastReleases int) (*Candidates, error) {
@@ -108,10 +115,14 @@ func (c *Candidates) setRefs(refs []string) error {
 			if err != nil {
 				return errors.Wrapf(err, "failed to fetch commit for pull request %d", prNum)
 			}
+			cm, err := c.pullRequestCommit(pr, prNum)
+			if err != nil {
+				return errors.Wrapf(err, "failed to resolve commit for pull request %d", prNum)
+			}
 			res["pr-"+matches[1]] = Commit{
-				SHA:    *pr.MergeCommitSHA,
-				Date:   *pr.UpdatedAt.GetTime(),
-				Merged: *pr.Merged,
+				SHA:    cm.SHA,
+				Date:   cm.Date,
+				Merged: pr.GetMerged(),
 			}
 			continue
 		}
@@ -119,13 +130,33 @@ func (c *Candidates) setRefs(refs []string) error {
 		if err != nil {
 			return errors.Wrapf(err, "failed to fetch commit for ref %q", ref)
 		}
-		res[ref] = Commit{
-			SHA:  *cm.SHA,
-			Date: *cm.Commit.Committer.Date.GetTime(),
+		commit, err := repositoryCommit(cm)
+		if err != nil {
+			return errors.Wrapf(err, "failed to resolve commit for ref %q", ref)
 		}
+		res[ref] = commit
 	}
 	c.Refs = res
 	return nil
+}
+
+func (c *Candidates) pullRequestCommit(pr *ggithub.PullRequest, prNum int) (Commit, error) {
+	sha := pr.GetMergeCommitSHA()
+	if sha == "" {
+		cm, err := c.ghc.GetCommit("refs/pull/" + strconv.Itoa(prNum) + "/merge")
+		if err != nil {
+			return Commit{}, err
+		}
+		return repositoryCommit(cm)
+	}
+	updatedAt := pr.GetUpdatedAt()
+	if updatedAt.IsZero() {
+		return Commit{}, errors.New("missing updated_at")
+	}
+	return Commit{
+		SHA:  sha,
+		Date: updatedAt.Time,
+	}, nil
 }
 
 func (c *Candidates) setReleases(last int) error {
@@ -142,10 +173,11 @@ func (c *Candidates) setReleases(last int) error {
 			if err != nil {
 				return errors.Wrapf(err, "failed to fetch commit for tag commit %q", *tag.Commit.SHA)
 			}
-			res[*tag.Name] = Commit{
-				SHA:  *cm.SHA,
-				Date: *cm.Commit.Committer.Date.GetTime(),
+			commit, err := repositoryCommit(cm)
+			if err != nil {
+				return errors.Wrapf(err, "failed to resolve commit for tag commit %q", *tag.Commit.SHA)
 			}
+			res[*tag.Name] = commit
 		}
 	}
 	c.Releases = res
@@ -164,10 +196,11 @@ func (c *Candidates) setCommits(lastDays int) error {
 		} else if containsCommitSha(c.Releases, *cm.SHA) {
 			log.Printf("Skipping commit %s, already in releases", *cm.SHA)
 		} else {
-			res[date] = Commit{
-				SHA:  *cm.SHA,
-				Date: *cm.Commit.Committer.Date.GetTime(),
+			commit, err := repositoryCommit(cm)
+			if err != nil {
+				return errors.Wrapf(err, "failed to resolve commit %q", *cm.SHA)
 			}
+			res[date] = commit
 		}
 	}
 	c.Commits = res
@@ -257,4 +290,19 @@ func containsCommitSha(m map[string]Commit, sha string) bool {
 		}
 	}
 	return false
+}
+
+func repositoryCommit(cm *ggithub.RepositoryCommit) (Commit, error) {
+	sha := cm.GetSHA()
+	if sha == "" {
+		return Commit{}, errors.New("missing sha")
+	}
+	date := cm.GetCommit().GetCommitter().GetDate()
+	if date.IsZero() {
+		return Commit{}, errors.New("missing committer date")
+	}
+	return Commit{
+		SHA:  sha,
+		Date: date.Time,
+	}, nil
 }
