@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/kong v1.16.1
 	github.com/containerd/containerd/v2 v2.3.4
 	github.com/containerd/continuity v0.5.0
-	github.com/containerd/platforms v1.0.0-rc.4
+	github.com/containerd/platforms v1.0.0-rc.5
 	github.com/docker/cli v29.7.2+incompatible
 	github.com/go-echarts/go-echarts/v2 v2.7.2
 	github.com/gofrs/flock v0.13.1
