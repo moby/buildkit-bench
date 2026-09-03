@@ -14,7 +14,7 @@ require (
 	github.com/google/pprof v0.0.0-20260402051712-545e8a4df936
 	github.com/joho/godotenv v1.5.1
 	github.com/moby/buildkit v0.32.2
-	github.com/montanaflynn/stats v0.12.2
+	github.com/montanaflynn/stats v0.12.5
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/pkg/errors v0.9.1
 	github.com/sethvargo/go-githubactions v1.4.0
