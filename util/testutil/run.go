@@ -19,9 +19,9 @@ import (
 
 	"github.com/containerd/containerd/v2/core/content"
 	"github.com/containerd/containerd/v2/core/remotes/docker"
+	"github.com/docker/cli/cli/config"
 	"github.com/gofrs/flock"
 	"github.com/moby/buildkit/util/appcontext"
-	"github.com/docker/cli/cli/config"
 	"github.com/moby/buildkit/util/bklog"
 	"github.com/moby/buildkit/util/contentutil"
 	ocispecs "github.com/opencontainers/image-spec/specs-go/v1"
@@ -439,6 +439,7 @@ func newMatrixValue(key, name string, v interface{}) matrixValue {
 var localImageCache map[string]map[string]struct{}
 
 func copyImagesLocal(tb testing.TB, host string, images map[string]string) error {
+	ctx := tb.Context()
 	for to, from := range images {
 		if localImageCache == nil {
 			localImageCache = map[string]map[string]struct{}{}
@@ -452,7 +453,7 @@ func copyImagesLocal(tb testing.TB, host string, images map[string]string) error
 		localImageCache[host][to] = struct{}{}
 
 		// already exists check
-		if _, _, err := docker.NewResolver(docker.ResolverOptions{}).Resolve(context.TODO(), host+"/"+to); err == nil {
+		if _, _, err := docker.NewResolver(docker.ResolverOptions{}).Resolve(ctx, host+"/"+to); err == nil {
 			continue
 		}
 
@@ -470,7 +471,7 @@ func copyImagesLocal(tb testing.TB, host string, images map[string]string) error
 			}
 		} else {
 			dockerConfig := config.LoadDefaultConfigFile(os.Stderr)
-			desc, provider, err = contentutil.ProviderFromRef(from, contentutil.WithCredentials(
+			desc, provider, err = contentutil.ProviderFromRef(ctx, from, contentutil.WithCredentials(
 				func(host string) (string, string, error) {
 					ac, err := dockerConfig.GetAuthConfig(host)
 					if err != nil {
@@ -483,11 +484,11 @@ func copyImagesLocal(tb testing.TB, host string, images map[string]string) error
 			}
 		}
 
-		ingester, err := contentutil.IngesterFromRef(host + "/" + to)
+		ingester, err := contentutil.IngesterFromRef(ctx, host+"/"+to)
 		if err != nil {
 			return err
 		}
-		if err := contentutil.CopyChain(context.TODO(), ingester, provider, desc); err != nil {
+		if err := contentutil.CopyChain(ctx, ingester, provider, desc); err != nil {
 			return err
 		}
 		tb.Logf("copied %s to local mirror %s", from, host+"/"+to)
