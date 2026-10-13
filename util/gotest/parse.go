@@ -15,6 +15,7 @@ type ParseConfig struct {
 }
 
 type ParseResult struct {
+	Execution     *Execution `json:",omitempty"`
 	Tests         map[string]ParseEntry
 	Benchmarks    map[string]ParseEntry
 	BenchmarkInfo *BenchmarkInfo

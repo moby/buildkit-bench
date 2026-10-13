@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/moby/buildkit-bench/util/gotest/benchmark"
 	"github.com/pkg/errors"
@@ -20,6 +21,7 @@ type Benchmark struct {
 type BenchmarkRun struct {
 	benchmark.Benchmark
 	BenchmarkRunInfo
+	Time time.Time `json:",omitzero"`
 }
 
 type BenchmarkRunInfo struct {
@@ -37,6 +39,7 @@ func newBenchmark(event testjson.TestEvent) (ParseEntry, error) {
 	} else if !ok {
 		return nil, nil
 	}
+	be.Runs[0].Time = event.Time
 	return be, nil
 }
 
