@@ -29,7 +29,7 @@ env:
 
 jobs:
   prepare:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       results: ${{ steps.pages-results.outputs.results }}
     steps:
@@ -52,7 +52,7 @@ jobs:
             }
 
   gen:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs:
       - prepare
     strategy:
@@ -113,7 +113,7 @@ jobs:
           if-no-files-found: error
 
   publish:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     needs:
@@ -156,7 +156,7 @@ jobs:
 
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       pages: write
       id-token: write
@@ -173,7 +173,7 @@ jobs:
 
   cleanup-pages-artifact:
     if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && needs.publish.result == 'success' && needs.deploy.result != 'skipped' && needs.publish.outputs.pages_artifact_id != ''
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       actions: write
     needs:
