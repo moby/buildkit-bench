@@ -22,7 +22,7 @@ env:
 
 jobs:
   prepare:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       includes: ${{ steps.set.outputs.includes }}
     steps:
@@ -44,7 +44,7 @@ jobs:
           TARGET: ${{ inputs.target }}
 
   benchmark:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs:
       - prepare
     strategy:

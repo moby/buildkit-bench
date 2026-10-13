@@ -45,7 +45,7 @@ jobs:
   # limitation to using envs in a reusable workflow input
   # https://github.com/actions/runner/issues/2372
   get-env:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       BUILDKIT_REPO: ${{ env.BUILDKIT_REPO }}
       BUILDKIT_ARTIFACT_KEY: ${{ env.BUILDKIT_ARTIFACT_KEY }}
@@ -66,7 +66,7 @@ jobs:
       - run: "true"
 
   prepare:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       -
         name: Set up Docker Buildx
@@ -125,7 +125,7 @@ jobs:
       last_releases: ${{ needs.get-env.outputs.BUILDX_CANDIDATES_LAST_RELEASES }}
 
   test:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs:
       - prepare
       - buildkit-binaries
@@ -214,7 +214,7 @@ jobs:
       artifact_key: ${{ needs.get-env.outputs.BUILDX_ARTIFACT_KEY }}
 
   report:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs:
       - test
       - benchmark-buildkit
@@ -281,7 +281,7 @@ jobs:
           if-no-files-found: error
 
   publish:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs:
       - report
     outputs:
@@ -343,7 +343,7 @@ jobs:
 
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       pages: write
       id-token: write
@@ -360,7 +360,7 @@ jobs:
 
   cleanup-pages-artifact:
     if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && needs.publish.result == 'success' && needs.deploy.result != 'skipped' && needs.publish.outputs.pages_artifact_id != ''
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       actions: write
     needs:
