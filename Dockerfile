@@ -51,7 +51,12 @@ if [ -z "$project" ]; then
   echo "project argument is required"
   exit 1
 fi
-args=("gen" "--output=/out/$project.html" "--project=$project")
+args=("gen" "--html-output=/out/$project.html" "--json-output=/out/$project.json" "--project=$project")
+for candidate_project in buildkit buildx; do
+  if [ -f "/tests-results/$candidate_project-candidates.json" ]; then
+    args+=("--$candidate_project-candidates=/tests-results/$candidate_project-candidates.json")
+  fi
+done
 if [ -f /tests-results/name.txt ]; then
   args+=("--name=$(cat /tests-results/name.txt)")
 fi

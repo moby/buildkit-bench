@@ -11,7 +11,8 @@ import (
 )
 
 type parseCmd struct {
-	Output string `kong:"name='output',help='File to write the JSON output to.'"`
+	Output    string `kong:"name='output',help='File to write the JSON output to.'"`
+	Execution string `kong:"name='execution',help='Optional metadata file captured by the benchmark process.'"`
 }
 
 func (c *parseCmd) Run(ctx *Context) error {
@@ -21,6 +22,19 @@ func (c *parseCmd) Run(ctx *Context) error {
 	})
 	if err != nil {
 		return errors.Wrapf(err, "failed to scan test output")
+	}
+	if c.Execution != "" {
+		dt, err := os.ReadFile(c.Execution)
+		if err != nil && !os.IsNotExist(err) {
+			return errors.Wrap(err, "failed to read execution metadata")
+		}
+		if err == nil {
+			var execution gotest.Execution
+			if err := json.Unmarshal(dt, &execution); err != nil {
+				return errors.Wrap(err, "failed to decode execution metadata")
+			}
+			res.Execution = &execution
+		}
 	}
 
 	if ctx.Debug {

@@ -4,9 +4,22 @@ import (
 	"bytes"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
+
+func TestBenchmarkSampleTimes(t *testing.T) {
+	res, _, err := Parse(ParseConfig{
+		Stdout: strings.NewReader(`{"Time":"2026-10-13T03:00:00Z","Action":"output","Package":"bench","Output":"BenchmarkBuild/Simple/ref=master/run=1-8\t1\t100 ns/op\n"}
+{"Time":"2026-10-13T03:01:00Z","Action":"output","Package":"bench","Output":"BenchmarkBuild/Simple/ref=master/run=2-8\t1\t200 ns/op\n"}`),
+	})
+	require.NoError(t, err)
+	bm := res.Benchmarks["BenchmarkBuild/Simple/ref=master"].(*Benchmark)
+	require.Len(t, bm.Runs, 2)
+	require.Equal(t, time.Date(2026, 10, 13, 3, 0, 0, 0, time.UTC), bm.Runs[0].Time)
+	require.Equal(t, time.Date(2026, 10, 13, 3, 1, 0, 0, time.UTC), bm.Runs[1].Time)
+}
 
 func TestParseWritesOutputToConfiguredLogger(t *testing.T) {
 	var logs bytes.Buffer

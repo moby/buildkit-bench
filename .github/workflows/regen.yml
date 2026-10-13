@@ -15,10 +15,16 @@ on:
     paths:
       - .github/workflows/regen.yml
       - cmd/gotestmetrics/gen.go
+      - cmd/gotestmetrics/gen_html.go
+      - cmd/gotestmetrics/gen_json.go
+      - Dockerfile
   pull_request:
     paths:
       - .github/workflows/regen.yml
       - cmd/gotestmetrics/gen.go
+      - cmd/gotestmetrics/gen_html.go
+      - cmd/gotestmetrics/gen_json.go
+      - Dockerfile
 
 env:
   SETUP_BUILDX_VERSION: latest
@@ -101,7 +107,7 @@ jobs:
           if [[ -f "./bin/report/${RESULT_NAME}/logs.tar.gz" ]] && [[ -d "./website/public/result/${RESULT_NAME}/logs" ]]; then
             rm -rf "./website/public/result/${RESULT_NAME}/logs"
           fi
-          rsync -av --exclude='*.html' "./website/public/result/${RESULT_NAME}/" "./bin/report/${RESULT_NAME}/"
+          rsync -av --exclude='*.html' --exclude='/buildkit.json' --exclude='/buildx.json' "./website/public/result/${RESULT_NAME}/" "./bin/report/${RESULT_NAME}/"
         env:
           RESULT_NAME: ${{ matrix.result }}
       -
