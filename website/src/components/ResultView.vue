@@ -1,9 +1,12 @@
 <template>
   <div class="result">
-    <header class="result-header" v-if="metadataLinks.length > 0">
+    <header class="result-header" v-if="metadataLinks.length > 0 || jsonLinks.length > 0">
       <div class="metadata-links">
         <a v-for="link in metadataLinks" :key="link.url" :href="link.url" target="_blank" class="metadata-link">
           <img :src="link.icon" class="icon" /> {{ link.text }}
+        </a>
+        <a v-for="link in jsonLinks" :key="link.url" :href="link.url" :download="link.filename" class="metadata-link">
+          {{ link.text }}
         </a>
       </div>
     </header>
@@ -22,6 +25,8 @@
 </template>
 
 <script>
+import resultsData from '../assets/results.json';
+
 export default {
   name: 'ResultView',
   data() {
@@ -33,6 +38,14 @@ export default {
     };
   },
   computed: {
+    jsonLinks() {
+      const resultName = this.$route.params.result;
+      return (resultsData.jsonReports[resultName] || []).map(project => ({
+        text: `Download ${project === 'buildkit' ? 'BuildKit' : 'Buildx'} JSON`,
+        url: `${process.env.BASE_URL}result/${resultName}/${project}.json`,
+        filename: `${resultName}-${project}.json`,
+      }));
+    },
     buildkitUrl() {
       return `${process.env.BASE_URL}result/${this.$route.params.result}/${this.buildkitPage}`;
     },
@@ -143,6 +156,7 @@ export default {
 
 .metadata-links {
   display: flex;
+  flex-wrap: wrap;
   gap: 20px;
 }
 

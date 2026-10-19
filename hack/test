@@ -39,10 +39,15 @@ testOutputDir="$(pwd)/$TEST_RESULTS_DIR"
 mkdir -p "$testOutputDir"
 
 cacheVolume="buildkit-bench-cache"
+cacheReused=1
 if ! docker container inspect "$cacheVolume" >/dev/null 2>/dev/null; then
+  cacheReused=0
   docker create -v /root/.cache -v /root/.cache/registry -v /go/pkg/mod --name "$cacheVolume" alpine
 fi
-if [ "$TEST_KEEP_CACHE" != "1" ]; then
+keepCache=0
+if [ "$TEST_KEEP_CACHE" = "1" ]; then
+  keepCache=1
+else
   trap 'docker rm -v $cacheVolume >/dev/null' EXIT
 fi
 
@@ -82,6 +87,13 @@ if [ "$testTypeSet" = false ]; then
 fi
 gotestArgs="$gotestArgs ${TEST_FLAGS:--v} ${TEST_PKG:-./test/...}"
 
+testImageID=$(docker image inspect --format '{{.Id}}' "$TEST_IMAGE_ID")
+dockerVersion=$(docker version --format '{{.Server.Version}}')
+metadataArgs=()
+for name in GITHUB_REPOSITORY GITHUB_SHA GITHUB_REF GITHUB_RUN_ID GITHUB_RUN_ATTEMPT GITHUB_JOB GITHUB_EVENT_NAME RUNNER_ENVIRONMENT ImageOS ImageVersion; do
+  metadataArgs+=(-e "$name")
+done
+
 (
   set -x
   docker run --rm --privileged $dockerConfigMount \
@@ -91,7 +103,13 @@ gotestArgs="$gotestArgs ${TEST_FLAGS:--v} ${TEST_PKG:-./test/...}"
     -e TEST_BENCH_RUN=$TEST_BENCH_RUN \
     -e TEST_OUT_DIR=$TEST_OUT_DIR \
     -e BUILDKIT_REF_RANDOM=$BUILDKIT_REF_RANDOM \
+    -e TEST_KEEP_CACHE=$keepCache \
+    -e BENCH_CACHE_REUSED=$cacheReused \
+    -e TEST_EXECUTION_FILE=/tmp/buildkit-bench-execution.json \
+    -e BENCH_IMAGE_ID="$testImageID" \
+    -e BENCH_DOCKER_VERSION="$dockerVersion" \
+    "${metadataArgs[@]}" \
     -e REGISTRY_MIRROR_DIR=/root/.cache/registry \
-    $TEST_IMAGE_ID \
-    sh -c "go test ${gotestArgs} | gotestmetrics parse --output $TEST_OUT_DIR/gotestoutput.json"
+    "$testImageID" \
+    sh -c "go test ${gotestArgs} | gotestmetrics parse --execution /tmp/buildkit-bench-execution.json --output $TEST_OUT_DIR/gotestoutput.json"
 )

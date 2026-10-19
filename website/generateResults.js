@@ -41,7 +41,13 @@ async function main() {
     }));
   resultEntries.sort((a, b) => a.name.localeCompare(b.name));
 
-  const results = { results: resultEntries.map(result => result.name) };
+  const results = {
+    results: resultEntries.map(result => result.name),
+    jsonReports: Object.fromEntries(resultEntries.map(result => [
+      result.name,
+      ['buildkit', 'buildx'].filter(project => result.files.includes(`${project}.json`)),
+    ])),
+  };
   const manifest = { version: 1, results: resultEntries };
 
   await fs.promises.writeFile(outputFilePath, JSON.stringify(results, null, 2));
