@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { boxPlot, reportCharts } from '../src/charts/report.mjs';
+import { reportCharts } from '../src/charts/report.mjs';
+import { boxPlot } from '../src/reports/statistics.mjs';
 
 // Raw samples and expected values extracted independently from the JSON and
 // original go-echarts HTML for the same historical run (three candidates each).
