@@ -25,7 +25,7 @@ ARG WEBSITE_PUBLIC_PATH
 RUN --mount=type=bind,target=.,rw \
   --mount=type=cache,target=/src/.yarn/cache \
   --mount=from=install,source=/src/node_modules,target=/src/node_modules \
-  yarn run build && cp -Rf ./dist /out
+  yarn run test && yarn run build && cp -Rf ./dist /out
 
 FROM scratch AS build-update
 COPY --from=build /out /
