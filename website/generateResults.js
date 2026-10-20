@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const resultsDir = path.join(__dirname, 'public', 'result');
-const outputFilePath = path.join(__dirname, 'src', 'assets', 'results.json');
+const outputFilePath = path.join(__dirname, 'src', 'generated', 'results.json');
 const manifestFilePath = path.join(resultsDir, 'manifest.json');
 
 console.log('Running generateResults.js...');
@@ -43,6 +43,7 @@ async function main() {
 
   const results = {
     results: resultEntries.map(result => result.name),
+    logArchives: resultEntries.filter(result => result.files.includes('logs.tar.gz')).map(result => result.name),
     jsonReports: Object.fromEntries(resultEntries.map(result => [
       result.name,
       ['buildkit', 'buildx'].filter(project => result.files.includes(`${project}.json`)),
@@ -58,6 +59,7 @@ async function main() {
 
   const manifest = { version: 1, results: resultEntries };
 
+  await fs.promises.mkdir(path.dirname(outputFilePath), { recursive: true });
   await fs.promises.writeFile(outputFilePath, JSON.stringify(results, null, 2));
   console.log(`${outputFilePath} has been generated successfully.`);
 

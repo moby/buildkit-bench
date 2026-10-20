@@ -1,44 +1,38 @@
 <template>
-  <div class="container">
-    <aside class="sidebar">
-      <ResultsList />
-    </aside>
-    <section class="result-view">
-      <router-view></router-view>
-    </section>
+  <div class="app-shell" :data-theme="theme">
+    <router-view :theme="theme" @toggle-theme="toggleTheme" />
   </div>
 </template>
 
 <script>
-import ResultsList from './components/ResultsList.vue';
+import './styles/theme.css';
+import './styles/shared.css';
 
 export default {
-  name: 'App',
-  components: {
-    ResultsList
-  }
+  data() {
+    let saved;
+    try {
+      saved = localStorage.getItem('benchmark-theme');
+    } catch {
+      /* Storage can be unavailable. */
+    }
+    return {
+      theme: ['light', 'dark'].includes(saved)
+        ? saved
+        : window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light',
+    };
+  },
+  methods: {
+    toggleTheme() {
+      this.theme = this.theme === 'dark' ? 'light' : 'dark';
+      try {
+        localStorage.setItem('benchmark-theme', this.theme);
+      } catch {
+        /* Keep the in-memory preference. */
+      }
+    },
+  },
 };
 </script>
-
-<style scoped>
-.container {
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.sidebar {
-  flex: 0 0 auto;
-  background-color: #f8f9fa;
-  padding: 10px;
-  overflow-y: auto;
-}
-
-.result-view {
-  min-width: 0;
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-</style>
