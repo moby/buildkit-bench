@@ -27,6 +27,7 @@ function view(fetch, loadMetadata) {
     ...benchmarks,
     ...formatting,
     BenchmarkChart: {},
+    ParallelizationChart: {},
     ResultsList: {},
     RunDetails: {},
     HistoryPanel: {},
@@ -259,4 +260,24 @@ test('logs are linked only when an archive is listed for the run', () => {
     state.headerLinks.some((link) => link.text === 'Logs'),
     false
   );
+});
+
+test('grouped navigation keeps per-level distributions and searchable variants', () => {
+  const { state, component } = view();
+  const variants = [128, 16, 32, 64].map((n) => ({
+    name: `BenchmarkBuild/BenchmarkBuildHighParallelization${n}x`,
+    metrics: { duration: { unit: 's', chart: 'boxplot', description: 'Time' } },
+    samples: [{ buildkit: 'master', values: { duration: n } }],
+  }));
+  state.report = { ...report('buildkit'), benchmarks: variants };
+  assert.equal(state.navigation.length, 1);
+  state.search = '128x';
+  assert.equal(state.filteredBenchmarks.length, 1);
+  component.methods.selectBenchmark.call(state, state.navigation[0]);
+  assert.equal(state.activeBenchmark.name, variants[1].name);
+  assert.equal(state.chartMode, 'distribution');
+  state.variantName = variants[0].name;
+  assert.equal(state.activeBenchmark.name, variants[0].name);
+  assert.equal(state.chartOption.series[0].type, 'boxplot');
+  assert.equal(state.rows[0].median, 128);
 });

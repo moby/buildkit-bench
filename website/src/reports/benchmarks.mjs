@@ -129,3 +129,37 @@ export function compareContexts(current, other) {
       : 'Recorded fields match',
   };
 }
+
+// Group only this benchmark family; keep original reports and samples intact.
+export function benchmarkNavigation(benchmarks) {
+  const entries = [];
+  const groups = new Map();
+  for (const benchmark of benchmarks) {
+    const match = benchmark.name.match(/^(.*\/BenchmarkBuildHighParallelization)(16|32|64|128)x$/);
+    if (!match) {
+      entries.push(benchmark);
+      continue;
+    }
+    let group = groups.get(match[1]);
+    if (!group) {
+      group = { name: match[1], description: 'Build high parallelization', variants: [] };
+      groups.set(match[1], group);
+      entries.push(group);
+    }
+    group.variants.push({ parallelism: Number(match[2]), benchmark });
+  }
+  for (const group of groups.values()) group.variants.sort((a, b) => a.parallelism - b.parallelism);
+  return entries;
+}
+
+export function parallelizationRows(report, variants, metric, unit) {
+  const levels = variants.map(({ benchmark }) =>
+    benchmark.metrics[metric]?.unit === unit ? candidateRows(report, benchmark, metric) : []
+  );
+  const refs = new Set(levels.flatMap((rows) => rows.map((row) => row.ref)));
+  const candidates = report.candidates[report.project] || [];
+  const order = candidates.length ? candidates.map((candidate) => candidate.name) : [...refs].sort();
+  return order
+    .filter((ref) => refs.has(ref))
+    .map((ref) => ({ ref, points: levels.map((rows) => rows.find((row) => row.ref === ref) || null) }));
+}

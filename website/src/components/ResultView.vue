@@ -9,7 +9,7 @@
       <nav class="section-nav" aria-label="Dashboard views">
         <button :class="{ selected: view === 'benchmarks' }" @click="view = 'benchmarks'">
           <ui-icon name="chart" /> Benchmarks
-          <span class="nav-count">{{ report?.benchmarks.length || 0 }}</span>
+          <span class="nav-count">{{ navigation.length }}</span>
         </button>
         <button :class="{ selected: view === 'history' }" @click="view = 'history'">
           <ui-icon name="history" /> Run history
@@ -31,9 +31,9 @@
         <button
           v-for="benchmark in filteredBenchmarks"
           :key="benchmark.name"
-          :class="{ active: activeBenchmark?.name === benchmark.name }"
-          :aria-current="activeBenchmark?.name === benchmark.name ? 'true' : undefined"
-          @click="benchmarkName = benchmark.name"
+          :class="{ active: activeEntry?.name === benchmark.name }"
+          :aria-current="activeEntry?.name === benchmark.name ? 'true' : undefined"
+          @click="selectBenchmark(benchmark)"
         >
           <span class="benchmark-dot"></span><span>{{ benchmark.description || benchmark.name }}</span
           ><ui-icon name="chevron" />
@@ -126,6 +126,41 @@
           <p>Choose another run from the selector above.</p>
         </div>
         <template v-else>
+          <parallelization-chart
+            v-if="activeEntry?.variants && view === 'benchmarks'"
+            :key="reportUrl"
+            :report="report"
+            :variants="activeEntry.variants"
+            :metric="selectedMetric"
+            :metrics="activeBenchmark.metrics"
+            :theme="theme"
+            :baseline-ref="baselineRef"
+            @update-baseline="baselineRef = $event"
+            @update-metric="metricName = $event"
+          />
+          <div v-if="activeEntry?.variants" class="comparison-toolbar variant-toolbar">
+            <div>
+              <h3>
+                {{ view === 'history' ? 'History by parallelism level' : 'Inspect a parallelism level' }}
+              </h3>
+              <p class="muted">Distributions and execution context remain separate for each workload.</p>
+            </div>
+            <label class="baseline-picker"
+              >Concurrent builds<select
+                :value="activeBenchmark.name"
+                aria-label="Parallelism level"
+                @change="variantName = $event.target.value"
+              >
+                <option
+                  v-for="variant in activeEntry.variants"
+                  :key="variant.benchmark.name"
+                  :value="variant.benchmark.name"
+                >
+                  {{ variant.parallelism }}x
+                </option>
+              </select></label
+            >
+          </div>
           <div class="benchmark-heading">
             <div>
               <h2>{{ activeBenchmark.description || activeBenchmark.name }}</h2>
@@ -318,14 +353,15 @@ import ResultsList from './ResultsList.vue';
 import RunDetails from './RunDetails.vue';
 import HistoryPanel from './HistoryPanel.vue';
 import UiIcon from './UiIcon.vue';
+import ParallelizationChart from './ParallelizationChart.vue';
 import { reportCharts } from '../charts/report.mjs';
-import { candidateRows, percentChange } from '../reports/benchmarks.mjs';
+import { candidateRows, percentChange, benchmarkNavigation } from '../reports/benchmarks.mjs';
 import { dashboardChart } from '../charts/dashboard.mjs';
 import { formatValue, runLabel } from '../reports/format.mjs';
 
 export default {
   name: 'ResultView',
-  components: { BenchmarkChart, ResultsList, RunDetails, HistoryPanel, UiIcon },
+  components: { BenchmarkChart, ResultsList, RunDetails, HistoryPanel, UiIcon, ParallelizationChart },
   props: { theme: { type: String, default: 'light' } },
   emits: ['toggle-theme'],
   data: () => ({
@@ -338,6 +374,7 @@ export default {
     request: null,
     search: '',
     benchmarkName: '',
+    variantName: '',
     metricName: 'duration',
     baselineRef: '',
     chartMode: 'medians',
@@ -387,18 +424,33 @@ export default {
       }
       return links;
     },
+    navigation() {
+      return benchmarkNavigation(this.report?.benchmarks || []);
+    },
     filteredBenchmarks() {
       const query = this.search.toLowerCase().trim();
-      return (this.report?.benchmarks || []).filter((b) =>
-        `${b.description} ${b.name}`.toLowerCase().includes(query)
+      return this.navigation.filter((b) =>
+        `${b.description} ${b.name} ${(b.variants || [])
+          .map((v) => `${v.parallelism}x ${v.benchmark.name}`)
+          .join(' ')}`
+          .toLowerCase()
+          .includes(query)
+      );
+    },
+    activeEntry() {
+      return (
+        this.navigation.find((b) => b.name === this.benchmarkName) ||
+        this.navigation.find((b) => b.name.endsWith('/BenchmarkBuildSimple')) ||
+        this.navigation[0]
       );
     },
     activeBenchmark() {
-      return (
-        this.report?.benchmarks.find((b) => b.name === this.benchmarkName) ||
-        this.report?.benchmarks.find((b) => b.name.endsWith('/BenchmarkBuildSimple')) ||
-        this.report?.benchmarks[0]
-      );
+      return this.activeEntry?.variants
+        ? (
+            this.activeEntry.variants.find((v) => v.benchmark.name === this.variantName) ||
+            this.activeEntry.variants[0]
+          ).benchmark
+        : this.activeEntry;
     },
     metrics() {
       if (!this.activeBenchmark) return [];
@@ -463,6 +515,10 @@ export default {
   methods: {
     formatValue,
     runLabel,
+    selectBenchmark(benchmark) {
+      this.benchmarkName = benchmark.name;
+      this.chartMode = benchmark.variants ? 'distribution' : 'medians';
+    },
     deltaText(row) {
       if (row.ref === this.baselineRow?.ref) return 'Baseline';
       const delta = percentChange(row.median, this.baselineRow?.median);
@@ -1123,5 +1179,13 @@ export default {
   .loading-ring {
     animation: none;
   }
+}
+.variant-toolbar {
+  padding-top: 12px;
+}
+.variant-toolbar p {
+  font-size: 11px;
+  margin-top: 8px;
+  line-height: 1.6;
 }
 </style>
