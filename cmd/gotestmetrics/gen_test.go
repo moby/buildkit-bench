@@ -9,10 +9,6 @@ import (
 	"testing"
 
 	"github.com/alecthomas/kong"
-	"github.com/go-echarts/go-echarts/v2/charts"
-	"github.com/go-echarts/go-echarts/v2/opts"
-	"github.com/go-echarts/go-echarts/v2/types"
-	"github.com/moby/buildkit-bench/util/testutil"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,15 +20,12 @@ func TestReportOutputFlags(t *testing.T) {
 	require.NoError(t, err)
 	_, err = parser.Parse([]string{"gen", "input.json"})
 	require.NoError(t, err)
-	require.Equal(t, "./bin/gen/benchmarks.html", args.Gen.HTMLOutput)
-	require.Equal(t, "./bin/gen/benchmarks.json", args.Gen.JSONOutput)
+	require.Equal(t, "./bin/gen/benchmarks.json", args.Gen.Output)
+	_, err = parser.Parse([]string{"gen", "--output=custom.json", "input.json"})
+	require.NoError(t, err)
+	require.Equal(t, "custom.json", args.Gen.Output)
 	_, err = parser.Parse([]string{"gen", "--html-output=custom.html", "input.json"})
-	require.NoError(t, err)
-	require.Equal(t, "custom.html", args.Gen.HTMLOutput)
-	require.Equal(t, "./bin/gen/benchmarks.json", args.Gen.JSONOutput)
-	_, err = parser.Parse([]string{"gen", "--html-output=custom.html", "--json-output=custom.json", "input.json"})
-	require.NoError(t, err)
-	require.Equal(t, "custom.json", args.Gen.JSONOutput)
+	require.ErrorContains(t, err, "unknown flag")
 }
 
 func TestGenerateJSONReport(t *testing.T) {
@@ -89,16 +82,16 @@ runs:
 				Name:           "20261013-030000",
 				Project:        project,
 				Config:         config,
-				HTMLOutput:     filepath.Join(dir, "report", project+".html"),
-				JSONOutput:     filepath.Join(dir, "report", project+".json"),
+				Output:         filepath.Join(dir, "report", project+".json"),
 				Candidates:     candidateFile,
 				Envs:           envs,
 				ValidationMode: "strict",
 			}
 			require.NoError(t, cmd.Run(&Context{}))
-			html, err := os.ReadFile(cmd.HTMLOutput)
+			files, err := os.ReadDir(filepath.Dir(cmd.Output))
 			require.NoError(t, err)
-			require.Contains(t, string(html), "Simple build")
+			require.Len(t, files, 1)
+			require.Equal(t, project+".json", files[0].Name())
 			dt, err := os.ReadFile(filepath.Join(dir, "report", project+".json"))
 			require.NoError(t, err)
 			require.NotContains(t, string(dt), "never-export")
@@ -161,11 +154,11 @@ runs:
   ]}
 }}`)
 			cmd.Files = []string{input, legacy, input}
-			cmd.JSONOutput = filepath.Join(dir, "custom", "data.json")
+			cmd.Output = filepath.Join(dir, "custom", "data.json")
 			combined, err := cmd.jsonReport()
 			require.NoError(t, err)
 			require.NoError(t, cmd.writeJSON(combined))
-			updated, err := os.ReadFile(cmd.JSONOutput)
+			updated, err := os.ReadFile(cmd.Output)
 			require.NoError(t, err)
 			var decoded benchmarkReport
 			require.NoError(t, json.Unmarshal(updated, &decoded))
@@ -178,15 +171,9 @@ runs:
 			combined, err = cmd.jsonReport()
 			require.NoError(t, err)
 			require.NoError(t, cmd.writeJSON(combined))
-			repeated, err := os.ReadFile(cmd.JSONOutput)
+			repeated, err := os.ReadFile(cmd.Output)
 			require.NoError(t, err)
 			require.Equal(t, updated, repeated)
-
-			cmd.JSONOutput = cmd.HTMLOutput
-			require.ErrorContains(t, cmd.Run(&Context{}), "output paths must differ")
-			unchanged, err := os.ReadFile(cmd.HTMLOutput)
-			require.NoError(t, err)
-			require.Equal(t, html, unchanged)
 
 			cmd.Envs = ""
 			cmd.Candidates = ""
@@ -215,79 +202,10 @@ runs:
 			cmd.Files = []string{write("unknown.json", `{"Benchmarks":{
   "simple":{"Name":"BenchmarkBuild/BenchmarkSimple","Runs":[{"Ref":"master","NsPerOp":100,"Extra":{"alloc":1,"unknown":2}}]}
 }}`), input}
-			cmd.JSONOutput = filepath.Join(dir, "unknown-output.json")
 			require.ErrorContains(t, cmd.Run(&Context{}), `unknown metric "unknown"`)
-			unchanged, err = os.ReadFile(cmd.HTMLOutput)
+			unchanged, err := os.ReadFile(cmd.Output)
 			require.NoError(t, err)
-			require.Equal(t, html, unchanged)
+			require.Equal(t, updated, unchanged)
 		})
 	}
-}
-
-func TestBenchmarkChartComponentsCombinesDurationAndAlloc(t *testing.T) {
-	name := "BenchmarkBuild/BenchmarkBuildSimple"
-	bc := &testutil.TestConfigBenchmark{
-		Description: "Simple build",
-		Metrics: map[string]testutil.TestConfigMetric{
-			string(testutil.MetricDuration): {
-				Description: "Time (s)",
-				Chart:       types.ChartBoxPlot,
-			},
-			string(testutil.MetricAlloc): {
-				Description: "Allocated memory (bytes)",
-				Chart:       types.ChartBoxPlot,
-			},
-		},
-	}
-	metrics := map[string]map[string][]float64{
-		string(testutil.MetricDuration): {
-			"ref-b": {2, 3, 4},
-			"ref-a": {1, 2, 3},
-		},
-		string(testutil.MetricAlloc): {
-			"ref-b": {200, 300, 400},
-			"ref-a": {100, 200, 300},
-		},
-	}
-
-	cps, err := benchmarkChartComponents(chartGlobalOptions(bc.Description, name), bc, nil, name, metrics)
-	require.NoError(t, err)
-	require.Len(t, cps, 1)
-
-	chart, ok := cps[0].(*charts.BoxPlot)
-	require.True(t, ok)
-	chart.Validate()
-	options := chart.JSON()
-
-	series, ok := options["series"].(charts.MultiSeries)
-	require.True(t, ok)
-	require.Len(t, series, 2)
-	require.Equal(t, "Time (s)", series[0].Name)
-	require.Equal(t, 0, series[0].YAxisIndex)
-	require.Equal(t, "Allocated memory (bytes)", series[1].Name)
-	require.Equal(t, 1, series[1].YAxisIndex)
-
-	durationData, ok := series[0].Data.([]opts.BoxPlotData)
-	require.True(t, ok)
-	require.Len(t, durationData, 2)
-	allocData, ok := series[1].Data.([]opts.BoxPlotData)
-	require.True(t, ok)
-	require.Len(t, allocData, 2)
-
-	xAxis, ok := options["xAxis"].([]opts.XAxis)
-	require.True(t, ok)
-	require.Len(t, xAxis, 1)
-	require.Equal(t, []string{"ref-a", "ref-b"}, xAxis[0].Data)
-
-	yAxis, ok := options["yAxis"].([]opts.YAxis)
-	require.True(t, ok)
-	require.Len(t, yAxis, 2)
-	require.Equal(t, "Time (s)", yAxis[0].Name)
-	require.Equal(t, "middle", yAxis[0].NameLocation)
-	require.Equal(t, 45, yAxis[0].NameGap)
-	require.Equal(t, "left", yAxis[0].Position)
-	require.Equal(t, "Allocated memory (bytes)", yAxis[1].Name)
-	require.Equal(t, "middle", yAxis[1].NameLocation)
-	require.Equal(t, 45, yAxis[1].NameGap)
-	require.Equal(t, "right", yAxis[1].Position)
 }

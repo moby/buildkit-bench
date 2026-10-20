@@ -1,13 +1,21 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"log"
 	"os"
 	"path/filepath"
+	"runtime/debug"
+	"sort"
+	"strings"
 	"time"
 
+	"github.com/joho/godotenv"
+	"github.com/moby/buildkit-bench/util/candidates"
 	"github.com/moby/buildkit-bench/util/gotest"
+	"github.com/moby/buildkit-bench/util/gotest/benchmark"
 	"github.com/moby/buildkit-bench/util/testutil"
 	"github.com/pkg/errors"
 )
@@ -17,8 +25,7 @@ type genCmd struct {
 
 	Name               string `kong:"name='name',help='Name of the report.'"`
 	Config             string `kong:"name='config',required,default='testconfig.yml',help='Test config file.'"`
-	HTMLOutput         string `kong:"name='html-output',default='./bin/gen/benchmarks.html',help='File to write the HTML report to.'"`
-	JSONOutput         string `kong:"name='json-output',default='./bin/gen/benchmarks.json',help='File to write the versioned JSON report to.'"`
+	Output             string `kong:"name='output',default='./bin/gen/benchmarks.json',help='File to write the versioned JSON report to.'"`
 	Project            string `kong:"name='project',enum='buildkit,buildx',default='buildkit',help='Project type.'"`
 	Candidates         string `kong:"name='candidates',help='Candidates file.'"`
 	BuildkitCandidates string `kong:"name='buildkit-candidates',help='BuildKit candidates for JSON provenance.'"`
@@ -29,17 +36,6 @@ type genCmd struct {
 }
 
 func (c *genCmd) Run(ctx *Context) error {
-	htmlPath, err := filepath.Abs(c.HTMLOutput)
-	if err != nil {
-		return err
-	}
-	jsonPath, err := filepath.Abs(c.JSONOutput)
-	if err != nil {
-		return err
-	}
-	if htmlPath == jsonPath {
-		return errors.New("JSON and HTML output paths must differ")
-	}
 	benchmarks, err := gotest.MergeBenchmarks(c.Files)
 	if err != nil {
 		return err
@@ -53,12 +49,6 @@ func (c *genCmd) Run(ctx *Context) error {
 	}
 	report, err := c.jsonReport()
 	if err != nil {
-		return err
-	}
-	if err := os.MkdirAll(filepath.Dir(c.HTMLOutput), 0755); err != nil {
-		return errors.Wrap(err, "failed to create output directory")
-	}
-	if err := c.writeHTML(benchmarks); err != nil {
 		return err
 	}
 	return c.writeJSON(report)
@@ -119,4 +109,291 @@ func benchmarkMetricValues(run gotest.BenchmarkRun, bc *testutil.TestConfigBench
 		}
 	}
 	return values, nil
+}
+
+// These types define the versioned website contract independently of parser types.
+type benchmarkReport struct {
+	Version    int                          `json:"version"`
+	Name       string                       `json:"name"`
+	Project    string                       `json:"project"`
+	Metadata   reportMetadata               `json:"metadata"`
+	Generator  reportGenerator              `json:"generator"`
+	Sources    map[string]reportSource      `json:"sources"`
+	Candidates map[string][]reportCandidate `json:"candidates"`
+	Benchmarks []reportBenchmark            `json:"benchmarks"`
+}
+
+type reportGenerator struct {
+	GoVersion    string `json:"go_version"`
+	Revision     string `json:"revision,omitempty"`
+	Modified     *bool  `json:"modified,omitempty"`
+	ConfigSHA256 string `json:"config_sha256"`
+}
+
+type reportSource struct {
+	Name      string            `json:"name"`
+	Execution *gotest.Execution `json:"execution,omitempty"`
+}
+
+type reportMetadata struct {
+	Repository string `json:"repository,omitempty"`
+	Commit     string `json:"commit,omitempty"`
+	Event      string `json:"event,omitempty"`
+	RunID      string `json:"run_id,omitempty"`
+	RunAttempt string `json:"run_attempt,omitempty"`
+	RunURL     string `json:"run_url,omitempty"`
+	CommitURL  string `json:"commit_url,omitempty"`
+}
+
+type reportCandidate struct {
+	Name       string    `json:"name"`
+	SHA        string    `json:"sha"`
+	CommitTime time.Time `json:"commit_time,omitzero"`
+}
+
+type reportBenchmark struct {
+	Name        string                  `json:"name"`
+	Description string                  `json:"description"`
+	Count       int                     `json:"count"`
+	Benchtime   string                  `json:"benchtime"`
+	Metrics     map[string]reportMetric `json:"metrics"`
+	Samples     []reportSample          `json:"samples"`
+}
+
+type reportMetric struct {
+	Unit        string `json:"unit"`
+	Description string `json:"description"`
+	Chart       string `json:"chart"`
+	Average     bool   `json:"average"`
+}
+
+type reportSample struct {
+	Buildkit     string             `json:"buildkit"`
+	Buildx       string             `json:"buildx"`
+	Run          int                `json:"run"`
+	Iterations   int                `json:"iterations"`
+	Threads      int                `json:"threads"`
+	Time         time.Time          `json:"time,omitzero"`
+	Source       string             `json:"source"`
+	SourceID     string             `json:"source_id"`
+	OS           string             `json:"os,omitempty"`
+	Architecture string             `json:"architecture,omitempty"`
+	CPU          string             `json:"cpu,omitempty"`
+	Package      string             `json:"package,omitempty"`
+	Values       map[string]float64 `json:"values"`
+	Measurements map[string]any     `json:"measurements"`
+}
+
+func (c *genCmd) writeJSON(report *benchmarkReport) error {
+	dt, err := json.MarshalIndent(report, "", "  ")
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal JSON report")
+	}
+	if err := os.MkdirAll(filepath.Dir(c.Output), 0755); err != nil {
+		return errors.Wrap(err, "failed to create JSON output directory")
+	}
+	log.Printf("Generating JSON report to %s", c.Output)
+	return os.WriteFile(c.Output, append(dt, '\n'), 0644)
+}
+
+func (c *genCmd) jsonReport() (*benchmarkReport, error) {
+	tc, err := testutil.LoadTestConfig(c.Config)
+	if err != nil {
+		return nil, err
+	}
+	report := &benchmarkReport{
+		Version:    1,
+		Name:       c.Name,
+		Project:    c.Project,
+		Candidates: make(map[string][]reportCandidate),
+		Benchmarks: make([]reportBenchmark, 0),
+		Sources:    make(map[string]reportSource),
+	}
+	configBytes, err := os.ReadFile(c.Config)
+	if err != nil {
+		return nil, err
+	}
+	configHash := sha256.Sum256(configBytes)
+	report.Generator.ConfigSHA256 = hex.EncodeToString(configHash[:])
+	if info, ok := debug.ReadBuildInfo(); ok {
+		report.Generator.GoVersion = info.GoVersion
+		for _, setting := range info.Settings {
+			switch setting.Key {
+			case "vcs.revision":
+				report.Generator.Revision = setting.Value
+			case "vcs.modified":
+				modified := setting.Value == "true"
+				report.Generator.Modified = &modified
+			}
+		}
+	}
+	if c.Envs != "" {
+		envs, err := godotenv.Read(c.Envs)
+		if err != nil {
+			return nil, err
+		}
+		report.Metadata = reportMetadata{
+			Repository: envs["GITHUB_REPOSITORY"],
+			Commit:     envs["GITHUB_SHA"],
+			Event:      envs["GITHUB_EVENT_NAME"],
+			RunID:      envs["GITHUB_RUN_ID"],
+			RunAttempt: envs["GITHUB_RUN_ATTEMPT"],
+		}
+		server := envs["GITHUB_SERVER_URL"]
+		if server == "" {
+			server = "https://github.com"
+		}
+		m := &report.Metadata
+		if m.Repository != "" {
+			base := strings.TrimRight(server, "/") + "/" + m.Repository
+			if m.Commit != "" {
+				m.CommitURL = base + "/commit/" + m.Commit
+			}
+			if m.RunID != "" {
+				m.RunURL = base + "/actions/runs/" + m.RunID
+				if m.RunAttempt != "" {
+					m.RunURL += "/attempts/" + m.RunAttempt
+				}
+			}
+		}
+	}
+	files := map[string]string{"buildkit": c.BuildkitCandidates, "buildx": c.BuildxCandidates}
+	if c.Candidates != "" {
+		files[c.Project] = c.Candidates
+	}
+	for project, file := range files {
+		if file == "" {
+			continue
+		}
+		cds, err := candidates.Load(file)
+		if err != nil {
+			return nil, err
+		}
+		refs := make([]reportCandidate, 0)
+		for name, commit := range cds.List() {
+			refs = append(refs, reportCandidate{Name: name, SHA: commit.SHA, CommitTime: commit.Date})
+		}
+		sort.Slice(refs, func(i, j int) bool {
+			if refs[i].CommitTime.Equal(refs[j].CommitTime) {
+				return refs[i].Name < refs[j].Name
+			}
+			return refs[i].CommitTime.Before(refs[j].CommitTime)
+		})
+		report.Candidates[project] = refs
+	}
+
+	// Read each source separately so samples retain their runner provenance and
+	// repeated benchmark keys in different files don't discard measurements.
+	byName := make(map[string]*reportBenchmark)
+	seenFiles := make(map[string]bool)
+	for _, pattern := range c.Files {
+		matches, err := filepath.Glob(pattern)
+		if err != nil {
+			return nil, err
+		}
+		for _, file := range matches {
+			abs, err := filepath.Abs(file)
+			if err != nil {
+				return nil, err
+			}
+			if seenFiles[abs] {
+				continue
+			}
+			seenFiles[abs] = true
+			info, err := os.Stat(file)
+			if err != nil {
+				return nil, err
+			}
+			if info.IsDir() {
+				continue
+			}
+			dt, err := os.ReadFile(file)
+			if err != nil {
+				return nil, err
+			}
+			var result gotest.Result
+			if err := json.Unmarshal(dt, &result); err != nil {
+				return nil, errors.Wrapf(err, "failed to decode %s", file)
+			}
+			hash := sha256.Sum256(dt)
+			sourceID := hex.EncodeToString(hash[:])
+			report.Sources[sourceID] = reportSource{Name: filepath.Base(file), Execution: result.Execution}
+			keys := make([]string, 0, len(result.Benchmarks))
+			for key := range result.Benchmarks {
+				keys = append(keys, key)
+			}
+			sort.Strings(keys)
+			for _, key := range keys {
+				bm := result.Benchmarks[key]
+				bc, err := tc.BenchmarkConfig(bm.Name)
+				if err != nil {
+					return nil, err
+				}
+				b, ok := byName[bm.Name]
+				if !ok {
+					b = &reportBenchmark{
+						Name: bm.Name, Description: bc.Description,
+						Count: bc.Count, Benchtime: bc.Benchtime,
+						Metrics: make(map[string]reportMetric), Samples: make([]reportSample, 0),
+					}
+					if b.Count == 0 {
+						b.Count = tc.Defaults.Count
+					}
+					if b.Benchtime == "" {
+						b.Benchtime = tc.Defaults.Benchtime
+					}
+					for metric, cfg := range bc.Metrics {
+						unit := metric
+						switch testutil.MetricUnit(metric) {
+						case testutil.MetricDuration:
+							unit = "s"
+						case testutil.MetricAlloc, testutil.MetricBytes:
+							unit = "bytes"
+						}
+						b.Metrics[metric] = reportMetric{Unit: unit, Description: cfg.Description, Chart: cfg.Chart, Average: cfg.Average}
+					}
+					byName[bm.Name] = b
+				}
+				for _, run := range bm.Runs {
+					values, err := benchmarkMetricValues(run, bc)
+					if err != nil {
+						return nil, err
+					}
+					b.Samples = append(b.Samples, reportSample{
+						Buildkit: run.Ref, Buildx: run.Buildx, Run: run.Run,
+						Iterations: run.N, Threads: run.Threads, Time: run.Time,
+						Source: filepath.Base(file), SourceID: sourceID, OS: result.BenchmarkInfo.OS,
+						Architecture: result.BenchmarkInfo.Architecture, CPU: result.BenchmarkInfo.CPU,
+						Package: result.BenchmarkInfo.Package, Values: values,
+						Measurements: benchmarkMeasurements(run),
+					})
+				}
+			}
+		}
+	}
+	for _, b := range byName {
+		report.Benchmarks = append(report.Benchmarks, *b)
+	}
+	sort.Slice(report.Benchmarks, func(i, j int) bool { return report.Benchmarks[i].Name < report.Benchmarks[j].Name })
+	return report, nil
+}
+
+func benchmarkMeasurements(run gotest.BenchmarkRun) map[string]any {
+	values := make(map[string]any, len(run.Extra)+4)
+	for unit, value := range run.Extra {
+		values[unit] = value
+	}
+	if run.Measured&benchmark.NsPerOp != 0 {
+		values["ns/op"] = run.NsPerOp
+	}
+	if run.Measured&benchmark.MBPerS != 0 {
+		values["MB/s"] = run.MBPerS
+	}
+	if run.Measured&benchmark.AllocedBytesPerOp != 0 {
+		values["B/op"] = run.AllocedBytesPerOp
+	}
+	if run.Measured&benchmark.AllocsPerOp != 0 {
+		values["allocs/op"] = run.AllocsPerOp
+	}
+	return values
 }
