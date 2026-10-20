@@ -21,6 +21,7 @@ export default {
   async created() {
     const resultsData = await import(`../assets/results.json`);
     this.results = resultsData.results.sort((a, b) => b.localeCompare(a));
+    await this.$router.isReady();
     this.updateSelectedResult();
   },
   watch: {

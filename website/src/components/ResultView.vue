@@ -1,71 +1,107 @@
 <template>
   <div class="result">
-    <header class="result-header" v-if="metadataLinks.length > 0 || jsonLinks.length > 0">
+    <header class="result-header" v-if="metadataLinks.length > 0">
       <div class="metadata-links">
         <a v-for="link in metadataLinks" :key="link.url" :href="link.url" target="_blank" class="metadata-link">
           <img :src="link.icon" class="icon" /> {{ link.text }}
         </a>
-        <a v-for="link in jsonLinks" :key="link.url" :href="link.url" :download="link.filename" class="metadata-link">
-          {{ link.text }}
-        </a>
       </div>
     </header>
-    <div class="iframe-container">
-      <div v-if="hasBuildx" class="full-size">
-        <ul class="tabs">
-          <li :class="{ active: activeTab === 'buildkit' }" @click="activeTab = 'buildkit'">BuildKit</li>
-          <li :class="{ active: activeTab === 'buildx' }" @click="activeTab = 'buildx'">Buildx</li>
-        </ul>
-        <iframe v-if="activeTab === 'buildkit'" :src="buildkitUrl"></iframe>
-        <iframe v-if="activeTab === 'buildx'" :src="buildxUrl"></iframe>
+    <nav v-if="projects.length > 1" class="tabs" aria-label="Benchmark project">
+      <button v-for="project in projects" :key="project" :class="{ active: selectedProject === project }"
+        :aria-pressed="selectedProject === project" @click="activeTab = project">
+        {{ project === 'buildkit' ? 'BuildKit' : 'Buildx' }}
+      </button>
+    </nav>
+    <iframe v-if="!reportUrl && originalUrl" class="legacy-report" :src="originalUrl"
+      :title="`${selectedProject} benchmark report`"></iframe>
+    <div v-else class="report-content" :aria-busy="loading">
+      <p v-if="loading" role="status">Loading report...</p>
+      <div v-else-if="error" role="alert">
+        <p>{{ error }}</p>
+        <button @click="loadReport">Retry</button>
       </div>
-      <iframe v-else :src="buildkitUrl"></iframe>
+      <p v-else-if="!reportUrl">This run has no report available.</p>
+      <p v-else-if="charts.length === 0">This report has no measurements.</p>
+      <benchmark-chart v-for="chart in charts" :key="`${reportUrl}/${chart.id}`" :option="chart.option" />
     </div>
   </div>
 </template>
 
 <script>
 import resultsData from '../assets/results.json';
+import { markRaw } from 'vue';
+import BenchmarkChart from './BenchmarkChart.vue';
+import { reportCharts } from '../charts/report.mjs';
 
 export default {
   name: 'ResultView',
+  components: { BenchmarkChart },
   data() {
     return {
       metadataLinks: [],
       activeTab: 'buildkit',
-      buildkitPage: 'buildkit.html',
-      hasBuildx: false
+      charts: [],
+      loading: false,
+      error: '',
+      request: null,
     };
   },
   computed: {
-    jsonLinks() {
-      const resultName = this.$route.params.result;
-      return (resultsData.jsonReports[resultName] || []).map(project => ({
-        text: `Download ${project === 'buildkit' ? 'BuildKit' : 'Buildx'} JSON`,
-        url: `${process.env.BASE_URL}result/${resultName}/${project}.json`,
-        filename: `${resultName}-${project}.json`,
-      }));
+    projects() {
+      const result = this.$route.params.result;
+      return ['buildkit', 'buildx'].filter(project =>
+        resultsData.jsonReports[result]?.includes(project) || resultsData.htmlReports[result]?.[project]);
     },
-    buildkitUrl() {
-      return `${process.env.BASE_URL}result/${this.$route.params.result}/${this.buildkitPage}`;
+    selectedProject() {
+      return this.projects.includes(this.activeTab) ? this.activeTab : this.projects[0];
     },
-    buildxUrl() {
-      return `${process.env.BASE_URL}result/${this.$route.params.result}/buildx.html`;
+    reportUrl() {
+      const result = this.$route.params.result;
+      return resultsData.jsonReports[result]?.includes(this.selectedProject)
+        ? `${process.env.BASE_URL}result/${result}/${this.selectedProject}.json` : '';
+    },
+    originalUrl() {
+      const result = this.$route.params.result;
+      const file = resultsData.htmlReports[result]?.[this.selectedProject];
+      return file ? `${process.env.BASE_URL}result/${result}/${file}` : '';
     }
   },
   created() {
     this.updateMetadata();
-    this.checkBuildKit();
-    this.checkBuildx();
+  },
+  beforeUnmount() {
+    this.request?.abort();
   },
   watch: {
     '$route.params.result': function() {
       this.updateMetadata();
-      this.checkBuildKit();
-      this.checkBuildx();
-    }
+    },
+    reportUrl: { immediate: true, handler: 'loadReport' },
   },
   methods: {
+    async loadReport() {
+      this.request?.abort();
+      const request = markRaw(new AbortController());
+      this.request = request;
+      this.charts = [];
+      this.error = '';
+      this.loading = !!this.reportUrl;
+      if (!this.reportUrl) return;
+      const project = this.selectedProject;
+      try {
+        const response = await fetch(this.reportUrl, { signal: request.signal });
+        if (!response.ok) throw new Error(`Report request failed (${response.status})`);
+        const report = await response.json();
+        if (request.signal.aborted) return;
+        if (report.project !== project) throw new Error('Report project does not match the selection');
+        this.charts = markRaw(reportCharts(report));
+      } catch (error) {
+        if (!request.signal.aborted) this.error = `Unable to load report: ${error.message}`;
+      } finally {
+        if (!request.signal.aborted) this.loading = false;
+      }
+    },
     async updateMetadata() {
       this.metadataLinks = [];
       const resultName = this.$route.params.result;
@@ -73,6 +109,7 @@ export default {
       try {
         const ghaEvent = await import(`../../public/result/${resultName}/gha-event.json`);
         const env = await import(`../../public/result/${resultName}/env.txt`);
+        if (resultName !== this.$route.params.result) return;
 
         let repo = ghaEvent.repository?.full_name;
         let commit = ghaEvent.commits?.[ghaEvent.commits.length - 1]?.id;
@@ -95,44 +132,29 @@ export default {
         if (runAttemptEnv) runAttempt = runAttemptEnv.value;
         if (!repo) return;
 
+        const links = [];
         if (commit) {
-          this.metadataLinks.push({
+          links.push({
             text: `Commit ${commit.substring(0, 7)}`,
             url: `https://github.com/${repo}/commit/${commit}`,
             icon: require('../assets/github.svg')
           });
         }
         if (runId && runAttempt) {
-          this.metadataLinks.push({
+          links.push({
             text: `GitHub Actions Run`,
             url: `https://github.com/${repo}/actions/runs/${runId}/attempts/${runAttempt}`,
             icon: require('../assets/github.svg')
           });
         }
-        this.metadataLinks.push({
+        links.push({
           text: `Logs`,
           url: `${process.env.BASE_URL}result/${resultName}/logs.tar.gz`,
           icon: require('../assets/logs.svg')
         });
+        this.metadataLinks = links;
       } catch (error) {
         console.error(`failed to load metadata for ${resultName}`, error);
-      }
-    },
-    async checkBuildKit() {
-      try {
-        await import(`../../public/result/${this.$route.params.result}/buildkit.html`);
-        this.buildkitPage = 'buildkit.html';
-      } catch (error) {
-        // for backward compatibility
-        this.buildkitPage = 'index.html';
-      }
-    },
-    async checkBuildx() {
-      try {
-        await import(`../../public/result/${this.$route.params.result}/buildx.html`);
-        this.hasBuildx = true;
-      } catch (error) {
-        this.hasBuildx = false;
       }
     }
   }
@@ -180,15 +202,18 @@ export default {
   margin-right: 8px;
 }
 
-.iframe-container {
+.report-content {
   flex: 1 1 auto;
-  overflow: hidden;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
 }
 
-iframe {
+.legacy-report {
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
-  height: 100%;
-  border: none;
+  border: 0;
 }
 
 .tabs {
@@ -200,23 +225,22 @@ iframe {
   border-bottom: 1px solid #dee2e6;
 }
 
-.tabs li {
+.tabs button {
+  border: 0;
+  background: transparent;
+  font: inherit;
   padding: 10px 20px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
-.tabs li.active {
+.tabs button.active {
   background-color: #e9ecef;
   font-weight: bold;
 }
 
-.tabs li:hover {
+.tabs button:hover {
   background-color: #e9ecef;
 }
 
-.full-size {
-  width: 100%;
-  height: 100%;
-}
 </style>

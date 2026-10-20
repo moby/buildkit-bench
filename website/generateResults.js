@@ -47,7 +47,15 @@ async function main() {
       result.name,
       ['buildkit', 'buildx'].filter(project => result.files.includes(`${project}.json`)),
     ])),
+    htmlReports: Object.fromEntries(resultEntries.map(result => [
+      result.name,
+      Object.fromEntries([
+        ['buildkit', result.files.includes('buildkit.html') ? 'buildkit.html' : 'index.html'],
+        ['buildx', 'buildx.html'],
+      ].filter(([, file]) => result.files.includes(file))),
+    ])),
   };
+
   const manifest = { version: 1, results: resultEntries };
 
   await fs.promises.writeFile(outputFilePath, JSON.stringify(results, null, 2));
