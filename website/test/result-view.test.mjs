@@ -4,22 +4,43 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { markRaw } from 'vue';
 import { reportCharts } from '../src/charts/report.mjs';
+import * as charts from '../src/charts/dashboard.mjs';
+import * as benchmarks from '../src/reports/benchmarks.mjs';
+import * as formatting from '../src/reports/format.mjs';
 
 // Exercise the component's actual loading methods/computed properties without
 // requiring a DOM or mounting ECharts in Node.
 const source = readFileSync(new URL('../src/components/ResultView.vue', import.meta.url), 'utf8')
   .match(/<script>([\s\S]*?)<\/script>/)[1]
-  .replace(/^import .*;$/gm, '').replace(/\bimport\(/g, 'loadMetadata(')
+  .replace(/^import[\s\S]*?;$/gm, '')
+  .replace(/\bimport\(/g, 'loadMetadata(')
   .replace('export default', 'component =');
 
 function view(fetch, loadMetadata) {
   const context = {
-    fetch, loadMetadata, markRaw, reportCharts, AbortController, BenchmarkChart: {},
-    require: path => path,
+    fetch,
+    loadMetadata,
+    markRaw,
+    reportCharts,
+    AbortController,
+    ...charts,
+    ...benchmarks,
+    ...formatting,
+    BenchmarkChart: {},
+    ParallelizationChart: {},
+    ResultsList: {},
+    RunDetails: {},
+    HistoryPanel: {},
+    UiIcon: {},
+    require: (path) => path,
     process: { env: { BASE_URL: '/buildkit-bench/' } },
     resultsData: {
+      logArchives: ['both'],
       jsonReports: { both: ['buildkit', 'buildx'], kit: ['buildkit'], legacy: [] },
-      htmlReports: { both: { buildkit: 'buildkit.html', buildx: 'buildx.html' }, legacy: { buildkit: 'index.html' } },
+      htmlReports: {
+        both: { buildkit: 'buildkit.html', buildx: 'buildx.html' },
+        legacy: { buildkit: 'index.html' },
+      },
     },
   };
   vm.runInNewContext(source, context);
@@ -32,8 +53,8 @@ function view(fetch, loadMetadata) {
   return { state, component };
 }
 
-const report = project => ({ version: 1, project, candidates: {}, benchmarks: [] });
-const response = project => ({ ok: true, json: async () => report(project) });
+const report = (project) => ({ version: 1, project, candidates: {}, benchmarks: [] });
+const response = (project) => ({ ok: true, json: async () => report(project) });
 
 test('project selection falls back for single-project/legacy runs and preserves Pages paths', () => {
   const { state } = view();
@@ -48,7 +69,9 @@ test('project selection falls back for single-project/legacy runs and preserves 
 
 test('switching projects cancels the old request and ignores late results', async () => {
   const pending = [];
-  const { state } = view((url, { signal }) => new Promise(resolve => pending.push({ url, signal, resolve })));
+  const { state } = view(
+    (url, { signal }) => new Promise((resolve) => pending.push({ url, signal, resolve }))
+  );
   const first = state.loadReport();
   assert.equal(state.loading, true);
   state.activeTab = 'buildx';
@@ -82,11 +105,11 @@ test('legacy navigation clears charts and unmount cancels in-flight loading', as
   const { state, component } = view(async () => response('buildkit'));
   await state.loadReport();
   const request = state.request;
-  state.charts = [{}];
+  assert.ok(state.report);
   state.$route.params.result = 'legacy';
   await state.loadReport();
   assert.equal(request.signal.aborted, true);
-  assert.equal(state.charts.length, 0);
+  assert.equal(state.report, null);
   assert.equal(state.loading, false);
   component.beforeUnmount.call(state);
   assert.equal(state.request.signal.aborted, true);
@@ -94,47 +117,167 @@ test('legacy navigation clears charts and unmount cancels in-flight loading', as
 
 test('navigating X to Y to X does not append metadata links twice', async () => {
   const pending = [];
-  const { state, component } = view(undefined, path => path.endsWith('env.txt')
-    ? Promise.resolve({ default: 'GITHUB_REPOSITORY=moby/buildkit-bench\nGITHUB_SHA=123456789\n' })
-    : new Promise(resolve => pending.push(resolve)));
+  const { state, component } = view(undefined, (path) =>
+    path.endsWith('env.txt')
+      ? Promise.resolve({ default: 'GITHUB_REPOSITORY=moby/buildkit-bench\nGITHUB_SHA=123456789\n' })
+      : new Promise((resolve) => pending.push(resolve))
+  );
+  state.$route.params.result = 'legacy';
   const first = component.methods.updateMetadata.call(state);
-  state.$route.params.result = 'kit';
+  state.$route.params.result = 'legacy2';
   const second = component.methods.updateMetadata.call(state);
-  state.$route.params.result = 'both';
+  state.$route.params.result = 'legacy';
   const third = component.methods.updateMetadata.call(state);
   pending[2]({});
   await third;
-  assert.equal(state.metadataLinks.length, 2);
+  assert.equal(state.metadataLinks.length, 1);
   pending[0]({});
   pending[1]({});
   await Promise.all([first, second]);
-  assert.equal(state.metadataLinks.length, 2);
+  assert.equal(state.metadataLinks.length, 1);
 });
 
-test('initial navigation to an older run is not replaced by the newest result', async () => {
-  const script = readFileSync(new URL('../src/components/ResultsList.vue', import.meta.url), 'utf8')
-    .match(/<script>([\s\S]*?)<\/script>/)[1]
-    .replace(/\bimport\(/g, 'loadResults(').replace('export default', 'component =');
-  const context = { loadResults: async () => ({ results: ['20260315', '20261013'] }) };
-  vm.runInNewContext(script, context);
-  let ready;
-  const initialNavigation = new Promise(resolve => { ready = resolve; });
-  const redirects = [];
-  const state = {
-    ...context.component.data(),
-    $route: { params: {} },
-    $router: {
-      isReady: () => initialNavigation,
-      push: path => { redirects.push(path); return Promise.resolve(); },
+test('baseline selection survives a benchmark where that candidate is absent', () => {
+  const { state } = view();
+  state.report = {
+    version: 1,
+    project: 'buildkit',
+    candidates: { buildkit: [{ name: 'a' }, { name: 'b' }] },
+    benchmarks: [
+      {
+        name: 'one',
+        metrics: { duration: { chart: 'boxplot', description: 'Time', unit: 's' } },
+        samples: [
+          { buildkit: 'a', values: { duration: 4 } },
+          { buildkit: 'b', values: { duration: 2 } },
+        ],
+      },
+      {
+        name: 'two',
+        metrics: { duration: { chart: 'boxplot', description: 'Time', unit: 's' } },
+        samples: [{ buildkit: 'a', values: { duration: 3 } }],
+      },
+    ],
+  };
+  state.baselineRef = 'b';
+  assert.equal(state.baselineRow.ref, 'b');
+  state.benchmarkName = 'two';
+  assert.equal(state.baselineRow.ref, 'a');
+  assert.equal(state.baselineRef, 'b');
+  state.benchmarkName = 'one';
+  assert.equal(state.baselineRow.ref, 'b');
+});
+
+test('explorer searches, selects one metric, and colors only known lower-is-better deltas', () => {
+  const { state, component } = view();
+  const sample = { buildkit: 'master', values: { duration: 2, alloc: 1024, custom: 7 } };
+  state.report = {
+    ...report('buildkit'),
+    benchmarks: [
+      {
+        name: 'BenchmarkBuild/BenchmarkBuildSimple',
+        description: 'Simple build',
+        metrics: {
+          custom: { chart: 'bar', description: 'Custom', unit: 'count' },
+          alloc: { chart: 'boxplot', description: 'Memory', unit: 'bytes' },
+          duration: { chart: 'boxplot', description: 'Time', unit: 's' },
+        },
+        samples: [sample],
+      },
+    ],
+  };
+  state.search = ' SIMPLE ';
+  assert.equal(state.filteredBenchmarks.length, 1);
+  assert.equal(state.activeBenchmark.description, 'Simple build');
+  assert.deepEqual(Array.from(state.metrics), ['duration', 'alloc', 'custom']);
+  assert.equal(state.chartOption.series.length, 1);
+  assert.equal(state.chartOption.series[0].data[0].value, 2);
+  assert.equal(component.methods.deltaText.call(state, { ref: 'other', median: 1 }), '-50.0%');
+  assert.equal(component.methods.deltaClass.call(state, { ref: 'other', median: 1 }), 'improved');
+  state.metricName = 'custom';
+  assert.equal(component.methods.deltaClass.call(state, { ref: 'other', median: 1 }), '');
+  sample.values.custom = 0;
+  assert.equal(component.methods.deltaText.call(state, { ref: 'other', median: 1 }), 'N/A');
+});
+
+test('JSON headers use recorded URLs and legacy metadata retains the CI attempt', async () => {
+  let calls = 0;
+  const { state, component } = view(undefined, async (path) => {
+    calls++;
+    return path.endsWith('env.txt')
+      ? {
+          default:
+            'GITHUB_REPOSITORY=moby/buildkit-bench\nGITHUB_SHA=abcdef\nGITHUB_RUN_ID=123\nGITHUB_RUN_ATTEMPT=2\n',
+        }
+      : {};
+  });
+  await component.methods.updateMetadata.call(state);
+  assert.equal(calls, 0);
+  state.report = {
+    ...report('buildkit'),
+    metadata: {
+      commit: 'abcdef',
+      commit_url: 'https://example.test/commit',
+      run_url: 'https://example.test/run/attempts/2',
     },
   };
-  state.updateSelectedResult = context.component.methods.updateSelectedResult.bind(state);
-  const created = context.component.created.call(state);
-  await new Promise(resolve => setImmediate(resolve));
-  assert.deepEqual(redirects, []);
-  state.$route.params.result = '20260315';
-  ready();
-  await created;
-  assert.equal(state.selectedResult, '20260315');
-  assert.deepEqual(redirects, []);
+  assert.equal(state.headerLinks[1].url, 'https://example.test/run/attempts/2');
+  state.$route.params.result = 'legacy';
+  state.report = null;
+  await component.methods.updateMetadata.call(state);
+  assert.equal(
+    state.headerLinks[1].url,
+    'https://github.com/moby/buildkit-bench/actions/runs/123/attempts/2'
+  );
+});
+
+test('router defaults and unknown hashes redirect without replacing explicit run links', () => {
+  const script = readFileSync(new URL('../src/router/index.js', import.meta.url), 'utf8')
+    .replace(/^import .*;$/gm, '')
+    .replace('export default', 'router =');
+  const context = {
+    createRouter: (options) => options,
+    createWebHashHistory: () => ({}),
+    ResultView: {},
+    process: { env: { BASE_URL: '/buildkit-bench/' } },
+    resultsData: { results: ['20260315', '20261013'] },
+  };
+  vm.runInNewContext(script, context);
+  const routes = context.router.routes;
+  assert.equal(routes.find((r) => r.path === '/').redirect(), '/result/20261013');
+  assert.equal(routes.find((r) => r.path.includes('pathMatch')).redirect, '/');
+  assert.equal(routes.find((r) => r.path === '/result/:result').redirect, undefined);
+});
+
+test('logs are linked only when an archive is listed for the run', () => {
+  const { state } = view();
+  assert.equal(
+    state.headerLinks.find((link) => link.text === 'Logs').url,
+    '/buildkit-bench/result/both/logs.tar.gz'
+  );
+  state.$route.params.result = 'kit';
+  assert.equal(
+    state.headerLinks.some((link) => link.text === 'Logs'),
+    false
+  );
+});
+
+test('grouped navigation keeps per-level distributions and searchable variants', () => {
+  const { state, component } = view();
+  const variants = [128, 16, 32, 64].map((n) => ({
+    name: `BenchmarkBuild/BenchmarkBuildHighParallelization${n}x`,
+    metrics: { duration: { unit: 's', chart: 'boxplot', description: 'Time' } },
+    samples: [{ buildkit: 'master', values: { duration: n } }],
+  }));
+  state.report = { ...report('buildkit'), benchmarks: variants };
+  assert.equal(state.navigation.length, 1);
+  state.search = '128x';
+  assert.equal(state.filteredBenchmarks.length, 1);
+  component.methods.selectBenchmark.call(state, state.navigation[0]);
+  assert.equal(state.activeBenchmark.name, variants[1].name);
+  assert.equal(state.chartMode, 'distribution');
+  state.variantName = variants[0].name;
+  assert.equal(state.activeBenchmark.name, variants[0].name);
+  assert.equal(state.chartOption.series[0].type, 'boxplot');
+  assert.equal(state.rows[0].median, 128);
 });

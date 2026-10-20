@@ -1,117 +1,49 @@
 <template>
-  <div class="results">
-    <h2>Results</h2>
-    <ul>
-      <li v-for="result in results" :key="result" @click="loadResult(result)" :class="['result-item', { 'selected': result === selectedResult }]">
-        <i class="calendar-icon"></i>
-        {{ formatResult(result) }}
-      </li>
-    </ul>
-  </div>
+  <label class="run-picker">
+    <span>RUN</span>
+    <select
+      aria-label="Benchmark run"
+      :value="$route.params.result"
+      @change="loadResult($event.target.value)"
+    >
+      <option v-for="result in results" :key="result" :value="result">{{ runLabel(result) }}</option>
+    </select>
+  </label>
 </template>
 
 <script>
+import resultsData from '../generated/results.json';
+import { runLabel } from '../reports/format.mjs';
+
 export default {
-  data() {
-    return {
-      results: [],
-      selectedResult: null
-    };
-  },
-  async created() {
-    const resultsData = await import(`../assets/results.json`);
-    this.results = resultsData.results.sort((a, b) => b.localeCompare(a));
-    await this.$router.isReady();
-    this.updateSelectedResult();
-  },
-  watch: {
-    '$route.params.result': 'updateSelectedResult'
-  },
+  data: () => ({ results: [...resultsData.results].sort().reverse() }),
   methods: {
+    runLabel,
     loadResult(result) {
-      const targetRoute = `/result/${result}`;
-      if (this.$route.path !== targetRoute) {
-        this.selectedResult = result;
-        this.$router.push(targetRoute).catch(err => {
-          if (err.name !== 'NavigationDuplicated') {
-            throw err;
-          }
-        });
-      }
+      this.$router.push({ path: `/result/${result}`, query: this.$route.query });
     },
-    updateSelectedResult() {
-      if (this.$route.params.result) {
-        this.selectedResult = this.$route.params.result;
-      } else if (this.results.length > 0) {
-        this.selectedResult = this.results[0];
-        this.$router.push(`/result/${this.selectedResult}`).catch(err => {
-          if (err.name !== 'NavigationDuplicated') {
-            throw err;
-          }
-        });
-      }
-    },
-    formatResult(result) {
-      const year = result.substring(0, 4);
-      const month = result.substring(4, 6);
-      const day = result.substring(6, 8);
-      const hour = result.substring(9, 11);
-      const minute = result.substring(11, 13);
-      const second = result.substring(13, 15);
-      return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
-    }
-  }
+  },
 };
 </script>
 
 <style scoped>
-.results {
-  background-color: #f8f9fa;
-}
-
-.results h2 {
-  font-size: 1.5em;
-  margin-bottom: 10px;
-  margin-top: 0;
-  color: #343a40;
-}
-
-.results ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.results .result-item {
+.run-picker {
   display: flex;
   align-items: center;
-  padding: 10px;
-  margin-bottom: 10px;
-  background-color: #ffffff;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s;
+  gap: 12px;
+  font-size: 12px;
 }
-
-.results .result-item:hover {
-  background-color: #e9ecef;
-  transform: translateX(5px);
+.run-picker > span {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
 }
-
-.results .result-item:active {
-  background-color: #dee2e6;
-}
-
-.results .result-item.selected {
-  background-color: #d4edda;
-  border-left: 5px solid #28a745;
-}
-
-.results .calendar-icon {
-  margin-right: 10px;
-  width: 16px;
-  height: 16px;
-  background-image: url('../assets/calendar.svg');
-  background-size: contain;
-  background-repeat: no-repeat;
+@media (max-width: 560px) {
+  .run-picker {
+    gap: 7px;
+  }
+  .run-picker select {
+    font-size: 11px;
+  }
 }
 </style>
