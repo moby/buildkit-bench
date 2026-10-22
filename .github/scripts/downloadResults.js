@@ -1,3 +1,19 @@
+// Download published results before CI rebuilds Pages, or retrieve raw inputs
+// for report regeneration. All files in the public manifest are preserved,
+// including JSON reports, legacy HTML reports, metadata, inputs, and logs.
+//
+// Usage from the repository root:
+//   node .github/scripts/downloadResults.js --list
+//   node .github/scripts/downloadResults.js [RESULT_NAME ...]
+// No names downloads every run. --list prints only a JSON array for CI.
+//
+// PAGES_URL overrides the Pages URL derived from GITHUB_REPOSITORY (default
+// moby/buildkit-bench). RESULTS_DIR overrides website/public/result relative
+// to the repository; explicit relative paths use the current working directory.
+// Transient HTTP and network failures are retried up to five attempts.
+//
+// Tests: node --test .github/scripts/downloadResults.test.js
+
 const fs = require('fs');
 const path = require('path');
 
@@ -5,7 +21,7 @@ const repository = process.env.GITHUB_REPOSITORY || 'moby/buildkit-bench';
 const [repositoryOwner, repositoryName] = repository.split('/');
 const defaultPagesUrl = `https://${repositoryOwner}.github.io/${repositoryName}/`;
 const pagesUrl = ensureTrailingSlash(process.env.PAGES_URL || defaultPagesUrl);
-const resultsDir = process.env.RESULTS_DIR || path.join(__dirname, 'public', 'result');
+const resultsDir = process.env.RESULTS_DIR || path.join(__dirname, '../../website/public/result');
 const args = process.argv.slice(2);
 const listOnly = args.includes('--list');
 const requestedResults = new Set(args.filter(arg => arg && arg !== '--list'));
