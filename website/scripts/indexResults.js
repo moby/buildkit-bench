@@ -1,12 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const resultsDir = path.join(__dirname, 'public', 'result');
-const outputFilePath = path.join(__dirname, 'src', 'generated', 'results.json');
-const manifestFilePath = path.join(resultsDir, 'manifest.json');
-
-console.log('Running generateResults.js...');
-
 function toPosixPath(filePath) {
   return filePath.split(path.sep).join('/');
 }
@@ -29,7 +23,14 @@ async function listFiles(dir, prefix = '') {
   return files.sort();
 }
 
-async function main() {
+// Build the dashboard index and public download manifest from the same inventory.
+// Paths are relative to the website, independent of the caller's working directory.
+async function indexResults(websiteDir = path.join(__dirname, '..')) {
+  const resultsDir = path.join(websiteDir, 'public', 'result');
+  const outputFilePath = path.join(websiteDir, 'src', 'generated', 'results.json');
+  const manifestFilePath = path.join(resultsDir, 'manifest.json');
+  // A fresh checkout has no reports yet, but still needs valid empty indexes.
+  await fs.promises.mkdir(resultsDir, { recursive: true });
   const files = await fs.promises.readdir(resultsDir, { withFileTypes: true });
   const resultEntries = await Promise.all(files
     .filter(file => file.isDirectory())
@@ -67,7 +68,11 @@ async function main() {
   console.log(`${manifestFilePath} has been generated successfully.`);
 }
 
-main().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+if (require.main === module) {
+  indexResults().catch(err => {
+    console.error(err);
+    process.exitCode = 1;
+  });
+}
+
+module.exports = { indexResults };
