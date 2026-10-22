@@ -419,7 +419,7 @@ export default {
         links.push({
           text: 'Logs',
           url: `${process.env.BASE_URL}result/${this.$route.params.result}/logs.tar.gz`,
-          kind: 'external',
+          kind: 'download',
         });
       }
       return links;
