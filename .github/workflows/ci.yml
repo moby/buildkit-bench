@@ -280,9 +280,20 @@ jobs:
           path: ./bin/report
           if-no-files-found: error
 
+  test-scripts:
+    runs-on: ubuntu-26.04
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      -
+        name: Test result retention
+        run: node --test .github/scripts/pruneResults.test.js
+
   publish:
     runs-on: ubuntu-26.04
     needs:
+      - test-scripts
       - report
     outputs:
       pages_artifact_id: ${{ steps.upload-pages-artifact.outputs.artifact-id }}
@@ -317,7 +328,7 @@ jobs:
       -
         name: Garbage collect old results
         run: |
-          node ./website/pruneResults.js
+          node ./.github/scripts/pruneResults.js
       -
         name: Build website
         uses: docker/bake-action@59cb1203cd42bcefd40a1b6d73b589e48c86040e # v7.5.0
