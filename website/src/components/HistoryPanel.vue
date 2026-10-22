@@ -9,7 +9,7 @@
       </div>
       <label class="baseline-picker"
         >Reference
-        <select v-model="reference" aria-label="History reference">
+        <select :value="selectedReference" @change="$emit('update-reference', $event.target.value)" aria-label="History reference">
           <option v-for="row in candidates" :key="row.ref" :value="row.ref">{{ row.ref }}</option>
         </select></label
       >
@@ -20,7 +20,7 @@
         :key="key"
         :class="{ active: selectedMetric === key }"
         :aria-pressed="selectedMetric === key"
-        @click="metricName = key"
+        @click="$emit('update-metric', key)"
       >
         {{ benchmark.metrics[key].description }}
       </button>
@@ -114,13 +114,13 @@
       <section v-if="reviewed && validPoints" class="chart-card">
         <div class="chart-card-header">
           <div>
-            <h3>{{ reference }} over time</h3>
+            <h3>{{ selectedReference }} over time</h3>
             <p>
               {{ benchmark.metrics[selectedMetric]?.description }} · Median per run ·
               {{ validPoints }} recorded point{{ validPoints === 1 ? '' : 's' }}
             </p>
           </div>
-          <span class="count-badge">{{ reference }}</span>
+          <span class="count-badge">{{ selectedReference }}</span>
         </div>
         <benchmark-chart :option="option" :theme="theme" />
         <div class="chart-caption">
@@ -174,13 +174,12 @@ import { runLabel, runTimestamp, formatValue } from '../reports/format.mjs';
 
 export default {
   components: { BenchmarkChart, UiIcon },
-  props: { report: Object, benchmark: Object, metric: String, theme: String, run: String },
+  props: { report: Object, benchmark: Object, metric: String, theme: String, run: String, reference: String },
+  emits: ['update-reference', 'update-metric'],
   data: () => ({
     entries: [],
     loading: false,
     request: null,
-    reference: '',
-    metricName: '',
     reviewed: false,
   }),
   computed: {
@@ -190,11 +189,7 @@ export default {
       );
     },
     selectedMetric() {
-      return this.metrics.includes(this.metricName)
-        ? this.metricName
-        : this.metrics.includes(this.metric)
-        ? this.metric
-        : this.metrics[0];
+      return this.metrics.includes(this.metric) ? this.metric : this.metrics[0];
     },
     candidates() {
       return candidateRows(this.report, this.benchmark, this.selectedMetric);
@@ -290,8 +285,7 @@ export default {
     run: { immediate: true, handler: 'loadHistory' },
     selectedReference: {
       immediate: true,
-      handler(value) {
-        this.reference = value;
+      handler() {
         this.reviewed = false;
       },
     },
