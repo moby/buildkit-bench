@@ -58,6 +58,22 @@ function panel(fetch) {
   return { state, component, resultsData: context.resultsData };
 }
 
+test('history uses shared metric and reference props without overwriting them on fallback', () => {
+  const { state } = panel();
+  state.benchmark.metrics.alloc = { unit: 'bytes', description: 'Memory', chart: 'boxplot' };
+  state.benchmark.samples.push({ buildkit: 'other', values: { duration: 3, alloc: 100 } });
+  state.report.candidates.buildkit.push({ name: 'other' });
+  state.metric = 'alloc';
+  state.reference = 'other';
+  assert.equal(state.selectedMetric, 'alloc');
+  assert.equal(state.selectedReference, 'other');
+  state.metric = 'missing';
+  state.reference = 'missing';
+  assert.equal(state.selectedMetric, 'duration');
+  assert.equal(state.selectedReference, 'master');
+  assert.equal(state.reference, 'missing');
+});
+
 test('history excludes HTML-only runs and keeps partial failures visible with Pages paths', async () => {
   const calls = [];
   const { state } = panel(async (url) => {
@@ -117,5 +133,5 @@ test('history limits the window to six JSON runs and changes require context rev
   state.reviewed = true;
   component.watch.selectedReference.handler.call(state, 'different');
   assert.equal(state.reviewed, false);
-  assert.equal(state.reference, 'different');
+  assert.equal(state.reference, undefined);
 });

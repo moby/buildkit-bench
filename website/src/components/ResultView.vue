@@ -179,6 +179,9 @@
             :metric="selectedMetric"
             :theme="theme"
             :run="$route.params.result"
+            :reference="historyRef"
+            @update-reference="historyRef = $event"
+            @update-metric="metricName = $event"
           />
           <template v-else>
             <div class="comparison-toolbar">
@@ -359,6 +362,20 @@ import { candidateRows, percentChange, benchmarkNavigation } from '../reports/be
 import { dashboardChart } from '../charts/dashboard.mjs';
 import { formatValue, runLabel } from '../reports/format.mjs';
 
+// Read selections directly from the route so reload and Back/Forward share the
+// same state as clicks. Ignore repeated/empty query values in hand-edited links.
+function querySelection(key, fallback) {
+  return {
+    get() {
+      const value = this.$route.query[key];
+      return typeof value === 'string' && value ? value : fallback;
+    },
+    set(value) {
+      this.navigateSelection({ [key]: value });
+    },
+  };
+}
+
 export default {
   name: 'ResultView',
   components: { BenchmarkChart, ResultsList, RunDetails, HistoryPanel, UiIcon, ParallelizationChart },
@@ -367,21 +384,33 @@ export default {
   data: () => ({
     logoUrl: `${process.env.BASE_URL}img/moby.svg`,
     metadataLinks: [],
-    activeTab: 'buildkit',
     report: null,
     loading: false,
     error: '',
     request: null,
     search: '',
-    benchmarkName: '',
-    variantName: '',
-    metricName: 'duration',
-    baselineRef: '',
-    chartMode: 'medians',
-    view: 'benchmarks',
     detailsOpen: false,
   }),
   computed: {
+    activeTab: querySelection('project', 'buildkit'),
+    benchmarkName: querySelection('benchmark', ''),
+    variantName: querySelection('variant', ''),
+    metricName: querySelection('metric', 'duration'),
+    baselineRef: querySelection('baseline', ''),
+    historyRef: querySelection('reference', ''),
+    chartMode: {
+      get() {
+        const mode = this.$route.query.chart;
+        return ['medians', 'distribution'].includes(mode)
+          ? mode
+          : this.activeEntry?.variants ? 'distribution' : 'medians';
+      },
+      set(chart) { this.navigateSelection({ chart }); },
+    },
+    view: {
+      get() { return this.$route.query.view === 'history' ? 'history' : 'benchmarks'; },
+      set(view) { this.navigateSelection({ view }); },
+    },
     projects() {
       const result = this.$route.params.result;
       return ['buildkit', 'buildx'].filter(
@@ -515,9 +544,25 @@ export default {
   methods: {
     formatValue,
     runLabel,
+    navigateSelection(changes) {
+      return this.$router.push({
+        name: 'ResultView',
+        params: this.$route.params,
+        query: {
+          ...this.$route.query,
+          project: this.selectedProject,
+          benchmark: this.activeEntry?.name,
+          metric: this.selectedMetric || this.metricName,
+          ...changes,
+        },
+      });
+    },
     selectBenchmark(benchmark) {
-      this.benchmarkName = benchmark.name;
-      this.chartMode = benchmark.variants ? 'distribution' : 'medians';
+      return this.navigateSelection({
+        benchmark: benchmark.name,
+        variant: undefined,
+        chart: benchmark.variants ? 'distribution' : 'medians',
+      });
     },
     deltaText(row) {
       if (row.ref === this.baselineRow?.ref) return 'Baseline';

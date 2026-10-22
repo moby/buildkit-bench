@@ -7,6 +7,7 @@ import { reportCharts } from '../src/charts/report.mjs';
 import * as charts from '../src/charts/dashboard.mjs';
 import * as benchmarks from '../src/reports/benchmarks.mjs';
 import * as formatting from '../src/reports/format.mjs';
+import { createRouter, createMemoryHistory } from 'vue-router';
 
 // Exercise the component's actual loading methods/computed properties without
 // requiring a DOM or mounting ECharts in Node.
@@ -45,16 +46,96 @@ function view(fetch, loadMetadata) {
   };
   vm.runInNewContext(source, context);
   const component = context.component;
-  const state = { ...component.data(), $route: { params: { result: 'both' } } };
+  const state = { ...component.data(), $route: { params: { result: 'both' }, query: {} } };
+  state.$router = { push(location) { state.$route = location; return Promise.resolve(); } };
   for (const [key, getter] of Object.entries(component.computed)) {
-    Object.defineProperty(state, key, { get: () => getter.call(state) });
+    Object.defineProperty(state, key, typeof getter === 'function'
+      ? { get: () => getter.call(state) }
+      : { get: () => getter.get.call(state), set: value => getter.set.call(state, value) });
   }
-  state.loadReport = component.methods.loadReport.bind(state);
+  for (const [key, method] of Object.entries(component.methods)) state[key] = method.bind(state);
   return { state, component };
 }
 
 const report = (project) => ({ version: 1, project, candidates: {}, benchmarks: [] });
 const response = (project) => ({ ok: true, json: async () => report(project) });
+
+function permalinkReport(project = 'buildx') {
+  return {
+    ...report(project),
+    benchmarks: ['Simple', 'Other'].map(name => ({
+      name: `BenchmarkBuild/BenchmarkBuild${name}`,
+      metrics: {
+        duration: { unit: 's', chart: 'boxplot' },
+        alloc: { unit: 'bytes', chart: 'boxplot' },
+      },
+      samples: [{ buildkit: 'master', buildx: 'master', values: { duration: 2, alloc: 100 } }],
+    })),
+  };
+}
+
+test('a shared query restores project, benchmark, and metric after loading the report', async () => {
+  const { state } = view(async url => {
+    assert.equal(url, '/buildkit-bench/result/both/buildx.json');
+    return { ok: true, json: async () => permalinkReport() };
+  });
+  state.$route.query = {
+    project: 'buildx', benchmark: 'BenchmarkBuild/BenchmarkBuildOther', metric: 'alloc',
+    chart: 'distribution', baseline: 'master', view: 'history', reference: 'master',
+  };
+  await state.loadReport();
+  assert.equal(state.selectedProject, 'buildx');
+  assert.equal(state.activeBenchmark.name, 'BenchmarkBuild/BenchmarkBuildOther');
+  assert.equal(state.selectedMetric, 'alloc');
+  assert.equal(state.chartMode, 'distribution');
+  assert.equal(state.baselineRow.ref, 'master');
+  assert.equal(state.view, 'history');
+  assert.equal(state.historyRef, 'master');
+});
+
+test('selection navigation and router Back/Forward restore the displayed view', async () => {
+  const { state } = view();
+  const router = createRouter({ history: createMemoryHistory(), routes: [
+    { name: 'ResultView', path: '/result/:result', component: {} },
+  ] });
+  await router.push('/result/both');
+  state.$router = router;
+  Object.defineProperty(state, '$route', { get: () => router.currentRoute.value });
+  state.report = permalinkReport('buildkit');
+  await state.selectBenchmark(state.navigation.find(b => b.name.endsWith('Other')));
+  assert.equal(router.currentRoute.value.query.project, 'buildkit');
+  assert.equal(router.currentRoute.value.query.benchmark, 'BenchmarkBuild/BenchmarkBuildOther');
+  await state.navigateSelection({ metric: 'alloc', baseline: 'feature/a+b & c' });
+  const shared = router.currentRoute.value.fullPath;
+  assert.equal(state.selectedMetric, 'alloc');
+  const traverse = direction => new Promise(resolve => {
+    const stop = router.afterEach(() => { stop(); resolve(); });
+    router.go(direction);
+  });
+  await traverse(-1);
+  assert.equal(state.selectedMetric, 'duration');
+  await traverse(1);
+  assert.equal(state.selectedMetric, 'alloc');
+  await router.push('/result/both');
+  assert.equal(state.activeBenchmark.name, 'BenchmarkBuild/BenchmarkBuildSimple');
+  await router.push(shared);
+  assert.equal(state.activeBenchmark.name, 'BenchmarkBuild/BenchmarkBuildOther');
+  assert.equal(state.baselineRef, 'feature/a+b & c');
+});
+
+test('unknown and repeated query values fall back to available selections', () => {
+  const { state } = view();
+  state.report = permalinkReport('buildkit');
+  state.$route.query = { project: 'missing', benchmark: 'missing', metric: 'missing', chart: 'missing', view: 'missing' };
+  assert.equal(state.selectedProject, 'buildkit');
+  assert.equal(state.activeBenchmark.name, 'BenchmarkBuild/BenchmarkBuildSimple');
+  assert.equal(state.selectedMetric, 'duration');
+  assert.equal(state.chartMode, 'medians');
+  assert.equal(state.view, 'benchmarks');
+  state.$route.query = { project: ['buildx', 'buildkit'], benchmark: null, metric: ['alloc', 'duration'] };
+  assert.equal(state.selectedProject, 'buildkit');
+  assert.equal(state.selectedMetric, 'duration');
+});
 
 test('project selection falls back for single-project/legacy runs and preserves Pages paths', () => {
   const { state } = view();
@@ -288,6 +369,11 @@ test('grouped navigation keeps per-level distributions and searchable variants',
   assert.equal(state.chartMode, 'distribution');
   state.variantName = variants[0].name;
   assert.equal(state.activeBenchmark.name, variants[0].name);
+  const restored = view().state;
+  restored.$route.query = { ...state.$route.query };
+  restored.report = state.report;
+  assert.equal(restored.activeBenchmark.name, variants[0].name);
+  assert.equal(restored.chartMode, 'distribution');
   assert.equal(state.chartOption.series[0].type, 'boxplot');
   assert.equal(state.rows[0].median, 128);
 });
