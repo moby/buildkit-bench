@@ -3,7 +3,7 @@ export function median(sorted) {
   return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
 }
 
-// Match gen_html.go and montanaflynn/stats, not ECharts' quartile transform:
+// Match the historical Go renderer and montanaflynn/stats, not ECharts' quartile transform:
 // exclude the middle observation from odd halves and use min/max whiskers.
 export function boxPlot(values) {
   const sorted = [...values].sort((a, b) => a - b);

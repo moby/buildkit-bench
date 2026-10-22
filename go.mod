@@ -8,18 +8,15 @@ require (
 	github.com/containerd/continuity v0.5.0
 	github.com/containerd/platforms v1.0.0-rc.5
 	github.com/docker/cli v29.8.2+incompatible
-	github.com/go-echarts/go-echarts/v2 v2.7.3
 	github.com/gofrs/flock v0.13.1
 	github.com/google/go-github/v90 v90.0.0
 	github.com/google/pprof v0.0.0-20260402051712-545e8a4df936
 	github.com/joho/godotenv v1.5.1
 	github.com/moby/buildkit v0.34.0
-	github.com/montanaflynn/stats v0.12.7
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/pkg/errors v0.9.1
 	github.com/sethvargo/go-githubactions v1.4.0
 	github.com/stretchr/testify v1.12.1
-	github.com/zeebo/xxh3 v1.1.0
 	golang.org/x/mod v0.41.0
 	golang.org/x/sync v0.23.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -45,7 +42,6 @@ require (
 	github.com/in-toto/attestation v1.2.0 // indirect
 	github.com/in-toto/in-toto-golang v0.11.0 // indirect
 	github.com/klauspost/compress v1.20.1 // indirect
-	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/moby/locker v1.0.1 // indirect

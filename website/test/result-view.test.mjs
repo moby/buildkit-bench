@@ -67,6 +67,16 @@ test('project selection falls back for single-project/legacy runs and preserves 
   assert.equal(state.originalUrl, '/buildkit-bench/result/legacy/index.html');
 });
 
+test('JSON-only runs load without an HTML report', async () => {
+  const { state } = view(() => Promise.resolve(response('buildkit')));
+  state.$route.params.result = 'kit';
+  assert.equal(state.originalUrl, '');
+  assert.equal(state.reportUrl, '/buildkit-bench/result/kit/buildkit.json');
+  await state.loadReport();
+  assert.equal(state.error, '');
+  assert.equal(state.report.project, 'buildkit');
+});
+
 test('switching projects cancels the old request and ignores late results', async () => {
   const pending = [];
   const { state } = view(

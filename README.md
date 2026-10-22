@@ -55,7 +55,7 @@ BUILDX_REFS=master,v0.17.0 make bench
 > images in a docker volume if you are repeatedly calling `make test` or
 > `make bench`. This helps to avoid rate limiting on the remote registry side.
 
-After running the tests, you can generate the HTML report and serve the
+After running the tests, you can generate the JSON reports and serve the
 website with:
 
 ```bash
