@@ -122,3 +122,11 @@ test('malformed report metadata aborts before any removal', t => {
   assert.equal(result.status, 1);
   assert.ok(fs.existsSync(path.join(f.root, '20000101-000000')));
 });
+
+test('full-output sidecars follow log retention rather than report retention', t => {
+  const f = fixture(t);
+  const name = `output-${'a'.repeat(64)}.log.gz`;
+  f.add('20260721-120000', { [name]: 'compressed output', 'gotestoutput.json': 'raw', 'buildkit.json': '{}' });
+  f.add('20260722-120000', { [name]: 'retained on cutoff day', 'buildkit.json': '{}' });
+  assert.deepEqual(planPruning(f.root, settings, now).map(a => a.name), [path.join('20260721-120000', name)]);
+});

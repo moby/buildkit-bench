@@ -112,6 +112,10 @@
           <details v-for="(failure, index) in failures" :key="index">
             <summary>{{ failure.name || failure.package }} <span>Failed</span></summary>
             <p>{{ failure.package }} · {{ report.sources?.[failure.source_id]?.name }}</p>
+            <p class="failure-downloads">
+              <a v-if="failureOutputUrl(failure)" :href="failureOutputUrl(failure)" download>Download full test-run output (.gz)</a>
+              <a v-if="logsUrl" :href="logsUrl" download>Download daemon logs (.tar.gz)</a>
+            </p>
             <pre>{{ failure.output || 'No diagnostic output was captured. See the CI run for details.' }}</pre>
           </details>
         </section>
@@ -467,6 +471,11 @@ export default {
       const file = resultsData.htmlReports[result]?.[this.selectedProject];
       return file ? `${process.env.BASE_URL}result/${result}/${file}` : '';
     },
+    logsUrl() {
+      return resultsData.logArchives.includes(this.currentRun)
+        ? `${process.env.BASE_URL}result/${this.currentRun}/logs.tar.gz`
+        : '';
+    },
     headerLinks() {
       const meta = this.report?.metadata || {};
       const links = this.report
@@ -479,10 +488,10 @@ export default {
             meta.run_url && { text: 'View CI run', url: meta.run_url, kind: 'external' },
           ].filter(Boolean)
         : [...this.metadataLinks];
-      if (resultsData.logArchives.includes(this.currentRun)) {
+      if (this.logsUrl) {
         links.push({
           text: 'Logs',
-          url: `${process.env.BASE_URL}result/${this.currentRun}/logs.tar.gz`,
+          url: this.logsUrl,
           kind: 'download',
         });
       }
@@ -588,6 +597,12 @@ export default {
     this.request?.abort();
   },
   methods: {
+    failureOutputUrl(failure) {
+      const file = this.report?.sources?.[failure.source_id]?.output_log;
+      const result = this.currentRun;
+      return resultsData.outputLogs?.[result]?.includes(file)
+        ? `${process.env.BASE_URL}result/${encodeURIComponent(result)}/${encodeURIComponent(file)}` : '';
+    },
     formatValue,
     runLabel,
     navigateSelection(changes) {
@@ -711,6 +726,7 @@ export default {
 }
 .failure-panel summary { cursor: pointer; overflow-wrap: anywhere; }
 .failure-panel details { margin-top: 12px; }
+.failure-downloads { display: flex; flex-wrap: wrap; gap: 16px; }
 .failure-panel pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 320px; overflow: auto; }
 
 .dashboard {

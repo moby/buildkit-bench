@@ -299,3 +299,45 @@ func TestReportInterruptedBenchmarks(t *testing.T) {
 		})
 	}
 }
+
+func TestReportCopiesFullOutput(t *testing.T) {
+	dir := t.TempDir()
+	config := filepath.Join(dir, "config.yml")
+	require.NoError(t, os.WriteFile(config, []byte("runs: {}\n"), 0644))
+	output := []byte("compressed output sidecar")
+	digest := sha256.Sum256(output)
+	name := "output-" + hex.EncodeToString(digest[:]) + ".log.gz"
+	require.NoError(t, os.WriteFile(filepath.Join(dir, name), output, 0644))
+	input := filepath.Join(dir, "input.json")
+	require.NoError(t, os.WriteFile(input, []byte(`{"OutputLog":"`+name+`","Failures":[{"Package":"bench","Output":"failed"}]}`), 0644))
+	cmd := &genCmd{
+		Files:   []string{input},
+		Config:  config,
+		Project: "buildkit",
+		Output:  filepath.Join(dir, "report", "buildkit.json"),
+	}
+	require.NoError(t, cmd.Run(&Context{}))
+	copied, err := os.ReadFile(filepath.Join(dir, "report", name))
+	require.NoError(t, err)
+	require.Equal(t, output, copied)
+	dt, err := os.ReadFile(cmd.Output)
+	require.NoError(t, err)
+	var report benchmarkReport
+	require.NoError(t, json.Unmarshal(dt, &report))
+	require.Equal(t, name, report.Sources[report.Failures[0].SourceID].OutputLog)
+	// Exporting alongside the input must not truncate the existing sidecar.
+	cmd.Output = filepath.Join(dir, "buildkit.json")
+	require.NoError(t, cmd.Run(&Context{}))
+	copied, err = os.ReadFile(filepath.Join(dir, name))
+	require.NoError(t, err)
+	require.Equal(t, output, copied)
+	require.NoError(t, os.Remove(filepath.Join(dir, name)))
+	require.NoError(t, cmd.Run(&Context{}))
+	dt, err = os.ReadFile(cmd.Output)
+	require.NoError(t, err)
+	var withoutLog benchmarkReport
+	require.NoError(t, json.Unmarshal(dt, &withoutLog))
+	require.Empty(t, withoutLog.Sources[withoutLog.Failures[0].SourceID].OutputLog)
+	require.NoError(t, os.WriteFile(input, []byte(`{"OutputLog":"../outside.log.gz"}`), 0644))
+	require.ErrorContains(t, cmd.Run(&Context{}), "invalid output log filename")
+}

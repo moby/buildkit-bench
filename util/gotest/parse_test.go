@@ -2,6 +2,7 @@ package gotest
 
 import (
 	"bytes"
+	"io"
 	"strings"
 	"testing"
 	"time"
@@ -24,12 +25,31 @@ func TestBenchmarkSampleTimes(t *testing.T) {
 
 func TestParseWritesOutputToConfiguredLogger(t *testing.T) {
 	var logs bytes.Buffer
+	var output bytes.Buffer
 	_, _, err := Parse(ParseConfig{
 		Stdout: strings.NewReader(`{"Time":"2024-09-03T14:40:54.564305995Z","Action":"output","Package":"pkg","Output":"literal %s\n"}`),
 		Logger: &logs,
+		Output: &output,
 	})
 	require.NoError(t, err)
 	require.Contains(t, logs.String(), "literal %s")
+	require.Equal(t, "literal %s\n", output.String())
+}
+
+func TestParseOutputWriteError(t *testing.T) {
+	reader, writer := io.Pipe()
+	require.NoError(t, reader.Close())
+	defer writer.Close()
+	res, _, err := Parse(ParseConfig{
+		Stdout: strings.NewReader(`{"Action":"output","Package":"bench","Output":"diagnostic\n"}
+{"Action":"output","Package":"bench","Output":"BenchmarkBuild/Simple/ref=master/run=1-8\t1\t100 ns/op\n"}
+{"Action":"fail","Package":"bench"}`),
+		Output: writer,
+	})
+	require.NoError(t, err)
+	require.ErrorIs(t, res.OutputError, io.ErrClosedPipe)
+	require.Len(t, res.Benchmarks, 1)
+	require.Len(t, res.Failures, 1)
 }
 
 func TestParse(t *testing.T) {

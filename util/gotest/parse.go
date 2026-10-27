@@ -12,9 +12,12 @@ import (
 type ParseConfig struct {
 	Stdout io.Reader
 	Logger io.Writer
+	Output io.Writer
 }
 
 type ParseResult struct {
+	OutputError   error      `json:"-"`
+	OutputLog     string     `json:",omitempty"`
 	Failures      []Failure  `json:",omitempty"`
 	Execution     *Execution `json:",omitempty"`
 	Tests         map[string]ParseEntry
@@ -29,6 +32,7 @@ type ParseEntry interface {
 
 func Parse(config ParseConfig) (*ParseResult, *testjson.Execution, error) {
 	handler := newEventHandler(config.Logger)
+	handler.output = config.Output
 	ex, err := testjson.ScanTestOutput(testjson.ScanConfig{
 		Stdout:  config.Stdout,
 		Handler: handler,
@@ -43,6 +47,7 @@ func Parse(config ParseConfig) (*ParseResult, *testjson.Execution, error) {
 type eventHandler struct {
 	ParseResult
 	log           *log.Logger
+	output        io.Writer
 	mu            sync.Mutex
 	errs          []string
 	benchmarkBuf  string
@@ -72,6 +77,12 @@ func (e *eventHandler) Event(event testjson.TestEvent, _ *testjson.Execution) er
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.recordFailure(event)
+	if e.output != nil && (event.Action == testjson.ActionOutput || event.Action == testjson.ActionBuild) {
+		if _, err := io.WriteString(e.output, event.Output); err != nil {
+			e.OutputError = err
+			e.output = nil
+		}
+	}
 	if event.Action != testjson.ActionOutput {
 		return nil
 	}

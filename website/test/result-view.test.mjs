@@ -40,6 +40,7 @@ function view(fetch, loadMetadata) {
     resultsData: {
       results: ['both'],
       logArchives: ['both'],
+      outputLogs: { both: ['output-demo.log.gz'] },
       jsonReports: { both: ['buildkit', 'buildx'], kit: ['buildkit'], legacy: [] },
       htmlReports: {
         both: { buildkit: 'buildkit.html', buildx: 'buildx.html' },
@@ -475,7 +476,21 @@ test('failed and legacy reports expose diagnostics without adding measurement sa
   assert.equal(state.sampleCount, 1);
 });
 
+test('failure downloads resolve the latest overview run and follow historical navigation', () => {
+  const { state } = view();
+  state.$route = { name: 'Overview', params: {}, query: {} };
+  state.report = { sources: { source: { output_log: 'output-demo.log.gz' } } };
+  assert.equal(state.logsUrl, '/buildkit-bench/result/both/logs.tar.gz');
+  assert.equal(state.failureOutputUrl({ source_id: 'source' }), '/buildkit-bench/result/both/output-demo.log.gz');
+  assert.ok(state.headerLinks.some(link => link.url === state.logsUrl));
+  state.$route.params.result = 'kit';
+  assert.equal(state.logsUrl, '');
+  assert.equal(state.failureOutputUrl({ source_id: 'source' }), '');
+});
+
 test('failure panel renders incomplete runs and escapes diagnostic output', async () => {
+  const { state } = view();
+  state.report = { sources: { source: { name: 'raw.json', output_log: 'output-demo.log.gz' } } };
   const template = readFileSync(new URL('../src/components/ResultView.vue', import.meta.url), 'utf8')
     .match(/<section v-if="!loading && !error && failures.length"[\s\S]*?<\/section>/)[0];
   const failures = [
@@ -484,9 +499,10 @@ test('failure panel renders incomplete runs and escapes diagnostic output', asyn
   ];
   const html = await renderToString(createSSRApp({
     template,
+    methods: { failureOutputUrl: state.failureOutputUrl },
     data: () => ({
-      loading: false, error: '', failures,
-      report: { failures, sources: { source: { name: 'raw.json' } }, missing_benchmarks: ['BenchmarkBuild/Simple'] },
+      loading: false, error: '', failures, logsUrl: state.logsUrl,
+      report: { failures, sources: state.report.sources, missing_benchmarks: ['BenchmarkBuild/Simple'] },
     }),
   }));
   assert.match(html, /2 failures recorded/);
@@ -495,4 +511,11 @@ test('failure panel renders incomplete runs and escapes diagnostic output', asyn
   assert.match(html, /&lt;script&gt;unsafe\(\)&lt;\/script&gt;/);
   assert.doesNotMatch(html, /<script>/);
   assert.match(html, /No diagnostic output was captured/);
+  assert.match(html, /href="\/buildkit-bench\/result\/both\/output-demo.log.gz" download/);
+  assert.match(html, /href="\/buildkit-bench\/result\/both\/logs.tar.gz" download/);
+  assert.equal(state.failureOutputUrl(failures[1]), '');
+  state.report.sources.source.output_log = undefined;
+  assert.equal(state.failureOutputUrl(failures[0]), '');
+  state.report.sources.source.output_log = 'output-pruned.log.gz';
+  assert.equal(state.failureOutputUrl(failures[0]), '');
 });

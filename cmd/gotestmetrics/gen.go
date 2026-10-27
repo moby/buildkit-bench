@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -163,8 +164,10 @@ type reportGenerator struct {
 }
 
 type reportSource struct {
-	Name      string            `json:"name"`
-	Execution *gotest.Execution `json:"execution,omitempty"`
+	Name          string            `json:"name"`
+	Execution     *gotest.Execution `json:"execution,omitempty"`
+	OutputLog     string            `json:"output_log,omitempty"`
+	outputLogPath string
 }
 
 type reportMetadata struct {
@@ -217,12 +220,21 @@ type reportSample struct {
 }
 
 func (c *genCmd) writeJSON(report *benchmarkReport) error {
+	if err := os.MkdirAll(filepath.Dir(c.Output), 0755); err != nil {
+		return errors.Wrap(err, "failed to create JSON output directory")
+	}
+	for id, source := range report.Sources {
+		if source.OutputLog != "" {
+			if err := copyOutputLog(source.outputLogPath, filepath.Join(filepath.Dir(c.Output), source.OutputLog)); err != nil {
+				log.Printf("Warning: full output log %s is unavailable: %v", source.OutputLog, err)
+				source.OutputLog = ""
+				report.Sources[id] = source
+			}
+		}
+	}
 	dt, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal JSON report")
-	}
-	if err := os.MkdirAll(filepath.Dir(c.Output), 0755); err != nil {
-		return errors.Wrap(err, "failed to create JSON output directory")
 	}
 	log.Printf("Generating JSON report to %s", c.Output)
 	return os.WriteFile(c.Output, append(dt, '\n'), 0644)
@@ -349,7 +361,18 @@ func (c *genCmd) jsonReport() (*benchmarkReport, error) {
 			}
 			hash := sha256.Sum256(dt)
 			sourceID := hex.EncodeToString(hash[:])
-			report.Sources[sourceID] = reportSource{Name: filepath.Base(file), Execution: result.Execution}
+			source := reportSource{Name: filepath.Base(file), Execution: result.Execution}
+			if result.OutputLog != "" {
+				// Sidecars are content-addressed filenames, never paths or URLs.
+				logDigest := strings.TrimSuffix(strings.TrimPrefix(result.OutputLog, "output-"), ".log.gz")
+				decoded, err := hex.DecodeString(logDigest)
+				if err != nil || len(decoded) != sha256.Size || result.OutputLog != "output-"+logDigest+".log.gz" {
+					return nil, errors.Errorf("invalid output log filename %q", result.OutputLog)
+				}
+				source.OutputLog = result.OutputLog
+				source.outputLogPath = filepath.Join(filepath.Dir(file), result.OutputLog)
+			}
+			report.Sources[sourceID] = source
 			for _, failure := range result.Failures {
 				report.Failures = append(report.Failures, reportFailure{
 					Name: failure.Name, Package: failure.Package, Output: failure.Output, SourceID: sourceID,
@@ -433,4 +456,32 @@ func benchmarkMeasurements(run gotest.BenchmarkRun) map[string]any {
 		values["allocs/op"] = run.AllocsPerOp
 	}
 	return values
+}
+
+func copyOutputLog(source, destination string) error {
+	sourcePath, err := filepath.Abs(source)
+	if err != nil {
+		return err
+	}
+	destinationPath, err := filepath.Abs(destination)
+	if err != nil {
+		return err
+	}
+	input, err := os.Open(sourcePath)
+	if err != nil {
+		return errors.Wrap(err, "failed to open full output log")
+	}
+	defer input.Close()
+	if sourcePath == destinationPath {
+		return nil
+	}
+	output, err := os.Create(destinationPath)
+	if err != nil {
+		return err
+	}
+	defer output.Close()
+	if _, err := io.Copy(output, input); err != nil {
+		return err
+	}
+	return output.Close()
 }
