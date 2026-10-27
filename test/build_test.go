@@ -332,7 +332,7 @@ func benchmarkBuildExportGzip(b *testing.B, sb testutil.Sandbox) {
 	benchmarkBuildExport(b, sb, "gzip")
 }
 func benchmarkBuildExportEstargz(b *testing.B, sb testutil.Sandbox) {
-	benchmarkBuildExport(b, sb, "gzip")
+	benchmarkBuildExport(b, sb, "estargz")
 }
 func benchmarkBuildExportZstd(b *testing.B, sb testutil.Sandbox) {
 	benchmarkBuildExport(b, sb, "zstd")
