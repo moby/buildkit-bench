@@ -13,6 +13,7 @@
 </template>
 <script>
 const paths = {
+  overview: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',
   chart: 'M4 20V10m5 10V4m6 16v-7m5 7V7M2 22h20',
   history: 'M3 11a9 9 0 1 1 2 7M3 4v7h7m2-5v6l4 2',
   search: 'M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0',
