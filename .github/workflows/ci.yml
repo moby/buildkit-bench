@@ -180,12 +180,14 @@ jobs:
           TEST_TYPES: test
       -
         name: Result
+        if: ${{ !cancelled() && hashFiles('bin/results/gotestoutput.json') != '' }}
         run: |
           resultPath=./${{ env.TEST_RESULTS_DIR }}/gotestoutput-tests.json
           mv ./${{ env.TEST_RESULTS_DIR }}/gotestoutput.json $resultPath
           jq . $resultPath
       -
         name: Upload results
+        if: ${{ !cancelled() && hashFiles('bin/results/gotestoutput-tests.json') != '' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: tests-results
@@ -214,6 +216,7 @@ jobs:
       artifact_key: ${{ needs.get-env.outputs.BUILDX_ARTIFACT_KEY }}
 
   report:
+    if: ${{ !cancelled() && needs.test.result != 'skipped' && needs.benchmark-buildkit.result != 'skipped' && needs.benchmark-buildx.result != 'skipped' }}
     runs-on: ubuntu-26.04
     needs:
       - test
@@ -226,6 +229,13 @@ jobs:
         with:
           path: /tmp/bench-results
           pattern: bench-results-*
+          merge-multiple: true
+      -
+        name: Download test results
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          path: /tmp/bench-results
+          pattern: tests-results
           merge-multiple: true
       -
         name: Download candidates
@@ -291,6 +301,7 @@ jobs:
         run: node --test .github/scripts/*.test.js
 
   publish:
+    if: ${{ !cancelled() && needs.report.result == 'success' && needs.test-scripts.result == 'success' }}
     runs-on: ubuntu-26.04
     needs:
       - test-scripts
@@ -345,7 +356,7 @@ jobs:
           if-no-files-found: error
 
   deploy:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+    if: ${{ !cancelled() && needs.publish.result == 'success' && github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-26.04
     permissions:
       pages: write
