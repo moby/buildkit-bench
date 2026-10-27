@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
-	"sync"
 	"testing"
 
 	"github.com/containerd/continuity/fs/fstest"
@@ -12,6 +11,7 @@ import (
 	"github.com/moby/buildkit-bench/util/archiveutil"
 	"github.com/moby/buildkit-bench/util/testutil"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/sync/errgroup"
 )
 
 const dockerfileImagePin = "docker/dockerfile:1.9.0"
@@ -175,27 +175,31 @@ RUN cp /etc/foo /etc/bar
 		require.NoError(b, err, out)
 	}
 
-	var wg sync.WaitGroup
+	dirs := make([]string, n)
 	for i := 0; i < n; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			dir := tmpdir(
-				b,
-				fstest.CreateFile("Dockerfile", dockerfile, 0600),
-				fstest.CreateFile("foo", []byte("foo"), 0600),
-			)
-			out, err := buildxBuildCmd(sb, withArgs("--output=type=image", dir))
-			// TODO: use sb.WriteLogFile to write buildx logs in a defer with a
-			//  semaphore using a buffered channel to limit the number of
-			//  concurrent goroutines. This might affect timing.
-			require.NoError(b, err, out)
-		}()
+		dirs[i] = tmpdir(
+			b,
+			fstest.CreateFile("Dockerfile", dockerfile, 0600),
+			fstest.CreateFile("foo", []byte("foo"), 0600),
+		)
 	}
+	outputs := make([]string, n)
 	reportBuildkitdAlloc(b, sb, func() {
+		var builds errgroup.Group
 		b.StartTimer()
-		wg.Wait()
+		for i, dir := range dirs {
+			builds.Go(func() error {
+				out, err := buildxBuildCmd(sb, withArgs("--output=type=image", dir))
+				outputs[i] = out
+				return err
+			})
+		}
+		err := builds.Wait()
 		b.StopTimer()
+		for i, out := range outputs {
+			sb.WriteLogFile(b, fmt.Sprintf("buildx-%d", i), []byte(out))
+		}
+		require.NoError(b, err)
 	})
 }
 
@@ -328,7 +332,7 @@ func benchmarkBuildExportGzip(b *testing.B, sb testutil.Sandbox) {
 	benchmarkBuildExport(b, sb, "gzip")
 }
 func benchmarkBuildExportEstargz(b *testing.B, sb testutil.Sandbox) {
-	benchmarkBuildExport(b, sb, "gzip")
+	benchmarkBuildExport(b, sb, "estargz")
 }
 func benchmarkBuildExportZstd(b *testing.B, sb testutil.Sandbox) {
 	benchmarkBuildExport(b, sb, "zstd")
