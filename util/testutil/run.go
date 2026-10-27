@@ -496,6 +496,8 @@ func copyImagesLocal(tb testing.TB, host string, images map[string]string) error
 	return nil
 }
 
+// OfficialImages pins images for the host architecture unless an explicit
+// namespace is given. Use library/ to select a multi-platform image index.
 func OfficialImages(names ...string) map[string]string {
 	return officialImages(names...)
 }
@@ -523,9 +525,13 @@ func officialImages(names ...string) map[string]string {
 	}
 	m := map[string]string{}
 	for _, name := range names {
-		ref := "docker.io/" + ns + "/" + name
+		namespace := ns
+		if explicit, image, ok := strings.Cut(name, "/"); ok {
+			namespace, name = explicit, image
+		}
+		ref := "docker.io/" + namespace + "/" + name
 		if pns, ok := pins[name]; ok {
-			if dgst, ok := pns[ns]; ok {
+			if dgst, ok := pns[namespace]; ok {
 				ref += "@" + dgst
 			}
 		}

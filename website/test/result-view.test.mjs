@@ -28,7 +28,7 @@ function view(fetch, loadMetadata) {
     ...benchmarks,
     ...formatting,
     BenchmarkChart: {},
-    ParallelizationChart: {},
+    BenchmarkVariantsChart: {},
     ResultsList: {},
     RunDetails: {},
     HistoryPanel: {},
@@ -59,6 +59,30 @@ function view(fetch, loadMetadata) {
 
 const report = (project) => ({ version: 1, project, candidates: {}, benchmarks: [] });
 const response = (project) => ({ ok: true, json: async () => report(project) });
+
+test('emulator permalinks retain their workload when comparison controls change', async () => {
+  const { state } = view();
+  state.report = {
+    ...report('buildkit'),
+    benchmarks: ['', 'Native'].map(suffix => ({
+      name: `BenchmarkBuild/BenchmarkBuildEmulator${suffix}`,
+      metrics: { duration: { unit: 's', chart: 'boxplot' } },
+      samples: [{ buildkit: 'master', values: { duration: 1 } }],
+    })),
+  };
+  for (const benchmark of state.report.benchmarks) {
+    state.$route.query = { benchmark: benchmark.name };
+    assert.equal(state.activeEntry.kind, 'emulator');
+    assert.equal(state.activeBenchmark.name, benchmark.name);
+    await state.navigateSelection({ metric: 'duration', baseline: 'master', chart: 'medians' });
+    assert.equal(state.activeBenchmark.name, benchmark.name);
+    assert.equal(state.$route.query.variant, benchmark.name);
+  }
+  state.variantName = state.report.benchmarks[0].name;
+  assert.equal(state.activeBenchmark.name, state.report.benchmarks[0].name);
+  state.search = 'native';
+  assert.equal(state.filteredBenchmarks.length, 1);
+});
 
 function permalinkReport(project = 'buildx') {
   return {

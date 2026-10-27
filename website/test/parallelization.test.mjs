@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
-import { benchmarkNavigation, parallelizationRows } from '../src/reports/benchmarks.mjs';
+import { benchmarkNavigation, variantRows } from '../src/reports/benchmarks.mjs';
 import { chartPalette } from '../src/charts/dashboard.mjs';
 import { formatValue } from '../src/reports/format.mjs';
 
@@ -48,7 +48,7 @@ test('parallelism medians retain candidate order, missing points and unit bounda
   ];
   report.benchmarks.find((b) => b.name.endsWith('64x')).metrics.duration.unit = 'ms';
   const variants = benchmarkNavigation(report.benchmarks)[0].variants;
-  const rows = parallelizationRows(report, variants, 'duration', 's');
+  const rows = variantRows(report, variants, 'duration', 's');
   assert.deepEqual(
     rows.map((row) => row.ref),
     ['stable', 'master', 'older']
@@ -63,20 +63,21 @@ test('parallelism medians retain candidate order, missing points and unit bounda
   );
 });
 
-const source = readFileSync(new URL('../src/components/ParallelizationChart.vue', import.meta.url), 'utf8')
+const source = readFileSync(new URL('../src/components/BenchmarkVariantsChart.vue', import.meta.url), 'utf8')
   .match(/<script>([\s\S]*?)<\/script>/)[1]
   .replace(/^import[\s\S]*?;$/gm, '')
   .replace('export default', 'component =');
-function chart() {
-  const context = { BenchmarkChart: {}, parallelizationRows, chartPalette, formatValue };
+function chart(report = fixture()) {
+  const context = { BenchmarkChart: {}, variantRows, chartPalette, formatValue };
   vm.runInNewContext(source, context);
-  const report = fixture();
-  const variants = benchmarkNavigation(report.benchmarks)[0].variants;
+  const entry = benchmarkNavigation(report.benchmarks)[0];
+  const variants = entry.variants;
   const component = context.component;
   const state = {
     ...component.data(),
     report,
     variants,
+    kind: entry.kind,
     metrics: variants[0].benchmark.metrics,
     metric: 'duration',
     theme: 'dark',
@@ -105,4 +106,37 @@ test('grouped chart starts with baseline and master and allows extra candidate s
   state.metric = 'alloc';
   assert.equal(state.option.tooltip.valueFormatter(1024), '1 KiB');
   assert.equal(state.option.series.length, 2);
+});
+
+function emulatorFixture() {
+  const report = fixture();
+  report.benchmarks = report.benchmarks.slice(0, 2).map((benchmark, i) => ({
+    ...benchmark,
+    name: `BenchmarkBuild/BenchmarkBuildEmulator${i ? 'Native' : ''}`,
+  }));
+  return report;
+}
+
+test('emulator grouping requires both workloads and preserves historical single benchmarks', () => {
+  const report = emulatorFixture();
+  const original = structuredClone(report);
+  const [entry] = benchmarkNavigation(report.benchmarks);
+  assert.equal(entry.kind, 'emulator');
+  assert.deepEqual(entry.variants.map(v => v.label), ['Native', 'Emulated']);
+  assert.equal(entry.variants[0].benchmark, report.benchmarks[1]);
+  assert.deepEqual(report, original);
+  for (const benchmark of report.benchmarks)
+    assert.equal(benchmarkNavigation([benchmark])[0], benchmark);
+});
+
+test('emulator chart compares medians as bars and leaves missing candidate values empty', () => {
+  const report = emulatorFixture();
+  report.benchmarks[1].samples = report.benchmarks[1].samples.filter(s => s.buildkit !== 'master');
+  const { state } = chart(report);
+  assert.deepEqual(Array.from(state.option.xAxis.data), ['Native', 'Emulated']);
+  assert.equal(state.option.xAxis.name, 'Execution');
+  assert.equal(state.option.series[0].type, 'bar');
+  assert.deepEqual(Array.from(state.option.series[1].data), [null, 128]);
+  state.metric = 'alloc';
+  assert.deepEqual(Array.from(state.option.series[0].data), [3200, 25600]);
 });

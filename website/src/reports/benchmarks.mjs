@@ -130,11 +130,23 @@ export function compareContexts(current, other) {
   };
 }
 
-// Group only this benchmark family; keep original reports and samples intact.
+// Keep original reports and samples intact when grouping related workloads.
 export function benchmarkNavigation(benchmarks) {
   const entries = [];
   const groups = new Map();
   for (const benchmark of benchmarks) {
+    const emulator = benchmark.name.match(/^(.*\/BenchmarkBuildEmulator)(Native)?$/);
+    if (emulator && benchmarks.some((b) => b.name === `${emulator[1]}Native`) &&
+        benchmarks.some((b) => b.name === emulator[1])) {
+      let group = groups.get(emulator[1]);
+      if (!group) {
+        group = { name: emulator[1], description: 'Native and emulated builds', kind: 'emulator', variants: [] };
+        groups.set(emulator[1], group);
+        entries.push(group);
+      }
+      group.variants.push({ label: emulator[2] ? 'Native' : 'Emulated', benchmark });
+      continue;
+    }
     const match = benchmark.name.match(/^(.*\/BenchmarkBuildHighParallelization)(16|32|64|128)x$/);
     if (!match) {
       entries.push(benchmark);
@@ -142,17 +154,21 @@ export function benchmarkNavigation(benchmarks) {
     }
     let group = groups.get(match[1]);
     if (!group) {
-      group = { name: match[1], description: 'Build high parallelization', variants: [] };
+      group = { name: match[1], description: 'Build high parallelization', kind: 'parallelization', variants: [] };
       groups.set(match[1], group);
       entries.push(group);
     }
-    group.variants.push({ parallelism: Number(match[2]), benchmark });
+    group.variants.push({ parallelism: Number(match[2]), label: `${match[2]}x`, benchmark });
   }
-  for (const group of groups.values()) group.variants.sort((a, b) => a.parallelism - b.parallelism);
+  for (const group of groups.values()) {
+    group.variants.sort((a, b) => group.kind === 'emulator'
+      ? Number(a.label === 'Emulated') - Number(b.label === 'Emulated')
+      : a.parallelism - b.parallelism);
+  }
   return entries;
 }
 
-export function parallelizationRows(report, variants, metric, unit) {
+export function variantRows(report, variants, metric, unit) {
   const levels = variants.map(({ benchmark }) =>
     benchmark.metrics[metric]?.unit === unit ? candidateRows(report, benchmark, metric) : []
   );
