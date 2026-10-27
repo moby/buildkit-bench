@@ -42,10 +42,6 @@ func (c *parseCmd) Run(ctx *Context) error {
 		log.Printf("%s", string(b))
 	}
 
-	if len(ex.Failed()) > 0 {
-		return errors.Errorf("%d test(s) failed", len(ex.Failed()))
-	}
-
 	if c.Output != "" {
 		if err := os.MkdirAll(filepath.Dir(c.Output), 0755); err != nil {
 			return errors.Wrap(err, "failed to create output file directory")
@@ -57,6 +53,9 @@ func (c *parseCmd) Run(ctx *Context) error {
 		if err := os.WriteFile(c.Output, dt, 0644); err != nil {
 			return errors.Wrap(err, "failed to write result to output file")
 		}
+	}
+	if len(ex.Failed()) > 0 || len(res.Failures) > 0 {
+		return errors.New("tests or benchmarks failed; results have been preserved")
 	}
 	return nil
 }

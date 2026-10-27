@@ -10,6 +10,7 @@ import (
 )
 
 type Result struct {
+	Failures      []Failure  `json:",omitempty"`
 	Execution     *Execution `json:",omitempty"`
 	Tests         map[string]Test
 	Benchmarks    map[string]Benchmark

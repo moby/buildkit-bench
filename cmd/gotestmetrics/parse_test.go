@@ -65,3 +65,27 @@ func TestParseExecutionMetadata(t *testing.T) {
 		})
 	}
 }
+
+func TestParsePreservesFailedResults(t *testing.T) {
+	dir := t.TempDir()
+	input := filepath.Join(dir, "events.json")
+	require.NoError(t, os.WriteFile(input, []byte(`{"Action":"output","Package":"bench","Output":"BenchmarkBuild/Simple/ref=master/run=1-4\t1\t123 ns/op\n"}
+{"Action":"output","Package":"bench","Output":"--- FAIL: BenchmarkBuild/Simple/ref=old/run=1\n"}
+{"Action":"output","Package":"bench","Output":"    build failed\n"}
+{"Action":"fail","Package":"bench"}
+`), 0644))
+	f, err := os.Open(input)
+	require.NoError(t, err)
+	stdin := os.Stdin
+	os.Stdin = f
+	t.Cleanup(func() { os.Stdin = stdin; f.Close() })
+	cmd := &parseCmd{Output: filepath.Join(dir, "parsed.json")}
+	require.ErrorContains(t, cmd.Run(&Context{}), "results have been preserved")
+	dt, err := os.ReadFile(cmd.Output)
+	require.NoError(t, err)
+	var result gotest.Result
+	require.NoError(t, json.Unmarshal(dt, &result))
+	require.Len(t, result.Benchmarks, 1)
+	require.Len(t, result.Failures, 1)
+	require.Contains(t, result.Failures[0].Output, "build failed")
+}
