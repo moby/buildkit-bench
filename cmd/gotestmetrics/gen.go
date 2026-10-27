@@ -44,23 +44,31 @@ func (c *genCmd) Run(ctx *Context) error {
 		b, _ := json.MarshalIndent(benchmarks, "", "  ")
 		log.Printf("%s", string(b))
 	}
-	if err := c.validateBenchmarks(benchmarks); err != nil {
-		return err
-	}
 	report, err := c.jsonReport()
 	if err != nil {
+		return err
+	}
+	if err := c.validateBenchmarks(benchmarks, report); err != nil {
 		return err
 	}
 	return c.writeJSON(report)
 }
 
-func (c *genCmd) validateBenchmarks(benchmarks map[string]gotest.Benchmark) error {
+func (c *genCmd) validateBenchmarks(benchmarks map[string]gotest.Benchmark, report *benchmarkReport) error {
 	log.Printf("Validating %d benchmark results based on %s", len(benchmarks), c.Config)
 	tc, err := testutil.LoadTestConfig(c.Config)
 	if err != nil {
 		return err
 	}
 	seen := make(map[string]struct{})
+	for _, failure := range report.Failures {
+		if strings.HasPrefix(failure.Name, "Benchmark") {
+			name, _, _ := strings.Cut(failure.Name, "/ref=")
+			if _, err := tc.BenchmarkConfig(name); err == nil {
+				seen[name] = struct{}{}
+			}
+		}
+	}
 	for _, benchmark := range benchmarks {
 		if _, ok := seen[benchmark.Name]; !ok {
 			seen[benchmark.Name] = struct{}{}
@@ -84,11 +92,26 @@ func (c *genCmd) validateBenchmarks(benchmarks map[string]gotest.Benchmark) erro
 					continue
 				}
 				if _, ok := seen[rootName+"/"+testName]; !ok {
+					// A parent or package failure can prevent attempts from
+					// starting. Publish that incomplete run explicitly rather
+					// than losing its diagnostics to completeness validation.
+					interrupted := false
+					for _, failure := range report.Failures {
+						if failure.Name == "" || strings.HasPrefix(rootName+"/"+testName, failure.Name+"/") {
+							interrupted = true
+							break
+						}
+					}
+					if interrupted {
+						report.MissingBenchmarks = append(report.MissingBenchmarks, rootName+"/"+testName)
+						continue
+					}
 					return errors.Errorf("missing benchmark result for %q", rootName+"/"+testName)
 				}
 			}
 		}
 	}
+	sort.Strings(report.MissingBenchmarks)
 	return nil
 }
 
@@ -113,14 +136,23 @@ func benchmarkMetricValues(run gotest.BenchmarkRun, bc *testutil.TestConfigBench
 
 // These types define the versioned website contract independently of parser types.
 type benchmarkReport struct {
-	Version    int                          `json:"version"`
-	Name       string                       `json:"name"`
-	Project    string                       `json:"project"`
-	Metadata   reportMetadata               `json:"metadata"`
-	Generator  reportGenerator              `json:"generator"`
-	Sources    map[string]reportSource      `json:"sources"`
-	Candidates map[string][]reportCandidate `json:"candidates"`
-	Benchmarks []reportBenchmark            `json:"benchmarks"`
+	MissingBenchmarks []string                     `json:"missing_benchmarks,omitempty"`
+	Failures          []reportFailure              `json:"failures,omitempty"`
+	Version           int                          `json:"version"`
+	Name              string                       `json:"name"`
+	Project           string                       `json:"project"`
+	Metadata          reportMetadata               `json:"metadata"`
+	Generator         reportGenerator              `json:"generator"`
+	Sources           map[string]reportSource      `json:"sources"`
+	Candidates        map[string][]reportCandidate `json:"candidates"`
+	Benchmarks        []reportBenchmark            `json:"benchmarks"`
+}
+
+type reportFailure struct {
+	Name     string `json:"name"`
+	Package  string `json:"package"`
+	Output   string `json:"output"`
+	SourceID string `json:"source_id"`
 }
 
 type reportGenerator struct {
@@ -318,6 +350,11 @@ func (c *genCmd) jsonReport() (*benchmarkReport, error) {
 			hash := sha256.Sum256(dt)
 			sourceID := hex.EncodeToString(hash[:])
 			report.Sources[sourceID] = reportSource{Name: filepath.Base(file), Execution: result.Execution}
+			for _, failure := range result.Failures {
+				report.Failures = append(report.Failures, reportFailure{
+					Name: failure.Name, Package: failure.Package, Output: failure.Output, SourceID: sourceID,
+				})
+			}
 			keys := make([]string, 0, len(result.Benchmarks))
 			for key := range result.Benchmarks {
 				keys = append(keys, key)

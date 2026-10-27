@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { markRaw } from 'vue';
+import { createSSRApp, markRaw } from 'vue';
+import { renderToString } from 'vue/server-renderer';
 import { reportCharts } from '../src/charts/report.mjs';
 import * as charts from '../src/charts/dashboard.mjs';
 import * as benchmarks from '../src/reports/benchmarks.mjs';
@@ -459,4 +460,39 @@ test('grouped navigation keeps per-level distributions and searchable variants',
   assert.equal(restored.chartMode, 'distribution');
   assert.equal(state.chartOption.series[0].type, 'boxplot');
   assert.equal(state.rows[0].median, 128);
+});
+
+test('failed and legacy reports expose diagnostics without adding measurement samples', () => {
+  const { state } = view();
+  state.report = report('buildkit');
+  assert.equal(state.failures.length, 0);
+  state.report.failures = [{ name: 'BenchmarkBuild/Simple/ref=old/run=1', output: '<script>failure</script>' }];
+  assert.equal(state.failures.length, 1);
+  assert.equal(state.sampleCount, 0);
+  assert.equal(state.activeBenchmark, undefined);
+  state.report.benchmarks = permalinkReport('buildkit').benchmarks;
+  assert.equal(state.failures.length, 1);
+  assert.equal(state.sampleCount, 1);
+});
+
+test('failure panel renders incomplete runs and escapes diagnostic output', async () => {
+  const template = readFileSync(new URL('../src/components/ResultView.vue', import.meta.url), 'utf8')
+    .match(/<section v-if="!loading && !error && failures.length"[\s\S]*?<\/section>/)[0];
+  const failures = [
+    { name: 'BenchmarkBuild', package: 'bench', output: '<script>unsafe()</script>', source_id: 'source' },
+    { name: '', package: 'setup', output: '' },
+  ];
+  const html = await renderToString(createSSRApp({
+    template,
+    data: () => ({
+      loading: false, error: '', failures,
+      report: { failures, sources: { source: { name: 'raw.json' } }, missing_benchmarks: ['BenchmarkBuild/Simple'] },
+    }),
+  }));
+  assert.match(html, /2 failures recorded/);
+  assert.match(html, /BenchmarkBuild\/Simple/);
+  assert.match(html, /raw.json/);
+  assert.match(html, /&lt;script&gt;unsafe\(\)&lt;\/script&gt;/);
+  assert.doesNotMatch(html, /<script>/);
+  assert.match(html, /No diagnostic output was captured/);
 });

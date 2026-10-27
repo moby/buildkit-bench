@@ -95,11 +95,26 @@
           </div>
         </div>
         <div class="run-context">
-          <span class="run-badge"><span class="status-dot"></span>{{ runLabel(currentRun) }}</span
+          <span class="run-badge" :class="{ 'run-failed': failures.length }"><span class="status-dot"></span>{{ runLabel(currentRun) }}{{ failures.length ? ' · Failed' : '' }}</span
           ><a v-for="link in headerLinks" :key="link.url" :href="link.url" target="_blank" rel="noopener"
             ><ui-icon :name="link.kind || 'external'" />{{ link.text }}</a
           >
         </div>
+
+        <section v-if="!loading && !error && failures.length" class="failure-panel" aria-label="Run failures">
+          <h2>{{ failures.length }} failure{{ failures.length === 1 ? '' : 's' }} recorded</h2>
+          <p>Successful measurements remain available below. Failed attempts are excluded from statistics.</p>
+          <details v-if="report.missing_benchmarks?.length">
+            <summary>{{ report.missing_benchmarks.length }} benchmarks have no results</summary>
+            <p>This run is incomplete. A parent or package failure was recorded.</p>
+            <ul><li v-for="name in report.missing_benchmarks" :key="name">{{ name }}</li></ul>
+          </details>
+          <details v-for="(failure, index) in failures" :key="index">
+            <summary>{{ failure.name || failure.package }} <span>Failed</span></summary>
+            <p>{{ failure.package }} · {{ report.sources?.[failure.source_id]?.name }}</p>
+            <pre>{{ failure.output || 'No diagnostic output was captured. See the CI run for details.' }}</pre>
+          </details>
+        </section>
 
         <div v-if="loading" class="empty-state" role="status">
           <span class="loading-ring"></span>
@@ -406,6 +421,9 @@ export default {
   computed: {
     latestRun() { return [...resultsData.results].sort().reverse()[0] || 'none'; },
     currentRun() { return this.$route.params.result || this.latestRun; },
+    failures() {
+      return this.report?.failures || [];
+    },
     activeTab: querySelection('project', 'buildkit'),
     benchmarkName: querySelection('benchmark', ''),
     variantName: querySelection('variant', ''),
@@ -682,6 +700,19 @@ export default {
 
 <style scoped>
 .focused-row { background: var(--selected); }
+.run-failed, .failure-panel summary span { color: var(--red); }
+.run-failed .status-dot { background: var(--red); }
+.failure-panel {
+  margin-bottom: 24px;
+  padding: 20px;
+  border: 1px solid var(--red);
+  border-radius: 12px;
+  background: var(--red-bg);
+}
+.failure-panel summary { cursor: pointer; overflow-wrap: anywhere; }
+.failure-panel details { margin-top: 12px; }
+.failure-panel pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 320px; overflow: auto; }
+
 .dashboard {
   display: flex;
   min-height: 100vh;
