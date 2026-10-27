@@ -104,6 +104,36 @@ runs:
         alloc:
           description: Allocated memory (bytes)
           chart: boxplot
+    BenchmarkBuildFileTransferIncremental:
+      description: Incremental file transfer
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+        alloc:
+          description: Allocated memory (bytes)
+          chart: boxplot
+    BenchmarkBuildLocalCacheRestore:
+      description: Local cache restore
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+        alloc:
+          description: Allocated memory (bytes)
+          chart: boxplot
+    BenchmarkBuildBakeSharedTargets:
+      description: Bake shared targets (16x)
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+        alloc:
+          description: Allocated memory (bytes)
+          chart: boxplot
     BenchmarkBuildAddTarManyFiles:
       description: Build tar extraction (many files)
       count: 4
@@ -125,8 +155,18 @@ runs:
           description: Allocated memory (bytes)
           chart: boxplot
     BenchmarkBuildEmulator:
-      description: Build with emulator
-      count: 10
+      description: Emulated build
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
+        alloc:
+          description: Allocated memory (bytes)
+          chart: boxplot
+    BenchmarkBuildEmulatorNative:
+      description: Native build
+      count: 4
       metrics:
         duration:
           description: Time (s)
@@ -196,6 +236,14 @@ runs:
           average: true
 
   BenchmarkBuildx:
+    BenchmarkBuildxBakeMatrix:
+      description: Bake matrix print (128 targets)
+      scope: buildx
+      count: 4
+      metrics:
+        duration:
+          description: Time (s)
+          chart: boxplot
     BenchmarkBuildxVersion:
       description: Run "buildx version"
       scope: buildx

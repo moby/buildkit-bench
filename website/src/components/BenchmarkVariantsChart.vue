@@ -2,14 +2,14 @@
   <section class="chart-card parallelization-chart">
     <div class="chart-card-header">
       <div>
-        <h2>Build high parallelization</h2>
-        <p>Median measurements across concurrent build counts.</p>
+        <h2>{{ emulated ? 'Native and emulated builds' : 'Build high parallelization' }}</h2>
+        <p>{{ emulated ? 'Median measurements for the same workload.' : 'Median measurements across concurrent build counts.' }}</p>
       </div>
       <label class="baseline-picker"
         >Baseline
         <select
           :value="baseline"
-          aria-label="Parallelism baseline"
+          aria-label="Comparison baseline"
           @change="$emit('update-baseline', $event.target.value)"
         >
           <option v-for="row in rows" :key="row.ref" :value="row.ref">{{ row.ref }}</option>
@@ -17,7 +17,7 @@
       </label>
     </div>
     <div class="parallelism-controls">
-      <div class="metric-tabs" role="group" aria-label="Parallelism metric">
+      <div class="metric-tabs" role="group" aria-label="Comparison metric">
         <button
           v-for="key in metricKeys"
           :key="key"
@@ -52,7 +52,11 @@
         }}{{ series.name === baseline ? ' (baseline)' : '' }}</span
       >
     </div>
-    <p class="parallelism-note">
+    <p v-if="emulated" class="parallelism-note">
+      Native and emulated builds run the same compression, archive and checksum workload.
+      Host architecture and emulator configuration affect results. Missing measurements leave gaps.
+    </p>
+    <p v-else class="parallelism-note">
       Each level launches that many concurrent builds, increasing total work. These are recorded measurements,
       not normalized speedup. Missing measurements leave gaps.
     </p>
@@ -60,7 +64,7 @@
 </template>
 <script>
 import BenchmarkChart from './BenchmarkChart.vue';
-import { parallelizationRows } from '../reports/benchmarks.mjs';
+import { variantRows } from '../reports/benchmarks.mjs';
 import { chartPalette } from '../charts/dashboard.mjs';
 import { formatValue } from '../reports/format.mjs';
 export default {
@@ -72,10 +76,14 @@ export default {
     metrics: Object,
     theme: String,
     baselineRef: String,
+    kind: String,
   },
   emits: ['update-baseline', 'update-metric'],
   data: () => ({ selection: null }),
   computed: {
+    emulated() {
+      return this.kind === 'emulator';
+    },
     metricKeys() {
       const order = { duration: 0, alloc: 1 };
       return Object.keys(this.metrics).sort(
@@ -86,7 +94,7 @@ export default {
       return this.metrics[this.metric]?.unit;
     },
     rows() {
-      return parallelizationRows(this.report, this.variants, this.metric, this.unit);
+      return variantRows(this.report, this.variants, this.metric, this.unit);
     },
     baseline() {
       return this.rows.find((row) => row.ref === this.baselineRef)?.ref || this.rows[0]?.ref;
@@ -118,10 +126,10 @@ export default {
         },
         xAxis: {
           type: 'category',
-          name: 'Concurrent builds',
+          name: this.emulated ? 'Execution' : 'Concurrent builds',
           nameLocation: 'middle',
           nameGap: 35,
-          data: this.variants.map((v) => `${v.parallelism}x`),
+          data: this.variants.map((v) => v.label),
           axisLabel: { color: palette.text },
           axisTick: { show: false },
           axisLine: { lineStyle: { color: palette.grid } },
@@ -138,7 +146,7 @@ export default {
               row.ref === this.baseline ? '#a88aef' : colors[this.rows.indexOf(row) % colors.length];
             return {
               name: row.ref,
-              type: 'line',
+              type: this.emulated ? 'bar' : 'line',
               connectNulls: false,
               smooth: false,
               symbol: 'circle',

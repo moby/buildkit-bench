@@ -126,9 +126,10 @@
           <p>Choose another run from the selector above.</p>
         </div>
         <template v-else>
-          <parallelization-chart
+          <benchmark-variants-chart
             v-if="activeEntry?.variants && view === 'benchmarks'"
-            :key="reportUrl"
+            :key="`${reportUrl}:${activeEntry.name}`"
+            :kind="activeEntry.kind"
             :report="report"
             :variants="activeEntry.variants"
             :metric="selectedMetric"
@@ -141,14 +142,14 @@
           <div v-if="activeEntry?.variants" class="comparison-toolbar variant-toolbar">
             <div>
               <h3>
-                {{ view === 'history' ? 'History by parallelism level' : 'Inspect a parallelism level' }}
+                {{ view === 'history' ? 'History by workload' : 'Inspect a workload' }}
               </h3>
               <p class="muted">Distributions and execution context remain separate for each workload.</p>
             </div>
             <label class="baseline-picker"
-              >Concurrent builds<select
+              >Workload<select
                 :value="activeBenchmark.name"
-                aria-label="Parallelism level"
+                aria-label="Workload"
                 @change="variantName = $event.target.value"
               >
                 <option
@@ -156,7 +157,7 @@
                   :key="variant.benchmark.name"
                   :value="variant.benchmark.name"
                 >
-                  {{ variant.parallelism }}x
+                  {{ variant.label }}
                 </option>
               </select></label
             >
@@ -356,7 +357,7 @@ import ResultsList from './ResultsList.vue';
 import RunDetails from './RunDetails.vue';
 import HistoryPanel from './HistoryPanel.vue';
 import UiIcon from './UiIcon.vue';
-import ParallelizationChart from './ParallelizationChart.vue';
+import BenchmarkVariantsChart from './BenchmarkVariantsChart.vue';
 import { reportCharts } from '../charts/report.mjs';
 import { candidateRows, percentChange, benchmarkNavigation } from '../reports/benchmarks.mjs';
 import { dashboardChart } from '../charts/dashboard.mjs';
@@ -378,7 +379,7 @@ function querySelection(key, fallback) {
 
 export default {
   name: 'ResultView',
-  components: { BenchmarkChart, ResultsList, RunDetails, HistoryPanel, UiIcon, ParallelizationChart },
+  components: { BenchmarkChart, ResultsList, RunDetails, HistoryPanel, UiIcon, BenchmarkVariantsChart },
   props: { theme: { type: String, default: 'light' } },
   emits: ['toggle-theme'],
   data: () => ({
@@ -460,7 +461,7 @@ export default {
       const query = this.search.toLowerCase().trim();
       return this.navigation.filter((b) =>
         `${b.description} ${b.name} ${(b.variants || [])
-          .map((v) => `${v.parallelism}x ${v.benchmark.name}`)
+          .map((v) => `${v.label} ${v.benchmark.name}`)
           .join(' ')}`
           .toLowerCase()
           .includes(query)
@@ -469,6 +470,7 @@ export default {
     activeEntry() {
       return (
         this.navigation.find((b) => b.name === this.benchmarkName) ||
+        this.navigation.find((b) => b.variants?.some((v) => v.benchmark.name === this.benchmarkName)) ||
         this.navigation.find((b) => b.name.endsWith('/BenchmarkBuildSimple')) ||
         this.navigation[0]
       );
@@ -476,7 +478,7 @@ export default {
     activeBenchmark() {
       return this.activeEntry?.variants
         ? (
-            this.activeEntry.variants.find((v) => v.benchmark.name === this.variantName) ||
+            this.activeEntry.variants.find((v) => v.benchmark.name === (this.variantName || this.benchmarkName)) ||
             this.activeEntry.variants[0]
           ).benchmark
         : this.activeEntry;
@@ -552,6 +554,7 @@ export default {
           ...this.$route.query,
           project: this.selectedProject,
           benchmark: this.activeEntry?.name,
+          variant: this.activeEntry?.variants ? this.activeBenchmark?.name : undefined,
           metric: this.selectedMetric || this.metricName,
           ...changes,
         },

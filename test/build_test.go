@@ -1,10 +1,14 @@
 package test
 
 import (
+	"crypto/sha256"
 	"fmt"
+	"math/rand"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/containerd/continuity/fs/fstest"
 	"github.com/containerd/platforms"
@@ -20,13 +24,11 @@ var contextDirApplier fstest.Applier
 
 func BenchmarkBuild(b *testing.B) {
 	mirroredImages := testutil.OfficialImages(
-		"busybox:latest",
+		"library/busybox:latest", // Include the emulated platform using the multi-platform pin.
 		"golang:1.22-alpine",
 		"python:latest",
 	)
 	mirroredImages[dockerfileImagePin] = "docker.io/" + dockerfileImagePin
-	mirroredImages["amd64/busybox:latest"] = "docker.io/amd64/busybox:latest"
-	mirroredImages["arm64v8/busybox:latest"] = "docker.io/arm64v8/busybox:latest"
 
 	var contextDirAppliers []fstest.Applier
 	contextDirAppliers = append(contextDirAppliers,
@@ -57,9 +59,13 @@ func BenchmarkBuild(b *testing.B) {
 		benchmarkBuildHighParallelization128x,
 		benchmarkBuildFileTransfer,
 		benchmarkBuildFileTransferCachedWithIteration,
+		benchmarkBuildFileTransferIncremental,
+		benchmarkBuildLocalCacheRestore,
+		benchmarkBuildBakeSharedTargets,
 		benchmarkBuildAddTarManyFiles,
 		benchmarkBuildAddTarLargeFile,
 		benchmarkBuildEmulator,
+		benchmarkBuildEmulatorNative,
 		benchmarkBuildExportUncompressed,
 		benchmarkBuildExportGzip,
 		benchmarkBuildExportEstargz,
@@ -250,6 +256,150 @@ RUN du -sh . && tree .
 	}
 }
 
+func benchmarkBuildFileTransferIncremental(b *testing.B, sb testutil.Sandbox) {
+	dockerfile := []byte(`
+FROM busybox:latest AS build
+COPY subdir1 /src
+RUN sha256sum /src/file1.txt > /checksum
+FROM scratch
+COPY --from=build /checksum /checksum
+`)
+	dir := tmpdir(b,
+		fstest.CreateFile("Dockerfile", dockerfile, 0600),
+		contextDirApplier,
+	)
+	out, err := buildxBuildCmd(sb, withArgs(dir))
+	sb.WriteLogFile(b, "warmup", []byte(out))
+	require.NoError(b, err, out)
+
+	// Change the size as well as contents so metadata-based differs see the edit.
+	content := []byte("updated source file\n")
+	require.NoError(b, os.WriteFile(filepath.Join(dir, "subdir1", "file1.txt"), content, 0600))
+	dest := b.TempDir()
+	reportBuildkitdAlloc(b, sb, func() {
+		b.StartTimer()
+		out, err := buildxBuildCmd(sb, withArgs("--output=type=local,dest="+dest, dir))
+		b.StopTimer()
+		sb.WriteLogFile(b, "buildx", []byte(out))
+		require.NoError(b, err, out)
+	})
+	checksum, err := os.ReadFile(filepath.Join(dest, "checksum"))
+	require.NoError(b, err)
+	require.Equal(b, fmt.Sprintf("%x  /src/file1.txt\n", sha256.Sum256(content)), string(checksum))
+}
+
+func benchmarkBuildLocalCacheRestore(b *testing.B, sb testutil.Sandbox) {
+	dockerfile := []byte(`
+FROM busybox:latest AS build
+RUN dd if=/dev/zero of=/payload bs=1048576 count=16 && \
+    sha256sum /payload > /checksum && \
+    cat /proc/sys/kernel/random/uuid > /cache-marker
+FROM scratch
+COPY --from=build /payload /payload
+COPY --from=build /checksum /checksum
+COPY --from=build /cache-marker /cache-marker
+`)
+	// Generate the payload during cache export, so import cannot be dominated
+	// by retransferring a large local context after pruning the source cache.
+	dir := tmpdir(b, fstest.CreateFile("Dockerfile", dockerfile, 0600))
+	cache, before, after := b.TempDir(), b.TempDir(), b.TempDir()
+	out, err := buildxBuildCmd(sb, withArgs(
+		"--cache-to=type=local,mode=max,dest="+cache,
+		"--output=type=local,dest="+before, dir,
+	))
+	sb.WriteLogFile(b, "cache-export", []byte(out))
+	require.NoError(b, err, out)
+
+	// Solves release references asynchronously. Like upstream ensurePruneAll,
+	// retry pruning and require an empty daemon cache before measuring import.
+	var records []byte
+	for attempt := 0; attempt < 20; attempt++ {
+		out, err := buildctlCmd(sb, withArgs("prune", "--all")).CombinedOutput()
+		require.NoError(b, err, string(out))
+		records, err = buildctlCmd(sb, withArgs("du", "--format={{len .}}")).Output()
+		require.NoError(b, err)
+		if strings.TrimSpace(string(records)) == "0" {
+			break
+		}
+		time.Sleep(500 * time.Millisecond)
+	}
+	require.Equal(b, "0", strings.TrimSpace(string(records)), "local cache must be empty before external cache import")
+	reportBuildkitdAlloc(b, sb, func() {
+		b.StartTimer()
+		out, err := buildxBuildCmd(sb, withArgs(
+			"--cache-from=type=local,src="+cache,
+			"--output=type=local,dest="+after, dir,
+		))
+		b.StopTimer()
+		sb.WriteLogFile(b, "buildx", []byte(out))
+		require.NoError(b, err, out)
+	})
+	for _, name := range []string{"checksum", "cache-marker"} {
+		expected, err := os.ReadFile(filepath.Join(before, name))
+		require.NoError(b, err)
+		require.NotEmpty(b, expected)
+		actual, err := os.ReadFile(filepath.Join(after, name))
+		require.NoError(b, err)
+		require.Equal(b, expected, actual, name)
+	}
+	payload, err := os.ReadFile(filepath.Join(after, "payload"))
+	require.NoError(b, err)
+	require.Len(b, payload, 16*1024*1024)
+	checksum, err := os.ReadFile(filepath.Join(after, "checksum"))
+	require.NoError(b, err)
+	require.Equal(b, fmt.Sprintf("%x  /payload\n", sha256.Sum256(payload)), string(checksum))
+}
+
+func benchmarkBuildBakeSharedTargets(b *testing.B, sb testutil.Sandbox) {
+	const targets = 16
+	var bake strings.Builder
+	bake.WriteString("group \"default\" {\n  targets = [")
+	for i := 0; i < targets; i++ {
+		fmt.Fprintf(&bake, "\"leaf%d\",", i)
+	}
+	bake.WriteString("]\n}\n")
+	bake.WriteString(`
+target "base" {
+  output = ["type=cacheonly"]
+  dockerfile-inline = "FROM scratch\nCOPY payload /payload\n"
+}
+`)
+	payload := []byte(strings.Repeat("shared build context\n", 50000))
+	files := []fstest.Applier{
+		fstest.CreateFile("payload", payload, 0600),
+		fstest.CreateFile(".dockerignore", []byte("out\n"), 0600),
+	}
+	for i := 0; i < targets; i++ {
+		fmt.Fprintf(&bake, `
+target "leaf%d" {
+  contexts = { base = "target:base" }
+  output = ["type=local,dest=out/leaf%d"]
+  dockerfile-inline = "FROM base\nCOPY leaf%d /leaf\n"
+}
+`, i, i, i)
+		files = append(files, fstest.CreateFile(fmt.Sprintf("leaf%d", i), []byte(fmt.Sprint(i)), 0600))
+	}
+	files = append(files, fstest.CreateFile("docker-bake.hcl", []byte(bake.String()), 0600))
+	dir := tmpdir(b, files...)
+	reportBuildkitdAlloc(b, sb, func() {
+		cmd := buildxCmd(sb, withDir(dir), withArgs("bake", "-f", "docker-bake.hcl"))
+		b.StartTimer()
+		out, err := cmd.CombinedOutput()
+		b.StopTimer()
+		sb.WriteLogFile(b, "bake", out)
+		require.NoError(b, err, string(out))
+	})
+	for i := 0; i < targets; i++ {
+		dest := filepath.Join(dir, "out", fmt.Sprintf("leaf%d", i))
+		actual, err := os.ReadFile(filepath.Join(dest, "payload"))
+		require.NoError(b, err)
+		require.Equal(b, payload, actual)
+		leaf, err := os.ReadFile(filepath.Join(dest, "leaf"))
+		require.NoError(b, err)
+		require.Equal(b, fmt.Sprint(i), string(leaf))
+	}
+}
+
 func benchmarkBuildAddTarManyFiles(b *testing.B, sb testutil.Sandbox) {
 	dockerfile := []byte(fmt.Sprintf(`
 FROM busybox:latest
@@ -286,36 +436,56 @@ RUN test "$(stat -c %%s /src/payload/blob.bin)" = "%d"
 	})
 }
 
-// https://github.com/moby/buildkit/pull/4949
 func benchmarkBuildEmulator(b *testing.B, sb testutil.Sandbox) {
-	var busyboxImage string
-	var platform platforms.Platform
-	defaultPlatform := platforms.Normalize(platforms.DefaultSpec())
-	if strings.HasPrefix(defaultPlatform.Architecture, "arm") {
-		busyboxImage = "amd64/busybox:latest"
-		platform = platforms.Normalize(platforms.Platform{
-			OS:           defaultPlatform.OS,
-			Architecture: "amd64",
-		})
-	} else {
-		busyboxImage = "arm64v8/busybox:latest"
-		platform = platforms.Normalize(platforms.Platform{
-			OS:           defaultPlatform.OS,
-			Architecture: "arm64",
-		})
+	platform := platforms.Normalize(platforms.DefaultSpec())
+	switch platform.Architecture {
+	case "amd64":
+		platform.Architecture = "arm64"
+	case "arm64":
+		platform.Architecture = "amd64"
+	default:
+		b.Skip("emulator workload requires an amd64 or arm64 host")
 	}
+	platform.Variant = ""
+	benchmarkBuildEmulatorWorkload(b, sb, platform)
+}
 
-	dockerfile := []byte(fmt.Sprintf(`
-FROM %s
-ENV QEMU_STRACE=1
-RUN uname -a
-`, busyboxImage))
+func benchmarkBuildEmulatorNative(b *testing.B, sb testutil.Sandbox) {
+	benchmarkBuildEmulatorWorkload(b, sb, platforms.Normalize(platforms.DefaultSpec()))
+}
 
-	dir := tmpdir(b, fstest.CreateFile("Dockerfile", dockerfile, 0600))
+func benchmarkBuildEmulatorWorkload(b *testing.B, sb testutil.Sandbox, platform platforms.Platform) {
+	// Keep CPU work, filesystem operations and child execution in separate RUNs.
+	// Do not enable QEMU_STRACE: logging would distort the workload timings.
+	dockerfile := []byte(`
+FROM busybox:latest AS input
+WORKDIR /work
+COPY payload .
+
+FROM input AS workload
+RUN sha256sum payload > payload.sha256 && gzip -1 -c payload > payload.gz && \
+    gzip -d -c payload.gz > restored && cmp payload restored
+RUN mkdir chunks extracted && split -b 65536 payload chunks/part- && \
+    tar -cf chunks.tar chunks && tar -xf chunks.tar -C extracted && \
+    diff -r chunks extracted/chunks
+RUN set -eu; for file in chunks/*; do sha256sum "$file"; done > chunks.sha256; \
+    sha256sum -c chunks.sha256 && sha256sum -c payload.sha256
+`)
+	// Fixed pseudo-random bytes avoid measuring compression of an all-zero file.
+	payload := make([]byte, 8*1024*1024)
+	_, err := rand.New(rand.NewSource(0)).Read(payload)
+	require.NoError(b, err)
+	dir := tmpdir(b,
+		fstest.CreateFile("Dockerfile", dockerfile, 0600),
+		fstest.CreateFile("payload", payload, 0600),
+	)
+	// Populate only the input stage outside timing. The three RUNs remain cold.
+	out, err := buildxBuildCmd(sb, withArgs("--platform", platforms.Format(platform), "--target=input", dir))
+	sb.WriteLogFile(b, "warmup", []byte(out))
+	require.NoError(b, err, out)
 	reportBuildkitdAlloc(b, sb, func() {
 		b.StartTimer()
 		out, err := buildxBuildCmd(sb, withArgs(
-			"--build-arg", "BUILDKIT_DOCKERFILE_CHECK=skip=all", // skip all checks (for InvalidBaseImagePlatform): https://docs.docker.com/build/checks/#skip-checks
 			"--platform", platforms.Format(platform),
 			dir,
 		))
