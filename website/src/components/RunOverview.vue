@@ -13,11 +13,11 @@
         </p>
       </div>
       <label class="baseline-picker"
-        >Minimum increase
-        <select v-model.number="threshold" aria-label="Minimum increase">
-          <option :value="5">5%</option>
-          <option :value="10">10%</option>
-          <option :value="20">20%</option>
+        >Noise multiplier
+        <select v-model.number="noiseMultiplier" aria-label="Noise multiplier">
+          <option :value="1">1×</option>
+          <option :value="2">2×</option>
+          <option :value="3">3×</option>
         </select>
       </label>
     </div>
@@ -39,11 +39,17 @@
     <div class="overview-method">
       <ui-icon name="info" />
       <p>
-        These are investigation leads, not confirmed regressions. Increases use medians for time, memory, and
+        These are investigation leads, not confirmed regressions. A median increase must exceed
+        {{ noiseMultiplier }}× the larger observed min–max spread of stable or master, with at least 3 samples
+        each. This is a noise heuristic, not a significance test. Increases use medians for time, memory, and
         size. Comparing stable with master does not identify the commit that caused a change. A revision
         comparison shows endpoints to investigate, not a verified causal commit range.
       </p>
     </div>
+    <p v-if="analysis.insufficient" class="overview-note">
+      Insufficient evidence for {{ analysis.insufficient }} comparison(s): fewer than 3 samples on either
+      side. See Data quality for details.
+    </p>
     <div class="overview-controls">
       <div class="segmented" role="group" aria-label="Overview findings">
         <button :class="{ active: tab === 'increases' }" @click="tab = 'increases'">
@@ -103,6 +109,15 @@
             </div>
             <p class="range-caption">Observed min–max ranges on a shared scale. Dots show medians.</p>
           </div>
+          <p class="overview-note">
+            Observed noise: {{ formatValue(finding.noise, finding.config.unit)
+            }}<template v-if="finding.noisePercent !== null">
+              ({{ finding.noisePercent.toFixed(1) }}% of stable)</template
+            >. Required increase: greater than {{ formatValue(finding.threshold, finding.config.unit)
+            }}<template v-if="finding.thresholdPercent !== null">
+              ({{ finding.thresholdPercent.toFixed(1) }}%)</template
+            >, using {{ noiseMultiplier }}× noise.
+          </p>
           <div class="finding-tags">
             <span :class="{ emphasized: finding.priority }">{{
               finding.separated ? 'Ranges do not overlap' : 'Ranges overlap'
@@ -177,7 +192,9 @@
               ? 'No baseline comparisons available'
               : search
               ? 'No matching increases'
-              : `No median increases above ${threshold}%`
+              : analysis.insufficient === analysis.comparisons
+              ? 'Insufficient evidence to assess increases'
+              : `No median increases exceed ${noiseMultiplier}× observed noise`
           }}
         </h3>
         <p>
@@ -228,10 +245,10 @@ import { formatValue } from '../reports/format.mjs';
 export default {
   components: { UiIcon },
   props: { report: Object, run: String },
-  data: () => ({ threshold: 10, tab: 'increases', search: '', limit: 20 }),
+  data: () => ({ noiseMultiplier: 2, tab: 'increases', search: '', limit: 20 }),
   computed: {
     analysis() {
-      return reportOverview(this.report, this.threshold);
+      return reportOverview(this.report, this.noiseMultiplier);
     },
     priorityCount() {
       return this.analysis.findings.filter((f) => f.priority).length;

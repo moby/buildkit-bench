@@ -100,12 +100,28 @@ test('missing stable baseline measurements do not silently use a different candi
   );
 });
 
-test('threshold, decreases, and unchanged medians do not produce false increases', () => {
+test('noise multiplier filters small shifts using the larger within-candidate range', () => {
+  const noisy = fixture([
+    [98, 100, 102],
+    [104, 106, 108],
+  ]);
+  assert.equal(reportOverview(noisy).findings.length, 0);
+  assert.equal(reportOverview(noisy, 1).findings.length, 1);
+  const larger = fixture([
+    [98, 100, 102],
+    [110, 112, 114],
+  ]);
+  const finding = reportOverview(larger).findings[0];
+  assert.equal(finding.delta, 12);
+  assert.equal(finding.noisePercent, 4);
+  assert.equal(finding.thresholdPercent, 8);
+  assert.equal(reportOverview(larger, 3).findings.length, 0);
+  // Noise in master also counts, and the median shift is not part of it.
   assert.equal(
     reportOverview(
       fixture([
         [100, 100, 100],
-        [109, 109, 109],
+        [100, 106, 112],
       ])
     ).findings.length,
     0
@@ -113,8 +129,20 @@ test('threshold, decreases, and unchanged medians do not produce false increases
   assert.equal(
     reportOverview(
       fixture([
-        [100, 100, 100],
-        [110, 110, 110],
+        [98, 100, 102],
+        [108, 108, 108],
+      ])
+    ).findings.length,
+    0
+  );
+});
+
+test('consistent measurements expose small shifts without flagging unchanged values or decreases', () => {
+  assert.equal(
+    reportOverview(
+      fixture([
+        [99.75, 100, 100.25],
+        [102.75, 103, 103.25],
       ])
     ).findings.length,
     1
@@ -123,17 +151,16 @@ test('threshold, decreases, and unchanged medians do not produce false increases
     reportOverview(
       fixture([
         [100, 100, 100],
-        [110, 110, 110],
-      ]),
-      20
+        [101, 101, 101],
+      ])
     ).findings.length,
-    0
+    1
   );
   assert.equal(
     reportOverview(
       fixture([
-        [20, 21, 22],
-        [10, 11, 12],
+        [100, 100, 100],
+        [100, 100, 100],
       ])
     ).findings.length,
     0
@@ -141,12 +168,34 @@ test('threshold, decreases, and unchanged medians do not produce false increases
   assert.equal(
     reportOverview(
       fixture([
-        [10, 10, 10],
-        [10, 10, 10],
+        [100, 100, 100],
+        [99, 99, 99],
       ])
     ).findings.length,
     0
   );
+});
+
+test('sparse comparisons report insufficient evidence, including bar metrics', () => {
+  for (const values of [
+    [[10], [20]],
+    [
+      [10, 10],
+      [20, 20, 20],
+    ],
+    [
+      [10, 10, 10],
+      [20, 20],
+    ],
+  ]) {
+    const report = fixture(values);
+    report.benchmarks[0].metrics.duration.chart = 'bar';
+    const result = reportOverview(report);
+    assert.equal(result.comparisons, 1);
+    assert.equal(result.insufficient, 1);
+    assert.equal(result.findings.length, 0);
+    assert.ok(result.issues.some((issue) => issue.message.includes('Insufficient evidence')));
+  }
 });
 
 test('only master is compared even when another candidate has a much larger increase', () => {
@@ -194,7 +243,7 @@ test('missing candidate measurements do not prevent other stable-baseline compar
   assert.match(result.issues[0].message, /No measurements/);
 });
 
-test('same SHA, changed hardware, sparse samples, and overlapping ranges lower priority', () => {
+test('same SHA and changed hardware lower priority while noisy increases are excluded', () => {
   const same = fixture();
   same.candidates.buildkit[1].sha = same.candidates.buildkit[0].sha;
   assert.equal(reportOverview(same).findings[0].sameRevision, true);
@@ -204,15 +253,13 @@ test('same SHA, changed hardware, sparse samples, and overlapping ranges lower p
   const finding = reportOverview(changed).findings[0];
   assert.deepEqual(finding.comparison.changed, ['CPU']);
   assert.equal(finding.priority, false);
-  assert.equal(reportOverview(fixture([[10], [20]])).findings[0].priority, false);
   const noisy = reportOverview(
     fixture([
       [1, 10, 30],
       [9, 20, 40],
     ])
   );
-  assert.equal(noisy.findings[0].separated, false);
-  assert.equal(noisy.findings[0].priority, false);
+  assert.equal(noisy.findings.length, 0);
   assert.ok(noisy.issues.some((issue) => issue.message.includes('variable')));
 });
 

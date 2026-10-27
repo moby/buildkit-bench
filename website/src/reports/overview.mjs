@@ -27,13 +27,14 @@ export function latestStableCandidate(candidates) {
     )[0]?.candidate;
 }
 
-export function reportOverview(report, threshold = 10) {
+export function reportOverview(report, noiseMultiplier = 2) {
   const candidates = report.candidates[report.project] || [];
   const baseline = latestStableCandidate(candidates);
   const target = candidates.find((candidate) => candidate.name === 'master');
   const findings = [];
   const issues = [];
   let comparisons = 0;
+  let insufficient = 0;
   let covered = 0;
   let expected = 0;
   const issue = (benchmark, metric, ref, message) => issues.push({ benchmark, metric, ref, message });
@@ -109,8 +110,23 @@ export function reportOverview(report, threshold = 10) {
       const after = target && rows.get(target.name);
       if (!before || !after || invalid.has(before.ref) || invalid.has(after.ref)) continue;
       comparisons++;
+      if (before.count < 3 || after.count < 3) {
+        insufficient++;
+        issue(
+          benchmark,
+          metric,
+          before.count < 3 ? before.ref : after.ref,
+          'Insufficient evidence: at least 3 samples per candidate are needed to estimate noise.'
+        );
+        continue;
+      }
+      // Measure each candidate's spread separately so the shift between them
+      // does not count as noise. Use the larger range conservatively; this is
+      // an observed-noise heuristic, not a confidence interval.
+      const noise = Math.max(before.max - before.min, after.max - after.min);
+      const threshold = noiseMultiplier * noise;
       const delta = percentChange(after.median, before.median);
-      if (after.median <= before.median || (delta !== null && delta < threshold)) continue;
+      if (after.median - before.median <= threshold) continue;
       const comparison = compareContexts(context(after.ref), context(before.ref));
       const sameRevision = !!before.sha && before.sha === after.sha;
       const separated = after.min > before.max;
@@ -121,6 +137,10 @@ export function reportOverview(report, threshold = 10) {
         before,
         after,
         delta,
+        noise,
+        threshold,
+        noisePercent: before.median > 0 ? (100 * noise) / before.median : null,
+        thresholdPercent: before.median > 0 ? (100 * threshold) / before.median : null,
         comparison,
         sameRevision,
         separated,
@@ -145,6 +165,7 @@ export function reportOverview(report, threshold = 10) {
     findings,
     issues,
     comparisons,
+    insufficient,
     covered,
     expected,
     candidates: candidates.length,
