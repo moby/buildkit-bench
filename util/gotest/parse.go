@@ -12,9 +12,13 @@ import (
 type ParseConfig struct {
 	Stdout io.Reader
 	Logger io.Writer
+	Output io.Writer
 }
 
 type ParseResult struct {
+	OutputError   error      `json:"-"`
+	OutputLog     string     `json:",omitempty"`
+	Failures      []Failure  `json:",omitempty"`
 	Execution     *Execution `json:",omitempty"`
 	Tests         map[string]ParseEntry
 	Benchmarks    map[string]ParseEntry
@@ -28,6 +32,7 @@ type ParseEntry interface {
 
 func Parse(config ParseConfig) (*ParseResult, *testjson.Execution, error) {
 	handler := newEventHandler(config.Logger)
+	handler.output = config.Output
 	ex, err := testjson.ScanTestOutput(testjson.ScanConfig{
 		Stdout:  config.Stdout,
 		Handler: handler,
@@ -35,19 +40,27 @@ func Parse(config ParseConfig) (*ParseResult, *testjson.Execution, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	handler.collectFailures()
 	return &handler.ParseResult, ex, nil
 }
 
 type eventHandler struct {
 	ParseResult
-	log          *log.Logger
-	mu           sync.Mutex
-	errs         []string
-	benchmarkBuf string
+	log           *log.Logger
+	output        io.Writer
+	mu            sync.Mutex
+	errs          []string
+	benchmarkBuf  string
+	failures      map[string]*Failure
+	outputs       map[string]string
+	activeFailure map[string]string
 }
 
 func newEventHandler(logger io.Writer) *eventHandler {
 	eh := &eventHandler{
+		failures:      make(map[string]*Failure),
+		outputs:       make(map[string]string),
+		activeFailure: make(map[string]string),
 		ParseResult: ParseResult{
 			BenchmarkInfo: new(BenchmarkInfo),
 			Tests:         make(map[string]ParseEntry),
@@ -61,16 +74,21 @@ func newEventHandler(logger io.Writer) *eventHandler {
 }
 
 func (e *eventHandler) Event(event testjson.TestEvent, _ *testjson.Execution) error {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	e.recordFailure(event)
+	if e.output != nil && (event.Action == testjson.ActionOutput || event.Action == testjson.ActionBuild) {
+		if _, err := io.WriteString(e.output, event.Output); err != nil {
+			e.OutputError = err
+			e.output = nil
+		}
+	}
 	if event.Action != testjson.ActionOutput {
-		// TODO: handle other event types (run, pass, fail, etc)
 		return nil
 	}
 	if e.log != nil {
 		e.log.Print(event.Output)
 	}
-
-	e.mu.Lock()
-	defer e.mu.Unlock()
 
 	// Check if output is an incomplete benchmark. If so, buffer it and wait
 	// for the next event: https://github.com/moby/buildkit-bench/issues/39

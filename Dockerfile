@@ -92,6 +92,9 @@ case "$project" in
     fi
     if find /tests-results -maxdepth 1 -type f -name 'gotestoutput-buildkit-*' | grep -q .; then
       args+=("/tests-results/gotestoutput-buildkit-*.json")
+      if [ -f /tests-results/gotestoutput-tests.json ]; then
+        args+=("/tests-results/gotestoutput-tests.json")
+      fi
     else
       args+=("/tests-results/gotestoutput*.json")
     fi

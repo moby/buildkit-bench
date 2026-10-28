@@ -33,7 +33,7 @@ test('a fresh checkout gets empty dashboard and download indexes', async t => {
   const f = await fixture(t);
   await indexResults(f.root);
   assert.deepEqual(await f.read(), {
-    index: { results: [], logArchives: [], jsonReports: {}, htmlReports: {} },
+    index: { results: [], logArchives: [], outputLogs: {}, jsonReports: {}, htmlReports: {} },
     manifest: { version: 1, results: [] },
   });
 });
@@ -57,6 +57,7 @@ test('indexes JSON-only, historical HTML, and mixed runs with sorted download pa
   assert.deepEqual(index, {
     results: ['20260301-120000', '20261020-120000', '20261022-120000'],
     logArchives: ['20261020-120000'],
+    outputLogs: { '20260301-120000': [], '20261020-120000': [], '20261022-120000': [] },
     jsonReports: {
       '20260301-120000': [],
       '20261020-120000': ['buildkit'],
@@ -91,4 +92,16 @@ test('reindexing removes expired logs and runs from both outputs', async t => {
   assert.deepEqual(index.results, ['20261020-120000']);
   assert.deepEqual(index.logArchives, []);
   assert.deepEqual(manifest.results, [{ name: '20261020-120000', files: ['buildkit.json'] }]);
+});
+
+test('full-output links are indexed only while sidecars exist', async t => {
+  const f = await fixture(t);
+  const name = `output-${'a'.repeat(64)}.log.gz`;
+  await f.add(`20261020-120000/${name}`);
+  await f.add('20261020-120000/buildkit.json');
+  await indexResults(f.root);
+  assert.deepEqual((await f.read()).index.outputLogs, { '20261020-120000': [name] });
+  await fs.unlink(path.join(f.root, 'public/result/20261020-120000', name));
+  await indexResults(f.root);
+  assert.deepEqual((await f.read()).index.outputLogs, { '20261020-120000': [] });
 });

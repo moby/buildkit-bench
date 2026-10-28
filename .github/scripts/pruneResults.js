@@ -1,6 +1,7 @@
 // Prune results before CI builds the Pages site. Keep reports (JSON and legacy
 // HTML), raw benchmark inputs, and configuration for 12 months so retained runs
-// can still be regenerated. Remove logs.tar.gz and unpacked logs/ after 3 months.
+// can still be regenerated. Remove logs.tar.gz, full-output sidecars, and
+// unpacked logs/ after 3 months.
 // Within the retention window, keep all scheduled runs and the latest
 // non-scheduled run per UTC day. Identify scheduled runs from metadata.event in
 // JSON reports, falling back to env.txt. The age limit also applies to them.
@@ -108,7 +109,7 @@ function planPruning(resultsDir, settings, now = new Date()) {
     }
     if (date < logsCutoff) {
       for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-        if (entry.name === 'logs' || entry.name === 'logs.tar.gz') {
+        if (entry.name === 'logs' || entry.name === 'logs.tar.gz' || /^output-[a-f0-9]{64}\.log\.gz$/i.test(entry.name)) {
           actions.push({ name: path.join(path.basename(dir), entry.name), reason: `logs older than ${settings.logsMonthsToKeep} months` });
         }
       }

@@ -95,11 +95,40 @@
           </div>
         </div>
         <div class="run-context">
-          <span class="run-badge"><span class="status-dot"></span>{{ runLabel(currentRun) }}</span
+          <span class="run-badge" :class="{ 'run-failed': failures.length }"><span class="status-dot"></span>{{ runLabel(currentRun) }}{{ failures.length ? ' · Failed' : '' }}</span
           ><a v-for="link in headerLinks" :key="link.url" :href="link.url" target="_blank" rel="noopener"
             ><ui-icon :name="link.kind || 'external'" />{{ link.text }}</a
           >
         </div>
+
+        <section v-if="!loading && !error && failures.length" class="failure-panel" aria-label="Run failures">
+          <h2>Failed tests and benchmarks ({{ failures.length }})</h2>
+          <p>Successful measurements remain available below. Failed attempts are excluded from statistics.</p>
+          <details v-if="report.missing_benchmarks?.length">
+            <summary>{{ report.missing_benchmarks.length }} benchmarks have no results</summary>
+            <p>This run is incomplete. A parent or package failure was recorded.</p>
+            <ul><li v-for="name in report.missing_benchmarks" :key="name">{{ name }}</li></ul>
+          </details>
+          <ul v-if="view === 'overview'" class="failure-links">
+            <li v-for="(failure, index) in failures" :key="index">
+              <router-link :to="{ name: 'ResultView', params: { result: currentRun }, query: { project: selectedProject, view: 'benchmarks', failure: String(index) } }">
+                {{ failure.name || failure.package }}
+              </router-link>
+              <small>{{ report.sources?.[failure.source_id]?.name }}</small>
+            </li>
+          </ul>
+          <template v-else>
+          <details v-for="(failure, index) in failures" :key="index" :open="$route.query.failure === String(index)" :data-selected-failure="$route.query.failure === String(index) ? '' : undefined">
+            <summary>{{ failure.name || failure.package }} <span>Failed</span></summary>
+            <p>{{ failure.package }} · {{ report.sources?.[failure.source_id]?.name }}</p>
+            <p class="failure-downloads">
+              <a v-if="failureOutputUrl(failure)" :href="failureOutputUrl(failure)" download>Download full test-run output (.gz)</a>
+              <a v-if="logsUrl" :href="logsUrl" download>Download daemon logs (.tar.gz)</a>
+            </p>
+            <pre>{{ failure.output || 'No diagnostic output was captured. See the CI run for details.' }}</pre>
+          </details>
+          </template>
+        </section>
 
         <div v-if="loading" class="empty-state" role="status">
           <span class="loading-ring"></span>
@@ -406,6 +435,9 @@ export default {
   computed: {
     latestRun() { return [...resultsData.results].sort().reverse()[0] || 'none'; },
     currentRun() { return this.$route.params.result || this.latestRun; },
+    failures() {
+      return this.report?.failures || [];
+    },
     activeTab: querySelection('project', 'buildkit'),
     benchmarkName: querySelection('benchmark', ''),
     variantName: querySelection('variant', ''),
@@ -449,6 +481,11 @@ export default {
       const file = resultsData.htmlReports[result]?.[this.selectedProject];
       return file ? `${process.env.BASE_URL}result/${result}/${file}` : '';
     },
+    logsUrl() {
+      return resultsData.logArchives.includes(this.currentRun)
+        ? `${process.env.BASE_URL}result/${this.currentRun}/logs.tar.gz`
+        : '';
+    },
     headerLinks() {
       const meta = this.report?.metadata || {};
       const links = this.report
@@ -461,10 +498,10 @@ export default {
             meta.run_url && { text: 'View CI run', url: meta.run_url, kind: 'external' },
           ].filter(Boolean)
         : [...this.metadataLinks];
-      if (resultsData.logArchives.includes(this.currentRun)) {
+      if (this.logsUrl) {
         links.push({
           text: 'Logs',
-          url: `${process.env.BASE_URL}result/${this.currentRun}/logs.tar.gz`,
+          url: this.logsUrl,
           kind: 'download',
         });
       }
@@ -559,6 +596,8 @@ export default {
     },
   },
   watch: {
+    report: { handler: 'scrollToFailure', flush: 'post' },
+    '$route.query.failure': { handler: 'scrollToFailure', flush: 'post' },
     currentRun: 'updateMetadata',
     reportUrl: { immediate: true, handler: 'loadReport' },
     selectedProject: 'updateMetadata',
@@ -570,6 +609,15 @@ export default {
     this.request?.abort();
   },
   methods: {
+    scrollToFailure() {
+      this.$el.querySelector('[data-selected-failure]')?.scrollIntoView({ block: 'start' });
+    },
+    failureOutputUrl(failure) {
+      const file = this.report?.sources?.[failure.source_id]?.output_log;
+      const result = this.currentRun;
+      return resultsData.outputLogs?.[result]?.includes(file)
+        ? `${process.env.BASE_URL}result/${encodeURIComponent(result)}/${encodeURIComponent(file)}` : '';
+    },
     formatValue,
     runLabel,
     navigateSelection(changes) {
@@ -585,6 +633,7 @@ export default {
         params: { result: this.currentRun },
         query: {
           ...this.$route.query,
+          failure: changes.project ? undefined : this.$route.query.failure,
           view: this.view,
           project: this.selectedProject,
           benchmark: this.activeEntry?.name,
@@ -599,6 +648,7 @@ export default {
         view: 'benchmarks',
         benchmark: benchmark.name,
         candidate: undefined,
+        failure: undefined,
         variant: undefined,
         chart: benchmark.variants ? 'distribution' : 'medians',
       });
@@ -682,6 +732,24 @@ export default {
 
 <style scoped>
 .focused-row { background: var(--selected); }
+.run-failed, .failure-panel summary span { color: var(--red); }
+.run-failed .status-dot { background: var(--red); }
+.failure-panel {
+  margin-bottom: 24px;
+  padding: 20px;
+  border: 1px solid var(--red);
+  border-radius: 12px;
+  background: var(--red-bg);
+}
+.failure-panel summary { cursor: pointer; overflow-wrap: anywhere; }
+.failure-panel details { margin-top: 12px; }
+.failure-links { padding-left: 20px; }
+.failure-links li { margin-top: 12px; overflow-wrap: anywhere; }
+.failure-links a { text-decoration: underline; }
+.failure-links small { display: block; color: var(--muted); margin-top: 4px; }
+.failure-downloads { display: flex; flex-wrap: wrap; gap: 16px; }
+.failure-panel pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 320px; overflow: auto; }
+
 .dashboard {
   display: flex;
   min-height: 100vh;

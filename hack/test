@@ -111,5 +111,5 @@ done
     "${metadataArgs[@]}" \
     -e REGISTRY_MIRROR_DIR=/root/.cache/registry \
     "$testImageID" \
-    sh -c "go test ${gotestArgs} | gotestmetrics parse --execution /tmp/buildkit-bench-execution.json --output $TEST_OUT_DIR/gotestoutput.json"
+    bash -o pipefail -c "go test ${gotestArgs} | gotestmetrics parse --execution /tmp/buildkit-bench-execution.json --output $TEST_OUT_DIR/gotestoutput.json"
 )

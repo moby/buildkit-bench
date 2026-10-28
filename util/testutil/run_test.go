@@ -1,11 +1,54 @@
 package testutil
 
 import (
+	"context"
+	"fmt"
+	"os"
+	"os/exec"
 	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
+
+type failingWorker string
+
+func (w failingWorker) Name() string { return string(w) }
+func (w failingWorker) New(context.Context, *BackendConfig) (Backend, func() error, error) {
+	fmt.Println("attempted worker " + w.Name())
+	return nil, nil, fmt.Errorf("worker %s failed", w)
+}
+
+func TestRunContinuesAfterFailure(t *testing.T) {
+	if kind := os.Getenv("BENCH_FAILURE_HELPER"); kind != "" {
+		defaultWorkers = []Worker{failingWorker("first"), failingWorker("second")}
+		if kind == "benchmark" {
+			failed := false
+			testing.Benchmark(func(b *testing.B) {
+				Run(b, BenchFuncs(func(b *testing.B, sb Sandbox) {}))
+				failed = b.Failed()
+			})
+			require.True(t, failed)
+		} else {
+			Run(t, TestFuncs(func(t *testing.T, sb Sandbox) {}))
+		}
+		return
+	}
+	for _, kind := range []string{"test", "benchmark"} {
+		t.Run(kind, func(t *testing.T) {
+			cmd := exec.Command(os.Args[0], "-test.run=^TestRunContinuesAfterFailure$", "-test.v")
+			cmd.Env = append(os.Environ(), "BENCH_FAILURE_HELPER="+kind, "BUILDKIT_REF_RANDOM=", "TEST_BENCH_RUN=1")
+			output, err := cmd.CombinedOutput()
+			if kind == "test" {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err, string(output))
+			}
+			require.Contains(t, string(output), "attempted worker first")
+			require.Contains(t, string(output), "attempted worker second")
+		})
+	}
+}
 
 func TestOfficialImages(t *testing.T) {
 	namespace := runtime.GOARCH

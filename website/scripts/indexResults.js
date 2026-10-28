@@ -45,6 +45,9 @@ async function indexResults(websiteDir = path.join(__dirname, '..')) {
   const results = {
     results: resultEntries.map(result => result.name),
     logArchives: resultEntries.filter(result => result.files.includes('logs.tar.gz')).map(result => result.name),
+    outputLogs: Object.fromEntries(resultEntries.map(result => [
+      result.name, result.files.filter(file => /^output-[a-f0-9]{64}\.log\.gz$/i.test(file)),
+    ])),
     jsonReports: Object.fromEntries(resultEntries.map(result => [
       result.name,
       ['buildkit', 'buildx'].filter(project => result.files.includes(`${project}.json`)),

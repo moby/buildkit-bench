@@ -209,3 +209,135 @@ runs:
 		})
 	}
 }
+
+func TestReportFailures(t *testing.T) {
+	dir := t.TempDir()
+	config := filepath.Join(dir, "config.yml")
+	require.NoError(t, os.WriteFile(config, []byte(`runs:
+  BenchmarkBuild:
+    Simple:
+      metrics:
+        duration:
+          chart: boxplot
+`), 0644))
+	input := filepath.Join(dir, "input.json")
+	require.NoError(t, os.WriteFile(input, []byte(`{"Failures":[
+{"Name":"BenchmarkBuild/Simple/ref=old/buildx=latest/run=1","Package":"bench","Output":"build failed"},
+{"Name":"TestBinary/ref=old/run=1","Package":"bench","Output":"test failed"}
+]}`), 0644))
+	cmd := &genCmd{
+		Files:          []string{input},
+		Config:         config,
+		Project:        "buildkit",
+		ValidationMode: "strict",
+		Output:         filepath.Join(dir, "report.json"),
+	}
+	require.NoError(t, cmd.Run(&Context{}))
+	dt, err := os.ReadFile(cmd.Output)
+	require.NoError(t, err)
+	var report benchmarkReport
+	require.NoError(t, json.Unmarshal(dt, &report))
+	require.Empty(t, report.Benchmarks)
+	require.Len(t, report.Failures, 2)
+	require.Equal(t, "build failed", report.Failures[0].Output)
+	require.Contains(t, report.Sources, report.Failures[0].SourceID)
+	// Missing results must not be mistaken for explicitly recorded failures.
+	require.NoError(t, os.WriteFile(input, []byte(`{"Failures":[{"Name":"TestBinary/ref=old/run=1"}]}`), 0644))
+	require.ErrorContains(t, cmd.Run(&Context{}), "missing benchmark result")
+}
+
+func TestReportInterruptedBenchmarks(t *testing.T) {
+	for _, tc := range []struct {
+		name      string
+		failure   string
+		wantError bool
+	}{
+		{
+			name:    "parent failure",
+			failure: `{"Name":"BenchmarkBuild","Package":"bench","Output":"mirror unavailable"}`,
+		},
+		{
+			name:    "package failure",
+			failure: `{"Name":"","Package":"bench","Output":"panic: setup"}`,
+		},
+		{
+			name:      "unrelated test failure",
+			failure:   `{"Name":"TestBinary","Package":"bench","Output":"wrong version"}`,
+			wantError: true,
+		},
+		{
+			name:      "clean but incomplete run",
+			wantError: true,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			config := filepath.Join(dir, "config.yml")
+			require.NoError(t, os.WriteFile(config, []byte("runs:\n  BenchmarkBuild:\n    Simple: {}\n"), 0644))
+			input := filepath.Join(dir, "input.json")
+			require.NoError(t, os.WriteFile(input, []byte(`{"Failures":[`+tc.failure+`]}`), 0644))
+			cmd := &genCmd{
+				Files:          []string{input},
+				Config:         config,
+				Project:        "buildkit",
+				ValidationMode: "strict",
+				Output:         filepath.Join(dir, "report.json"),
+			}
+			err := cmd.Run(&Context{})
+			if tc.wantError {
+				require.ErrorContains(t, err, "missing benchmark result")
+				return
+			}
+			require.NoError(t, err)
+			dt, err := os.ReadFile(cmd.Output)
+			require.NoError(t, err)
+			var report benchmarkReport
+			require.NoError(t, json.Unmarshal(dt, &report))
+			require.Equal(t, []string{"BenchmarkBuild/Simple"}, report.MissingBenchmarks)
+			require.Len(t, report.Failures, 1)
+			require.Empty(t, report.Benchmarks)
+		})
+	}
+}
+
+func TestReportCopiesFullOutput(t *testing.T) {
+	dir := t.TempDir()
+	config := filepath.Join(dir, "config.yml")
+	require.NoError(t, os.WriteFile(config, []byte("runs: {}\n"), 0644))
+	output := []byte("compressed output sidecar")
+	digest := sha256.Sum256(output)
+	name := "output-" + hex.EncodeToString(digest[:]) + ".log.gz"
+	require.NoError(t, os.WriteFile(filepath.Join(dir, name), output, 0644))
+	input := filepath.Join(dir, "input.json")
+	require.NoError(t, os.WriteFile(input, []byte(`{"OutputLog":"`+name+`","Failures":[{"Package":"bench","Output":"failed"}]}`), 0644))
+	cmd := &genCmd{
+		Files:   []string{input},
+		Config:  config,
+		Project: "buildkit",
+		Output:  filepath.Join(dir, "report", "buildkit.json"),
+	}
+	require.NoError(t, cmd.Run(&Context{}))
+	copied, err := os.ReadFile(filepath.Join(dir, "report", name))
+	require.NoError(t, err)
+	require.Equal(t, output, copied)
+	dt, err := os.ReadFile(cmd.Output)
+	require.NoError(t, err)
+	var report benchmarkReport
+	require.NoError(t, json.Unmarshal(dt, &report))
+	require.Equal(t, name, report.Sources[report.Failures[0].SourceID].OutputLog)
+	// Exporting alongside the input must not truncate the existing sidecar.
+	cmd.Output = filepath.Join(dir, "buildkit.json")
+	require.NoError(t, cmd.Run(&Context{}))
+	copied, err = os.ReadFile(filepath.Join(dir, name))
+	require.NoError(t, err)
+	require.Equal(t, output, copied)
+	require.NoError(t, os.Remove(filepath.Join(dir, name)))
+	require.NoError(t, cmd.Run(&Context{}))
+	dt, err = os.ReadFile(cmd.Output)
+	require.NoError(t, err)
+	var withoutLog benchmarkReport
+	require.NoError(t, json.Unmarshal(dt, &withoutLog))
+	require.Empty(t, withoutLog.Sources[withoutLog.Failures[0].SourceID].OutputLog)
+	require.NoError(t, os.WriteFile(input, []byte(`{"OutputLog":"../outside.log.gz"}`), 0644))
+	require.ErrorContains(t, cmd.Run(&Context{}), "invalid output log filename")
+}

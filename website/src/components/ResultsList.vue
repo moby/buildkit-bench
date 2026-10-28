@@ -24,7 +24,7 @@ export default {
       this.$router.push({
         name: this.$route.name === 'Overview' ? 'Overview' : 'ResultView',
         params: { result },
-        query: this.$route.query,
+        query: { ...this.$route.query, failure: undefined },
       });
     },
   },

@@ -256,7 +256,7 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 					fn := runner.Name()
 					name := fn + "/ref=" + br.Name() + mv.functionSuffix() + "/run=" + strconv.Itoa(rc)
 					func(fn, testName string, br Worker, runner Runner, mv matrixValue) {
-						ok := runTest(tb, testName, func(tb testing.TB) {
+						runTest(tb, testName, func(tb testing.TB) {
 							ctx := appcontext.Context()
 							require.NoError(tb, sandboxLimiter.Acquire(context.TODO(), 1))
 							defer sandboxLimiter.Release(1)
@@ -290,7 +290,6 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 								runWithSandbox(tb)
 							}
 						})
-						require.True(tb, ok)
 					}(fn, name, br, runner, mv)
 				}
 			}
@@ -298,19 +297,18 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 	}
 }
 
-func runTest(tb testing.TB, name string, f func(tb testing.TB)) bool {
+func runTest(tb testing.TB, name string, f func(tb testing.TB)) {
 	switch t := tb.(type) {
 	case *testing.T:
-		return t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			f(t)
 		})
 	case *testing.B:
-		return t.Run(name, func(b *testing.B) {
+		t.Run(name, func(b *testing.B) {
 			f(b)
 		})
 	default:
 		tb.Fatalf("unsupported testing.TB type: %T", tb)
-		return false
 	}
 }
 

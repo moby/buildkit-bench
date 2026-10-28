@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -44,23 +45,31 @@ func (c *genCmd) Run(ctx *Context) error {
 		b, _ := json.MarshalIndent(benchmarks, "", "  ")
 		log.Printf("%s", string(b))
 	}
-	if err := c.validateBenchmarks(benchmarks); err != nil {
-		return err
-	}
 	report, err := c.jsonReport()
 	if err != nil {
+		return err
+	}
+	if err := c.validateBenchmarks(benchmarks, report); err != nil {
 		return err
 	}
 	return c.writeJSON(report)
 }
 
-func (c *genCmd) validateBenchmarks(benchmarks map[string]gotest.Benchmark) error {
+func (c *genCmd) validateBenchmarks(benchmarks map[string]gotest.Benchmark, report *benchmarkReport) error {
 	log.Printf("Validating %d benchmark results based on %s", len(benchmarks), c.Config)
 	tc, err := testutil.LoadTestConfig(c.Config)
 	if err != nil {
 		return err
 	}
 	seen := make(map[string]struct{})
+	for _, failure := range report.Failures {
+		if strings.HasPrefix(failure.Name, "Benchmark") {
+			name, _, _ := strings.Cut(failure.Name, "/ref=")
+			if _, err := tc.BenchmarkConfig(name); err == nil {
+				seen[name] = struct{}{}
+			}
+		}
+	}
 	for _, benchmark := range benchmarks {
 		if _, ok := seen[benchmark.Name]; !ok {
 			seen[benchmark.Name] = struct{}{}
@@ -84,11 +93,26 @@ func (c *genCmd) validateBenchmarks(benchmarks map[string]gotest.Benchmark) erro
 					continue
 				}
 				if _, ok := seen[rootName+"/"+testName]; !ok {
+					// A parent or package failure can prevent attempts from
+					// starting. Publish that incomplete run explicitly rather
+					// than losing its diagnostics to completeness validation.
+					interrupted := false
+					for _, failure := range report.Failures {
+						if failure.Name == "" || strings.HasPrefix(rootName+"/"+testName, failure.Name+"/") {
+							interrupted = true
+							break
+						}
+					}
+					if interrupted {
+						report.MissingBenchmarks = append(report.MissingBenchmarks, rootName+"/"+testName)
+						continue
+					}
 					return errors.Errorf("missing benchmark result for %q", rootName+"/"+testName)
 				}
 			}
 		}
 	}
+	sort.Strings(report.MissingBenchmarks)
 	return nil
 }
 
@@ -113,14 +137,23 @@ func benchmarkMetricValues(run gotest.BenchmarkRun, bc *testutil.TestConfigBench
 
 // These types define the versioned website contract independently of parser types.
 type benchmarkReport struct {
-	Version    int                          `json:"version"`
-	Name       string                       `json:"name"`
-	Project    string                       `json:"project"`
-	Metadata   reportMetadata               `json:"metadata"`
-	Generator  reportGenerator              `json:"generator"`
-	Sources    map[string]reportSource      `json:"sources"`
-	Candidates map[string][]reportCandidate `json:"candidates"`
-	Benchmarks []reportBenchmark            `json:"benchmarks"`
+	MissingBenchmarks []string                     `json:"missing_benchmarks,omitempty"`
+	Failures          []reportFailure              `json:"failures,omitempty"`
+	Version           int                          `json:"version"`
+	Name              string                       `json:"name"`
+	Project           string                       `json:"project"`
+	Metadata          reportMetadata               `json:"metadata"`
+	Generator         reportGenerator              `json:"generator"`
+	Sources           map[string]reportSource      `json:"sources"`
+	Candidates        map[string][]reportCandidate `json:"candidates"`
+	Benchmarks        []reportBenchmark            `json:"benchmarks"`
+}
+
+type reportFailure struct {
+	Name     string `json:"name"`
+	Package  string `json:"package"`
+	Output   string `json:"output"`
+	SourceID string `json:"source_id"`
 }
 
 type reportGenerator struct {
@@ -131,8 +164,10 @@ type reportGenerator struct {
 }
 
 type reportSource struct {
-	Name      string            `json:"name"`
-	Execution *gotest.Execution `json:"execution,omitempty"`
+	Name          string            `json:"name"`
+	Execution     *gotest.Execution `json:"execution,omitempty"`
+	OutputLog     string            `json:"output_log,omitempty"`
+	outputLogPath string
 }
 
 type reportMetadata struct {
@@ -185,12 +220,21 @@ type reportSample struct {
 }
 
 func (c *genCmd) writeJSON(report *benchmarkReport) error {
+	if err := os.MkdirAll(filepath.Dir(c.Output), 0755); err != nil {
+		return errors.Wrap(err, "failed to create JSON output directory")
+	}
+	for id, source := range report.Sources {
+		if source.OutputLog != "" {
+			if err := copyOutputLog(source.outputLogPath, filepath.Join(filepath.Dir(c.Output), source.OutputLog)); err != nil {
+				log.Printf("Warning: full output log %s is unavailable: %v", source.OutputLog, err)
+				source.OutputLog = ""
+				report.Sources[id] = source
+			}
+		}
+	}
 	dt, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal JSON report")
-	}
-	if err := os.MkdirAll(filepath.Dir(c.Output), 0755); err != nil {
-		return errors.Wrap(err, "failed to create JSON output directory")
 	}
 	log.Printf("Generating JSON report to %s", c.Output)
 	return os.WriteFile(c.Output, append(dt, '\n'), 0644)
@@ -317,7 +361,23 @@ func (c *genCmd) jsonReport() (*benchmarkReport, error) {
 			}
 			hash := sha256.Sum256(dt)
 			sourceID := hex.EncodeToString(hash[:])
-			report.Sources[sourceID] = reportSource{Name: filepath.Base(file), Execution: result.Execution}
+			source := reportSource{Name: filepath.Base(file), Execution: result.Execution}
+			if result.OutputLog != "" {
+				// Sidecars are content-addressed filenames, never paths or URLs.
+				logDigest := strings.TrimSuffix(strings.TrimPrefix(result.OutputLog, "output-"), ".log.gz")
+				decoded, err := hex.DecodeString(logDigest)
+				if err != nil || len(decoded) != sha256.Size || result.OutputLog != "output-"+logDigest+".log.gz" {
+					return nil, errors.Errorf("invalid output log filename %q", result.OutputLog)
+				}
+				source.OutputLog = result.OutputLog
+				source.outputLogPath = filepath.Join(filepath.Dir(file), result.OutputLog)
+			}
+			report.Sources[sourceID] = source
+			for _, failure := range result.Failures {
+				report.Failures = append(report.Failures, reportFailure{
+					Name: failure.Name, Package: failure.Package, Output: failure.Output, SourceID: sourceID,
+				})
+			}
 			keys := make([]string, 0, len(result.Benchmarks))
 			for key := range result.Benchmarks {
 				keys = append(keys, key)
@@ -396,4 +456,32 @@ func benchmarkMeasurements(run gotest.BenchmarkRun) map[string]any {
 		values["allocs/op"] = run.AllocsPerOp
 	}
 	return values
+}
+
+func copyOutputLog(source, destination string) error {
+	sourcePath, err := filepath.Abs(source)
+	if err != nil {
+		return err
+	}
+	destinationPath, err := filepath.Abs(destination)
+	if err != nil {
+		return err
+	}
+	input, err := os.Open(sourcePath)
+	if err != nil {
+		return errors.Wrap(err, "failed to open full output log")
+	}
+	defer input.Close()
+	if sourcePath == destinationPath {
+		return nil
+	}
+	output, err := os.Create(destinationPath)
+	if err != nil {
+		return err
+	}
+	defer output.Close()
+	if _, err := io.Copy(output, input); err != nil {
+		return err
+	}
+	return output.Close()
 }

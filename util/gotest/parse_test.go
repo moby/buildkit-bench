@@ -2,11 +2,13 @@ package gotest
 
 import (
 	"bytes"
+	"io"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"gotest.tools/gotestsum/testjson"
 )
 
 func TestBenchmarkSampleTimes(t *testing.T) {
@@ -23,12 +25,31 @@ func TestBenchmarkSampleTimes(t *testing.T) {
 
 func TestParseWritesOutputToConfiguredLogger(t *testing.T) {
 	var logs bytes.Buffer
+	var output bytes.Buffer
 	_, _, err := Parse(ParseConfig{
 		Stdout: strings.NewReader(`{"Time":"2024-09-03T14:40:54.564305995Z","Action":"output","Package":"pkg","Output":"literal %s\n"}`),
 		Logger: &logs,
+		Output: &output,
 	})
 	require.NoError(t, err)
 	require.Contains(t, logs.String(), "literal %s")
+	require.Equal(t, "literal %s\n", output.String())
+}
+
+func TestParseOutputWriteError(t *testing.T) {
+	reader, writer := io.Pipe()
+	require.NoError(t, reader.Close())
+	defer writer.Close()
+	res, _, err := Parse(ParseConfig{
+		Stdout: strings.NewReader(`{"Action":"output","Package":"bench","Output":"diagnostic\n"}
+{"Action":"output","Package":"bench","Output":"BenchmarkBuild/Simple/ref=master/run=1-8\t1\t100 ns/op\n"}
+{"Action":"fail","Package":"bench"}`),
+		Output: writer,
+	})
+	require.NoError(t, err)
+	require.ErrorIs(t, res.OutputError, io.ErrClosedPipe)
+	require.Len(t, res.Benchmarks, 1)
+	require.Len(t, res.Failures, 1)
 }
 
 func TestParse(t *testing.T) {
@@ -533,4 +554,77 @@ func TestParseMalformed(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, res.Tests, 19)
 	require.Len(t, res.Benchmarks, 19)
+}
+
+func TestParseFailures(t *testing.T) {
+	res, _, err := Parse(ParseConfig{Stdout: strings.NewReader(`{"Action":"output","Package":"bench","Test":"BenchmarkBuild","Output":"--- FAIL: BenchmarkBuild/Simple/ref=old/buildx=latest/run=1\n"}
+{"Action":"output","Package":"bench","Test":"BenchmarkBuild","Output":"    build failed\n"}
+{"Action":"output","Package":"bench","Test":"BenchmarkBuild","Output":"BenchmarkBuild/Simple/ref=new/buildx=latest/run=1-8\t1\t100 ns/op\n"}
+{"Action":"fail","Package":"bench","Test":"BenchmarkBuild"}
+{"Action":"fail","Package":"bench"}
+{"Action":"run","Package":"tests","Test":"TestBinary"}
+{"Action":"output","Package":"tests","Test":"TestBinary/ref=old/run=1","Output":"version mismatch\n"}
+{"Action":"fail","Package":"tests","Test":"TestBinary/ref=old/run=1"}
+{"Action":"fail","Package":"tests","Test":"TestBinary"}
+{"Action":"fail","Package":"tests"}
+{"Action":"output","Package":"broken","Output":"panic: setup failed\n"}
+{"Action":"fail","Package":"broken"}`)})
+	require.NoError(t, err)
+	require.Len(t, res.Failures, 3)
+	require.Equal(t, "BenchmarkBuild/Simple/ref=old/buildx=latest/run=1", res.Failures[0].Name)
+	require.Contains(t, res.Failures[0].Output, "build failed")
+	require.NotContains(t, res.Failures[0].Output, "100 ns/op")
+	require.Equal(t, "panic: setup failed\n", res.Failures[1].Output)
+	require.Equal(t, "version mismatch\n", res.Failures[2].Output)
+	require.Len(t, res.Benchmarks, 1)
+}
+
+func TestFailedBenchmarkKeepsSuccessfulSibling(t *testing.T) {
+	res, _, err := Parse(ParseConfig{Stdout: strings.NewReader(`{"Time":"2026-10-27T14:55:39.9032259+01:00","Action":"start","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting"}
+{"Time":"2026-10-27T14:55:40.2941352+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Output":"goos: windows\n"}
+{"Time":"2026-10-27T14:55:40.2941352+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Output":"goarch: amd64\n"}
+{"Time":"2026-10-27T14:55:40.2941352+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Output":"pkg: github.com/moby/buildkit-bench/.dev/failure-reporting\n"}
+{"Time":"2026-10-27T14:55:40.2941352+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Output":"cpu: AMD Ryzen 9 5950X 16-Core Processor            \n"}
+{"Time":"2026-10-27T14:55:40.2941352+01:00","Action":"run","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild"}
+{"Time":"2026-10-27T14:55:40.2941352+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild","Output":"=== RUN   BenchmarkBuild\n"}
+{"Time":"2026-10-27T14:55:40.2941352+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild","Output":"BenchmarkBuild\n"}
+{"Time":"2026-10-27T14:55:40.2946645+01:00","Action":"run","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild/Simple/ref=old/buildx=latest/run=1"}
+{"Time":"2026-10-27T14:55:40.2946645+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild/Simple/ref=old/buildx=latest/run=1","Output":"=== RUN   BenchmarkBuild/Simple/ref=old/buildx=latest/run=1\n"}
+{"Time":"2026-10-27T14:55:40.2946645+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild/Simple/ref=old/buildx=latest/run=1","Output":"BenchmarkBuild/Simple/ref=old/buildx=latest/run=1\n"}
+{"Time":"2026-10-27T14:55:40.2951888+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild/Simple/ref=old/buildx=latest/run=1","Output":"    smoke_test.go:5: benchmark diagnostic\n"}
+{"Time":"2026-10-27T14:55:40.2951888+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild/Simple/ref=old/buildx=latest/run=1","Output":"--- FAIL: BenchmarkBuild/Simple/ref=old/buildx=latest/run=1\n"}
+{"Time":"2026-10-27T14:55:40.2951888+01:00","Action":"fail","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild/Simple/ref=old/buildx=latest/run=1"}
+{"Time":"2026-10-27T14:55:40.2951888+01:00","Action":"run","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild/Simple/ref=new/buildx=latest/run=1"}
+{"Time":"2026-10-27T14:55:40.2951888+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild/Simple/ref=new/buildx=latest/run=1","Output":"=== RUN   BenchmarkBuild/Simple/ref=new/buildx=latest/run=1\n"}
+{"Time":"2026-10-27T14:55:40.2951888+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild/Simple/ref=new/buildx=latest/run=1","Output":"BenchmarkBuild/Simple/ref=new/buildx=latest/run=1\n"}
+{"Time":"2026-10-27T14:55:40.2951888+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild/Simple/ref=new/buildx=latest/run=1","Output":"BenchmarkBuild/Simple/ref=new/buildx=latest/run=1-32         \t"}
+{"Time":"2026-10-27T14:55:40.2951888+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild/Simple/ref=new/buildx=latest/run=1","Output":"       1\t       200.0 ns/op\n"}
+{"Time":"2026-10-27T14:55:40.2951888+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild","Output":"--- FAIL: BenchmarkBuild\n"}
+{"Time":"2026-10-27T14:55:40.2951888+01:00","Action":"fail","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Test":"BenchmarkBuild"}
+{"Time":"2026-10-27T14:55:40.2951888+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Output":"FAIL\n"}
+{"Time":"2026-10-27T14:55:40.2973163+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Output":"exit status 1\n"}
+{"Time":"2026-10-27T14:55:40.2973163+01:00","Action":"output","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Output":"FAIL\tgithub.com/moby/buildkit-bench/.dev/failure-reporting\t0.394s\n"}
+{"Time":"2026-10-27T14:55:40.2973163+01:00","Action":"fail","Package":"github.com/moby/buildkit-bench/.dev/failure-reporting","Elapsed":0.394}`)})
+	require.NoError(t, err)
+	require.Len(t, res.Failures, 1)
+	require.Contains(t, res.Failures[0].Name, "ref=old/")
+	require.Contains(t, res.Failures[0].Output, "benchmark diagnostic")
+	require.Len(t, res.Benchmarks, 1)
+}
+
+func TestFailureDiagnosticsRetainHeadAndTail(t *testing.T) {
+	handler := newEventHandler(nil)
+	name := "BenchmarkBuild/Simple/ref=old/run=1"
+	for _, output := range []string{"assertion failed\n", strings.Repeat("daemon log\n", diagnosticLimit), "last daemon message\n", "--- FAIL: " + name + "\n"} {
+		require.NoError(t, handler.Event(testjson.TestEvent{Action: testjson.ActionOutput, Package: "bench", Test: name, Output: output}, nil))
+	}
+	require.NoError(t, handler.Event(testjson.TestEvent{Action: testjson.ActionOutput, Package: "bench", Output: "FAIL\n"}, nil))
+	handler.collectFailures()
+	require.Len(t, handler.Failures, 1)
+	output := handler.Failures[0].Output
+	require.LessOrEqual(t, len(output), diagnosticLimit)
+	require.Contains(t, output, "assertion failed")
+	require.Contains(t, output, "... output truncated ...")
+	require.Contains(t, output, "last daemon message")
+	require.NotContains(t, output, "\nFAIL\n")
 }
