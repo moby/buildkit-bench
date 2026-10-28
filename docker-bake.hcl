@@ -136,6 +136,12 @@ EOT
   output = ["type=cacheonly"]
 }
 
+target "tests-unit" {
+  inherits = ["_common"]
+  target = "tests-unit"
+  output = ["type=cacheonly"]
+}
+
 target "tests-base" {
   inherits = ["_common"]
   target = "tests-base"
