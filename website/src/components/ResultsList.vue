@@ -3,7 +3,7 @@
     <span>RUN</span>
     <select
       aria-label="Benchmark run"
-      :value="$route.params.result"
+      :value="run"
       @change="loadResult($event.target.value)"
     >
       <option v-for="result in results" :key="result" :value="result">{{ runLabel(result) }}</option>
@@ -16,11 +16,16 @@ import resultsData from '../generated/results.json';
 import { runLabel } from '../reports/format.mjs';
 
 export default {
+  props: { run: String },
   data: () => ({ results: [...resultsData.results].sort().reverse() }),
   methods: {
     runLabel,
     loadResult(result) {
-      this.$router.push({ path: `/result/${result}`, query: this.$route.query });
+      this.$router.push({
+        name: this.$route.name === 'Overview' ? 'Overview' : 'ResultView',
+        params: { result },
+        query: this.$route.query,
+      });
     },
   },
 };

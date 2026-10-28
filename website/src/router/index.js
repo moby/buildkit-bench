@@ -1,18 +1,15 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import ResultView from '../components/ResultView.vue';
-import resultsData from '../generated/results.json';
 
 export default createRouter({
   history: createWebHashHistory(process.env.BASE_URL),
   routes: [
     {
       path: '/',
-      redirect: () =>
-        resultsData.results.length
-          ? `/result/${[...resultsData.results].sort().reverse()[0]}`
-          : '/result/none',
+      redirect: '/overview',
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },
+    { path: '/overview/:result?', name: 'Overview', component: ResultView },
     {
       path: '/result/:result',
       name: 'ResultView',

@@ -7,6 +7,9 @@
       </a>
       <div class="workspace-label"><span class="status-dot"></span> PUBLIC BENCHMARKS</div>
       <nav class="section-nav" aria-label="Dashboard views">
+        <button :class="{ selected: view === 'overview' }" @click="view = 'overview'">
+          <ui-icon name="overview" /> Overview
+        </button>
         <button :class="{ selected: view === 'benchmarks' }" @click="view = 'benchmarks'">
           <ui-icon name="chart" /> Benchmarks
           <span class="nav-count">{{ navigation.length }}</span>
@@ -31,8 +34,8 @@
         <button
           v-for="benchmark in filteredBenchmarks"
           :key="benchmark.name"
-          :class="{ active: activeEntry?.name === benchmark.name }"
-          :aria-current="activeEntry?.name === benchmark.name ? 'true' : undefined"
+          :class="{ active: view !== 'overview' && activeEntry?.name === benchmark.name }"
+          :aria-current="view !== 'overview' && activeEntry?.name === benchmark.name ? 'true' : undefined"
           @click="selectBenchmark(benchmark)"
         >
           <span class="benchmark-dot"></span><span>{{ benchmark.description || benchmark.name }}</span
@@ -55,7 +58,7 @@
           }}</strong>
         </div>
         <div class="topbar-actions">
-          <results-list /><button
+          <results-list :run="currentRun" /><button
             class="icon-button"
             @click="$emit('toggle-theme')"
             :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
@@ -68,10 +71,12 @@
         <div class="page-heading">
           <div>
             <div class="eyebrow">BUILD PERFORMANCE, IN FOCUS</div>
-            <h1>{{ view === 'history' ? 'Run history' : 'Benchmark explorer' }}</h1>
+            <h1>{{ view === 'overview' ? 'Run overview' : view === 'history' ? 'Run history' : 'Benchmark explorer' }}</h1>
             <p class="page-description">
               {{
-                view === 'history'
+                view === 'overview'
+                  ? 'Spot changes. Inspect the evidence. Narrow the investigation.'
+                  : view === 'history'
                   ? 'Follow a benchmark over time. Keep the execution context in view.'
                   : 'Explore the measurements. Understand what changed.'
               }}
@@ -90,7 +95,7 @@
           </div>
         </div>
         <div class="run-context">
-          <span class="run-badge"><span class="status-dot"></span>{{ runLabel($route.params.result) }}</span
+          <span class="run-badge"><span class="status-dot"></span>{{ runLabel(currentRun) }}</span
           ><a v-for="link in headerLinks" :key="link.url" :href="link.url" target="_blank" rel="noopener"
             ><ui-icon :name="link.kind || 'external'" />{{ link.text }}</a
           >
@@ -120,12 +125,17 @@
             :title="`${selectedProject} benchmark report`"
           ></iframe
         ></template>
+        <run-overview v-else-if="report && view === 'overview'" :key="reportUrl" :report="report" :run="currentRun" />
         <div v-else-if="!activeBenchmark" class="empty-state">
           <ui-icon name="chart" />
           <h2>No measurements available</h2>
           <p>Choose another run from the selector above.</p>
         </div>
         <template v-else>
+          <div v-if="focusedRow" class="notice">
+            <ui-icon name="info" /><span>Investigating {{ focusedRow.ref }} against {{ baselineRow?.ref }}. The chart is focused on these candidates.</span>
+            <button class="subtle-button" @click="navigateSelection({ candidate: undefined })">Show all candidates</button>
+          </div>
           <benchmark-variants-chart
             v-if="activeEntry?.variants && view === 'benchmarks'"
             :key="`${reportUrl}:${activeEntry.name}`"
@@ -179,7 +189,7 @@
             :benchmark="activeBenchmark"
             :metric="selectedMetric"
             :theme="theme"
-            :run="$route.params.result"
+            :run="currentRun"
             :reference="historyRef"
             @update-reference="historyRef = $event"
             @update-metric="metricName = $event"
@@ -313,10 +323,10 @@
                     <tr
                       v-for="row in rows"
                       :key="row.ref"
-                      :class="{ 'baseline-row': row.ref === baselineRow?.ref }"
+                      :class="{ 'baseline-row': row.ref === baselineRow?.ref, 'focused-row': row.ref === focusedRow?.ref }"
                     >
                       <td>
-                        <span class="candidate-name">{{ row.ref }}</span
+                        <span v-if="row.ref === focusedRow?.ref" class="baseline-tag">INVESTIGATING</span><span class="candidate-name">{{ row.ref }}</span
                         ><span v-if="row.ref === baselineRow?.ref" class="baseline-tag">BASELINE</span>
                       </td>
                       <td>
@@ -356,6 +366,7 @@ import BenchmarkChart from './BenchmarkChart.vue';
 import ResultsList from './ResultsList.vue';
 import RunDetails from './RunDetails.vue';
 import HistoryPanel from './HistoryPanel.vue';
+import RunOverview from './RunOverview.vue';
 import UiIcon from './UiIcon.vue';
 import BenchmarkVariantsChart from './BenchmarkVariantsChart.vue';
 import { reportCharts } from '../charts/report.mjs';
@@ -379,7 +390,7 @@ function querySelection(key, fallback) {
 
 export default {
   name: 'ResultView',
-  components: { BenchmarkChart, ResultsList, RunDetails, HistoryPanel, UiIcon, BenchmarkVariantsChart },
+  components: { BenchmarkChart, ResultsList, RunDetails, HistoryPanel, RunOverview, UiIcon, BenchmarkVariantsChart },
   props: { theme: { type: String, default: 'light' } },
   emits: ['toggle-theme'],
   data: () => ({
@@ -393,6 +404,8 @@ export default {
     detailsOpen: false,
   }),
   computed: {
+    latestRun() { return [...resultsData.results].sort().reverse()[0] || 'none'; },
+    currentRun() { return this.$route.params.result || this.latestRun; },
     activeTab: querySelection('project', 'buildkit'),
     benchmarkName: querySelection('benchmark', ''),
     variantName: querySelection('variant', ''),
@@ -409,11 +422,14 @@ export default {
       set(chart) { this.navigateSelection({ chart }); },
     },
     view: {
-      get() { return this.$route.query.view === 'history' ? 'history' : 'benchmarks'; },
+      get() {
+        if (this.$route.name === 'Overview') return 'overview';
+        return this.$route.query.view === 'history' ? 'history' : 'benchmarks';
+      },
       set(view) { this.navigateSelection({ view }); },
     },
     projects() {
-      const result = this.$route.params.result;
+      const result = this.currentRun;
       return ['buildkit', 'buildx'].filter(
         (project) =>
           resultsData.jsonReports[result]?.includes(project) || resultsData.htmlReports[result]?.[project]
@@ -423,13 +439,13 @@ export default {
       return this.projects.includes(this.activeTab) ? this.activeTab : this.projects[0];
     },
     reportUrl() {
-      const result = this.$route.params.result;
+      const result = this.currentRun;
       return resultsData.jsonReports[result]?.includes(this.selectedProject)
         ? `${process.env.BASE_URL}result/${result}/${this.selectedProject}.json`
         : '';
     },
     originalUrl() {
-      const result = this.$route.params.result;
+      const result = this.currentRun;
       const file = resultsData.htmlReports[result]?.[this.selectedProject];
       return file ? `${process.env.BASE_URL}result/${result}/${file}` : '';
     },
@@ -445,10 +461,10 @@ export default {
             meta.run_url && { text: 'View CI run', url: meta.run_url, kind: 'external' },
           ].filter(Boolean)
         : [...this.metadataLinks];
-      if (resultsData.logArchives.includes(this.$route.params.result)) {
+      if (resultsData.logArchives.includes(this.currentRun)) {
         links.push({
           text: 'Logs',
-          url: `${process.env.BASE_URL}result/${this.$route.params.result}/logs.tar.gz`,
+          url: `${process.env.BASE_URL}result/${this.currentRun}/logs.tar.gz`,
           kind: 'download',
         });
       }
@@ -502,6 +518,9 @@ export default {
     baselineRow() {
       return this.rows.find((row) => row.ref === this.baselineRef) || this.rows[0];
     },
+    focusedRow() {
+      return this.rows.find(row => row.ref === this.$route.query.candidate);
+    },
     lowestRow() {
       return this.rows.reduce((lowest, row) => (!lowest || row.median < lowest.median ? row : lowest), null);
     },
@@ -520,7 +539,7 @@ export default {
         })),
       };
       const option = reportCharts({ ...this.report, benchmarks: [benchmark] })[0]?.option;
-      return option
+      const chart = option
         ? dashboardChart(
             option,
             this.theme,
@@ -530,10 +549,17 @@ export default {
             this.metricConfig.unit
           )
         : null;
+      if (chart && this.focusedRow) {
+        const focus = this.rows.findIndex(row => row.ref === this.focusedRow.ref);
+        const baseline = this.rows.findIndex(row => row.ref === this.baselineRow.ref);
+        chart.dataZoom[0].startValue = Math.max(0, Math.min(focus, baseline) - 1);
+        chart.dataZoom[0].endValue = Math.min(this.rows.length - 1, Math.max(focus, baseline) + 1);
+      }
+      return chart;
     },
   },
   watch: {
-    '$route.params.result': 'updateMetadata',
+    currentRun: 'updateMetadata',
     reportUrl: { immediate: true, handler: 'loadReport' },
     selectedProject: 'updateMetadata',
   },
@@ -547,11 +573,19 @@ export default {
     formatValue,
     runLabel,
     navigateSelection(changes) {
+      if ((changes.view || this.view) === 'overview') {
+        return this.$router.push({
+          name: 'Overview',
+          params: { result: this.currentRun === this.latestRun ? undefined : this.currentRun },
+          query: { project: changes.project || this.selectedProject },
+        });
+      }
       return this.$router.push({
         name: 'ResultView',
-        params: this.$route.params,
+        params: { result: this.currentRun },
         query: {
           ...this.$route.query,
+          view: this.view,
           project: this.selectedProject,
           benchmark: this.activeEntry?.name,
           variant: this.activeEntry?.variants ? this.activeBenchmark?.name : undefined,
@@ -562,7 +596,9 @@ export default {
     },
     selectBenchmark(benchmark) {
       return this.navigateSelection({
+        view: 'benchmarks',
         benchmark: benchmark.name,
+        candidate: undefined,
         variant: undefined,
         chart: benchmark.variants ? 'distribution' : 'medians',
       });
@@ -603,12 +639,12 @@ export default {
     },
     async updateMetadata() {
       this.metadataLinks = [];
-      const resultName = this.$route.params.result;
+      const resultName = this.currentRun;
       if (this.reportUrl) return;
       try {
         const event = await import(`../../public/result/${resultName}/gha-event.json`);
         const env = await import(`../../public/result/${resultName}/env.txt`);
-        if (resultName !== this.$route.params.result) return;
+        if (resultName !== this.currentRun) return;
         const envs = Object.fromEntries(
           env.default
             .split('\n')
@@ -645,6 +681,7 @@ export default {
 </script>
 
 <style scoped>
+.focused-row { background: var(--selected); }
 .dashboard {
   display: flex;
   min-height: 100vh;

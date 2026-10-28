@@ -32,10 +32,12 @@ function view(fetch, loadMetadata) {
     ResultsList: {},
     RunDetails: {},
     HistoryPanel: {},
+    RunOverview: {},
     UiIcon: {},
     require: (path) => path,
     process: { env: { BASE_URL: '/buildkit-bench/' } },
     resultsData: {
+      results: ['both'],
       logArchives: ['both'],
       jsonReports: { both: ['buildkit', 'buildx'], kit: ['buildkit'], legacy: [] },
       htmlReports: {
@@ -159,6 +161,62 @@ test('unknown and repeated query values fall back to available selections', () =
   state.$route.query = { project: ['buildx', 'buildkit'], benchmark: null, metric: ['alloc', 'duration'] };
   assert.equal(state.selectedProject, 'buildkit');
   assert.equal(state.selectedMetric, 'duration');
+});
+
+test('overview resolves the latest run and keeps its route when switching projects', async () => {
+  const { state } = view();
+  state.$route = { name: 'Overview', params: {}, query: {} };
+  assert.equal(state.currentRun, 'both');
+  state.report = permalinkReport('buildkit');
+  assert.equal(state.view, 'overview');
+  await state.navigateSelection({ project: 'buildx' });
+  assert.equal(state.view, 'overview');
+  await state.selectBenchmark(state.navigation[0]);
+  assert.equal(state.view, 'benchmarks');
+  state.$route.query = { benchmark: state.navigation[0].name };
+  assert.equal(state.view, 'benchmarks');
+});
+
+test('overview evidence links focus the selected pair and can restore the full chart', async () => {
+  const { state } = view();
+  state.report = permalinkReport('buildkit');
+  state.report.benchmarks[0].samples = Array.from({ length: 8 }, (_, i) => ({ buildkit: `ref-${i}`, values: { duration: i + 1 } }));
+  state.$route.query = { baseline: 'ref-3', candidate: 'ref-4', metric: 'duration', view: 'benchmarks' };
+  assert.equal(state.focusedRow.ref, 'ref-4');
+  assert.equal(state.chartOption.dataZoom[0].startValue, 2);
+  assert.equal(state.chartOption.dataZoom[0].endValue, 5);
+  await state.navigateSelection({ candidate: undefined });
+  assert.equal(state.focusedRow, undefined);
+  assert.equal(state.chartOption.dataZoom[0].startValue, undefined);
+});
+
+test('overview routes distinguish latest and historical runs and preserve benchmark navigation', async () => {
+  const { state } = view();
+  const router = createRouter({ history: createMemoryHistory(), routes: [
+    { name: 'Overview', path: '/overview/:result?', component: {} },
+    { name: 'ResultView', path: '/result/:result', component: {} },
+  ] });
+  await router.push('/overview?project=buildx');
+  state.$router = router;
+  Object.defineProperty(state, '$route', { get: () => router.currentRoute.value });
+  state.report = permalinkReport();
+  assert.equal(state.currentRun, 'both');
+  assert.equal(state.reportUrl, '/buildkit-bench/result/both/buildx.json');
+  await state.navigateSelection({ project: 'buildkit' });
+  assert.equal(router.currentRoute.value.path, '/overview');
+  await state.selectBenchmark(state.navigation[0]);
+  assert.equal(router.currentRoute.value.path, '/result/both');
+  assert.equal(state.view, 'benchmarks');
+  await state.navigateSelection({ view: 'overview' });
+  assert.equal(router.currentRoute.value.path, '/overview');
+  assert.equal(router.currentRoute.value.query.benchmark, undefined);
+  await router.push('/overview/kit');
+  assert.equal(state.currentRun, 'kit');
+  assert.equal(state.reportUrl, '/buildkit-bench/result/kit/buildkit.json');
+  await state.selectBenchmark(state.navigation[0]);
+  assert.equal(router.currentRoute.value.path, '/result/kit');
+  await state.navigateSelection({ view: 'overview' });
+  assert.equal(router.currentRoute.value.path, '/overview/kit');
 });
 
 test('project selection falls back for single-project/legacy runs and preserves Pages paths', () => {
@@ -359,7 +417,8 @@ test('router defaults and unknown hashes redirect without replacing explicit run
   };
   vm.runInNewContext(script, context);
   const routes = context.router.routes;
-  assert.equal(routes.find((r) => r.path === '/').redirect(), '/result/20261013');
+  assert.equal(routes.find((r) => r.path === '/').redirect, '/overview');
+  assert.equal(routes.find((r) => r.name === 'Overview').path, '/overview/:result?');
   assert.equal(routes.find((r) => r.path.includes('pathMatch')).redirect, '/');
   assert.equal(routes.find((r) => r.path === '/result/:result').redirect, undefined);
 });
