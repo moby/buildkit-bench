@@ -28,6 +28,17 @@ FROM golatest AS gobuild-base
 RUN apk add --no-cache file bash clang lld musl-dev pkgconfig git make tree findutils
 COPY --link --from=xx / /
 
+FROM gobuild-base AS tests-unit
+WORKDIR /src
+ENV GOFLAGS=-mod=vendor
+ENV CGO_ENABLED=0
+ENV SKIP_INTEGRATION_TESTS=1
+RUN --mount=type=bind,target=. \
+  --mount=type=cache,target=/root/.cache \
+  --mount=type=cache,target=/go/pkg/mod \
+  go test -v -coverprofile=/tmp/coverage.txt -covermode=atomic ./... && \
+  go tool cover -func=/tmp/coverage.txt
+
 FROM gobuild-base AS gotestmetrics
 WORKDIR /src
 ENV GOFLAGS=-mod=vendor
