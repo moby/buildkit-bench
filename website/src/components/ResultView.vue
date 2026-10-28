@@ -102,14 +102,23 @@
         </div>
 
         <section v-if="!loading && !error && failures.length" class="failure-panel" aria-label="Run failures">
-          <h2>{{ failures.length }} failure{{ failures.length === 1 ? '' : 's' }} recorded</h2>
+          <h2>Failed tests and benchmarks ({{ failures.length }})</h2>
           <p>Successful measurements remain available below. Failed attempts are excluded from statistics.</p>
           <details v-if="report.missing_benchmarks?.length">
             <summary>{{ report.missing_benchmarks.length }} benchmarks have no results</summary>
             <p>This run is incomplete. A parent or package failure was recorded.</p>
             <ul><li v-for="name in report.missing_benchmarks" :key="name">{{ name }}</li></ul>
           </details>
-          <details v-for="(failure, index) in failures" :key="index">
+          <ul v-if="view === 'overview'" class="failure-links">
+            <li v-for="(failure, index) in failures" :key="index">
+              <router-link :to="{ name: 'ResultView', params: { result: currentRun }, query: { project: selectedProject, view: 'benchmarks', failure: String(index) } }">
+                {{ failure.name || failure.package }}
+              </router-link>
+              <small>{{ report.sources?.[failure.source_id]?.name }}</small>
+            </li>
+          </ul>
+          <template v-else>
+          <details v-for="(failure, index) in failures" :key="index" :open="$route.query.failure === String(index)" :data-selected-failure="$route.query.failure === String(index) ? '' : undefined">
             <summary>{{ failure.name || failure.package }} <span>Failed</span></summary>
             <p>{{ failure.package }} · {{ report.sources?.[failure.source_id]?.name }}</p>
             <p class="failure-downloads">
@@ -118,6 +127,7 @@
             </p>
             <pre>{{ failure.output || 'No diagnostic output was captured. See the CI run for details.' }}</pre>
           </details>
+          </template>
         </section>
 
         <div v-if="loading" class="empty-state" role="status">
@@ -586,6 +596,8 @@ export default {
     },
   },
   watch: {
+    report: { handler: 'scrollToFailure', flush: 'post' },
+    '$route.query.failure': { handler: 'scrollToFailure', flush: 'post' },
     currentRun: 'updateMetadata',
     reportUrl: { immediate: true, handler: 'loadReport' },
     selectedProject: 'updateMetadata',
@@ -597,6 +609,9 @@ export default {
     this.request?.abort();
   },
   methods: {
+    scrollToFailure() {
+      this.$el.querySelector('[data-selected-failure]')?.scrollIntoView({ block: 'start' });
+    },
     failureOutputUrl(failure) {
       const file = this.report?.sources?.[failure.source_id]?.output_log;
       const result = this.currentRun;
@@ -618,6 +633,7 @@ export default {
         params: { result: this.currentRun },
         query: {
           ...this.$route.query,
+          failure: changes.project ? undefined : this.$route.query.failure,
           view: this.view,
           project: this.selectedProject,
           benchmark: this.activeEntry?.name,
@@ -632,6 +648,7 @@ export default {
         view: 'benchmarks',
         benchmark: benchmark.name,
         candidate: undefined,
+        failure: undefined,
         variant: undefined,
         chart: benchmark.variants ? 'distribution' : 'medians',
       });
@@ -726,6 +743,10 @@ export default {
 }
 .failure-panel summary { cursor: pointer; overflow-wrap: anywhere; }
 .failure-panel details { margin-top: 12px; }
+.failure-links { padding-left: 20px; }
+.failure-links li { margin-top: 12px; overflow-wrap: anywhere; }
+.failure-links a { text-decoration: underline; }
+.failure-links small { display: block; color: var(--muted); margin-top: 4px; }
 .failure-downloads { display: flex; flex-wrap: wrap; gap: 16px; }
 .failure-panel pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 320px; overflow: auto; }
 

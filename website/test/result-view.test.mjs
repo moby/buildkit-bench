@@ -497,15 +497,18 @@ test('failure panel renders incomplete runs and escapes diagnostic output', asyn
     { name: 'BenchmarkBuild', package: 'bench', output: '<script>unsafe()</script>', source_id: 'source' },
     { name: '', package: 'setup', output: '' },
   ];
-  const html = await renderToString(createSSRApp({
+  const app = createSSRApp({
     template,
     methods: { failureOutputUrl: state.failureOutputUrl },
     data: () => ({
-      loading: false, error: '', failures, logsUrl: state.logsUrl,
+      loading: false, error: '', failures, logsUrl: state.logsUrl, view: 'benchmarks',
       report: { failures, sources: state.report.sources, missing_benchmarks: ['BenchmarkBuild/Simple'] },
     }),
-  }));
-  assert.match(html, /2 failures recorded/);
+  });
+  app.config.globalProperties.$route = { query: { failure: '1' } };
+  const html = await renderToString(app);
+  assert.match(html, /Failed tests and benchmarks \(2\)/);
+  assert.match(html, /<details open data-selected-failure=""><summary>setup/);
   assert.match(html, /BenchmarkBuild\/Simple/);
   assert.match(html, /raw.json/);
   assert.match(html, /&lt;script&gt;unsafe\(\)&lt;\/script&gt;/);
@@ -518,4 +521,58 @@ test('failure panel renders incomplete runs and escapes diagnostic output', asyn
   assert.equal(state.failureOutputUrl(failures[0]), '');
   state.report.sources.source.output_log = 'output-pruned.log.gz';
   assert.equal(state.failureOutputUrl(failures[0]), '');
+});
+
+test('overview links each failed attempt to its diagnostics in the selected run and project', async () => {
+  const template = readFileSync(new URL('../src/components/ResultView.vue', import.meta.url), 'utf8')
+    .match(/<section v-if="!loading && !error && failures.length"[\s\S]*?<\/section>/)[0];
+  const router = createRouter({ history: createMemoryHistory(), routes: [
+    { name: 'ResultView', path: '/result/:result', component: {} },
+  ] });
+  await router.push('/result/old-run');
+  const app = createSSRApp({
+    template,
+    data: () => ({
+      loading: false, error: '', view: 'overview', currentRun: 'latest-run', selectedProject: 'buildx',
+      failures: [
+        { name: 'BenchmarkBuild/ref=master/run=1', source_id: 'first', output: 'large diagnostic' },
+        { name: 'BenchmarkBuild/ref=master/run=1', source_id: 'second' },
+        { package: 'setup' },
+      ],
+      report: { sources: { first: { name: 'first.json' }, second: { name: 'second.json' } } },
+    }),
+  });
+  app.use(router);
+  const html = await renderToString(app);
+  assert.match(html, /Failed tests and benchmarks \(3\)/);
+  for (let index = 0; index < 3; index++) {
+    assert.ok(html.includes(`href="/result/latest-run?project=buildx&amp;view=benchmarks&amp;failure=${index}"`));
+  }
+  assert.match(html, /first.json/);
+  assert.match(html, /second.json/);
+  assert.match(html, />setup<\/a>/);
+  assert.doesNotMatch(html, /large diagnostic|<pre/);
+});
+
+test('failure selection is cleared when changing project, benchmark or run', async () => {
+  const { state } = view();
+  state.report = permalinkReport();
+  state.$route.query = { project: 'buildx', failure: '1' };
+  await state.navigateSelection({ project: 'buildkit' });
+  assert.equal(state.$route.query.failure, undefined);
+  state.$route.query.failure = '1';
+  await state.selectBenchmark(state.navigation[0]);
+  assert.equal(state.$route.query.failure, undefined);
+
+  const source = readFileSync(new URL('../src/components/ResultsList.vue', import.meta.url), 'utf8')
+    .match(/<script>([\s\S]*?)<\/script>/)[1]
+    .replace(/^import.*;$/gm, '')
+    .replace('export default', 'component =');
+  const context = { runLabel: formatting.runLabel };
+  vm.runInNewContext(source, context);
+  state.$route.query.failure = '1';
+  context.component.methods.loadResult.call(state, 'another-run');
+  assert.equal(state.$route.params.result, 'another-run');
+  assert.equal(state.$route.query.failure, undefined);
+  assert.equal(state.$route.query.project, 'buildkit');
 });
