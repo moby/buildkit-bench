@@ -8,7 +8,7 @@ require (
 	github.com/containerd/continuity v0.5.0
 	github.com/containerd/platforms v1.0.0-rc.5
 	github.com/docker/cli v29.9.3+incompatible
-	github.com/gofrs/flock v0.13.1
+	github.com/gofrs/flock v0.13.2
 	github.com/google/go-github/v90 v90.0.0
 	github.com/google/pprof v0.0.0-20260402051712-545e8a4df936
 	github.com/joho/godotenv v1.5.1
@@ -61,7 +61,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.57.0 // indirect
 	golang.org/x/net v0.59.0 // indirect
-	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/term v0.46.0 // indirect
 	golang.org/x/text v0.42.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260825221802-da73d73af1c5 // indirect
