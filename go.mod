@@ -12,7 +12,7 @@ require (
 	github.com/google/go-github/v90 v90.0.0
 	github.com/google/pprof v0.0.0-20260402051712-545e8a4df936
 	github.com/joho/godotenv v1.5.1
-	github.com/moby/buildkit v0.34.1
+	github.com/moby/buildkit v0.34.2
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/pkg/errors v0.9.1
 	github.com/sethvargo/go-githubactions v1.4.0
@@ -41,7 +41,7 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/in-toto/attestation v1.2.0 // indirect
 	github.com/in-toto/in-toto-golang v0.11.0 // indirect
-	github.com/klauspost/compress v1.20.1 // indirect
+	github.com/klauspost/compress v1.20.2 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/moby/locker v1.0.1 // indirect
