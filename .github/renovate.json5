@@ -1,0 +1,76 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigestsToSemver",
+    "helpers:githubDigestChangelogs"
+  ],
+  "enabledManagers": [
+    "gomod",
+    "github-actions",
+    "npm",
+    "custom.regex"
+  ],
+  "ignorePaths": ["vendor/**", "website/node_modules/**"],
+  "postUpdateOptions": ["gomodTidy", "gomodVendor"],
+  "prHourlyLimit": 0,
+  "minimumReleaseAge": "2 days",
+  "internalChecksFilter": "strict",
+  "labels": ["area/dependencies", "bot"],
+  "semanticCommits": "disabled",
+  "commitMessagePrefix": "deps:",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["**/*Dockerfile*"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: versioning=(?<versioning>\\S+))?[ \\t]*\\r?\\n[ \\t]*ARG[ \\t]+\\w+=\"?(?<currentValue>[^\\s\"]+)\"?"
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["gomod"],
+      "commitMessagePrefix": "deps(go):"
+    },
+    {
+      "matchFileNames": ["**/*Dockerfile*"],
+      "commitMessagePrefix": "deps(dockerfile):"
+    },
+    {
+      "matchFileNames": [".github/workflows/**"],
+      "commitMessagePrefix": "deps(ci):"
+    },
+    {
+      "matchDepNames": ["go"],
+      "enabled": false
+    },
+    {
+      "matchManagers": ["npm"],
+      "commitMessagePrefix": "deps(npm):",
+      "rangeStrategy": "bump"
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "enabled": false
+    },
+    {
+      "matchManagers": ["custom.regex"],
+      "matchDatasources": ["github-releases"],
+      "matchDepNames": [
+        "moby/buildkit",
+        "docker/buildx",
+        "distribution/distribution"
+      ],
+      "ignoreUnstable": false,
+      "respectLatest": false
+    },
+    {
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "commitMessageAction": "bump",
+      "commitMessageTopic": "{{{depName}}}",
+      "commitMessageExtra": "from {{{replace '^v' '' currentValue}}} to {{{replace '^v' '' newValue}}}"
+    }
+  ]
+}
