@@ -9,7 +9,7 @@ require (
 	github.com/containerd/platforms v1.0.0-rc.5
 	github.com/docker/cli v29.9.3+incompatible
 	github.com/gofrs/flock v0.13.2
-	github.com/google/go-github/v90 v90.0.0
+	github.com/google/go-github/v93 v93.0.0
 	github.com/google/pprof v0.0.0-20261118010117-084b33a85f63
 	github.com/joho/godotenv v1.5.1
 	github.com/moby/buildkit v0.34.2
