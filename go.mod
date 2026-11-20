@@ -10,7 +10,7 @@ require (
 	github.com/docker/cli v29.9.3+incompatible
 	github.com/gofrs/flock v0.13.2
 	github.com/google/go-github/v90 v90.0.0
-	github.com/google/pprof v0.0.0-20260402051712-545e8a4df936
+	github.com/google/pprof v0.0.0-20261118010117-084b33a85f63
 	github.com/joho/godotenv v1.5.1
 	github.com/moby/buildkit v0.34.2
 	github.com/opencontainers/image-spec v1.1.1
