@@ -7,7 +7,7 @@ require (
 	github.com/containerd/containerd/v2 v2.4.2
 	github.com/containerd/continuity v0.5.0
 	github.com/containerd/platforms v1.0.0-rc.5
-	github.com/docker/cli v29.9.3+incompatible
+	github.com/docker/cli v29.10.0+incompatible
 	github.com/gofrs/flock v0.13.2
 	github.com/google/go-github/v93 v93.0.0
 	github.com/google/pprof v0.0.0-20261118010117-084b33a85f63
