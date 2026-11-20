@@ -1,11 +1,16 @@
 # syntax=docker/dockerfile-upstream:master
 
 ARG GO_VERSION=1.26
+# renovate: datasource=docker depName=alpine versioning=docker
 ARG ALPINE_VERSION=3.23
+# renovate: datasource=docker depName=tonistiigi/xx versioning=docker
 ARG XX_VERSION=1.9.0
 
+# renovate: datasource=github-releases depName=moby/buildkit
 ARG BUILDKIT_VERSION=v0.35.1
+# renovate: datasource=github-releases depName=docker/buildx
 ARG BUILDX_VERSION=v0.39.1
+# renovate: datasource=github-releases depName=distribution/distribution
 ARG REGISTRY_VERSION=v3.1.2
 
 # named contexts
