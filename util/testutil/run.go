@@ -267,7 +267,14 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 							runWithSandbox := func(tb testing.TB) {
 								sb, closer, err := newSandbox(ctx, br, mirror, mv)
 								require.NoError(tb, err)
-								tb.Cleanup(func() { _ = closer() })
+								if b, ok := tb.(*testing.B); ok {
+									defer func() {
+										b.StopTimer()
+										_ = closer()
+									}()
+								} else {
+									tb.Cleanup(func() { _ = closer() })
+								}
 								defer func() {
 									sb.WriteLogs(tb)
 									if tb.Failed() {
