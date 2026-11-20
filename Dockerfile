@@ -4,7 +4,7 @@ ARG GO_VERSION=1.26
 # renovate: datasource=docker depName=alpine versioning=docker
 ARG ALPINE_VERSION=3.23
 # renovate: datasource=docker depName=tonistiigi/xx versioning=docker
-ARG XX_VERSION=1.9.0
+ARG XX_VERSION=1.10.0
 
 # renovate: datasource=github-releases depName=moby/buildkit
 ARG BUILDKIT_VERSION=v0.35.1
