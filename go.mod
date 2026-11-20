@@ -12,7 +12,7 @@ require (
 	github.com/google/go-github/v93 v93.0.0
 	github.com/google/pprof v0.0.0-20261118010117-084b33a85f63
 	github.com/joho/godotenv v1.5.1
-	github.com/moby/buildkit v0.35.0
+	github.com/moby/buildkit v0.35.1
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/pkg/errors v0.9.1
 	github.com/sethvargo/go-githubactions v1.4.0
