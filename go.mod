@@ -1,6 +1,6 @@
 module github.com/moby/buildkit-bench
 
-go 1.26.8
+go 1.27.0
 
 require (
 	github.com/alecthomas/kong v1.17.0
