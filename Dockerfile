@@ -7,7 +7,7 @@ ARG ALPINE_VERSION=3.23
 ARG XX_VERSION=1.9.0
 
 # renovate: datasource=github-releases depName=moby/buildkit
-ARG BUILDKIT_VERSION=v0.35.1
+ARG BUILDKIT_VERSION=dockerfile/1.29.0-rc1
 # renovate: datasource=github-releases depName=docker/buildx
 ARG BUILDX_VERSION=v0.39.1
 # renovate: datasource=github-releases depName=distribution/distribution
