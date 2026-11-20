@@ -69,7 +69,7 @@ func BenchmarkBuild(b *testing.B) {
 		benchmarkBuildExportUncompressed,
 		benchmarkBuildExportGzip,
 		benchmarkBuildExportEstargz,
-		// Zstd export is disabled: https://github.com/moby/buildkit-bench/pull/146#discussion_r1771519112
+		benchmarkBuildExportZstd,
 	),
 		testutil.WithMirroredImages(mirroredImages),
 	)
@@ -503,6 +503,9 @@ func benchmarkBuildExportGzip(b *testing.B, sb testutil.Sandbox) {
 }
 func benchmarkBuildExportEstargz(b *testing.B, sb testutil.Sandbox) {
 	benchmarkBuildExport(b, sb, "estargz")
+}
+func benchmarkBuildExportZstd(b *testing.B, sb testutil.Sandbox) {
+	benchmarkBuildExport(b, sb, "zstd")
 }
 func benchmarkBuildExport(b *testing.B, sb testutil.Sandbox, compression string) {
 	dockerfile := []byte(`
