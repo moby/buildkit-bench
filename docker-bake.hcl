@@ -77,7 +77,7 @@ group "default" {
 }
 
 group "validate" {
-  targets = ["validate-vendor"]
+  targets = ["lint", "lint-gopls", "validate-golangci", "validate-vendor"]
 }
 
 target "_common" {
@@ -208,4 +208,42 @@ target "website" {
   args = {
     WEBSITE_PUBLIC_PATH = WEBSITE_PUBLIC_PATH
   }
+}
+
+variable "GOLANGCI_LINT_MULTIPLATFORM" {
+  default = ""
+}
+
+target "lint" {
+  inherits = ["_common"]
+  dockerfile = "./hack/dockerfiles/lint.Dockerfile"
+  target = "lint"
+  output = ["type=cacheonly"]
+  platforms = GOLANGCI_LINT_MULTIPLATFORM != "" ? [
+    "darwin/amd64",
+    "darwin/arm64",
+    "linux/amd64",
+    "linux/arm64",
+    "windows/amd64",
+    "windows/arm64"
+  ] : []
+}
+
+target "lint-gopls" {
+  inherits = ["lint"]
+  target = "gopls-analyze"
+}
+
+target "validate-golangci" {
+  inherits = ["_common"]
+  dockerfile = "./hack/dockerfiles/lint.Dockerfile"
+  target = "validate-golangci"
+  output = ["type=cacheonly"]
+}
+
+target "gopls-fix" {
+  inherits = ["_common"]
+  dockerfile = "./hack/dockerfiles/lint.Dockerfile"
+  target = "gopls-fix"
+  output = ["."]
 }
