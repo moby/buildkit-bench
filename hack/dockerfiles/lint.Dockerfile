@@ -7,7 +7,7 @@ ARG ALPINE_VERSION=3.24
 ARG XX_VERSION=1.10.0
 
 # renovate: datasource=github-releases depName=golangci/golangci-lint
-ARG GOLANGCI_LINT_VERSION=v2.14.0
+ARG GOLANGCI_LINT_VERSION=v2.15.0
 ARG GOLANGCI_FROM_SOURCE=true
 # renovate: datasource=go depName=github.com/crazy-max/gopls-analyzers
 ARG GOPLS_ANALYZERS_VERSION=v0.3.0
