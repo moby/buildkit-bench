@@ -71,7 +71,7 @@ func (sb *sandbox) ClearLogs() {
 	sb.logs = make(map[string]*bytes.Buffer)
 }
 
-func (sb *sandbox) Value(k string) interface{} {
+func (sb *sandbox) Value(k string) any {
 	return sb.mv.values[k].value
 }
 
@@ -130,7 +130,7 @@ func newSandbox(ctx context.Context, r Worker, mirror string, mv matrixValue) (s
 	}, cl, nil
 }
 
-func printLogs(logs map[string]*bytes.Buffer, f func(args ...interface{})) {
+func printLogs(logs map[string]*bytes.Buffer, f func(args ...any)) {
 	for name, l := range logs {
 		f(name)
 		s := bufio.NewScanner(l)

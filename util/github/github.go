@@ -50,10 +50,8 @@ func (c *Client) GetCommit(ref string) (*github.RepositoryCommit, error) {
 func (c *Client) GetCommits(since time.Time) ([]*github.RepositoryCommit, error) {
 	var res []*github.RepositoryCommit
 	opt := &github.CommitsListOptions{
-		Since: since,
-		ListOptions: github.ListOptions{
-			PerPage: 100,
-		},
+		Since:   since,
+		PerPage: 100,
 	}
 	for {
 		commits, resp, err := c.client.Repositories.ListCommits(c.ctx, c.owner, c.repo, opt)

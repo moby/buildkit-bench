@@ -61,11 +61,9 @@ func newEventHandler(logger io.Writer) *eventHandler {
 		failures:      make(map[string]*Failure),
 		outputs:       make(map[string]string),
 		activeFailure: make(map[string]string),
-		ParseResult: ParseResult{
-			BenchmarkInfo: new(BenchmarkInfo),
-			Tests:         make(map[string]ParseEntry),
-			Benchmarks:    make(map[string]ParseEntry),
-		},
+		BenchmarkInfo: new(BenchmarkInfo),
+		Tests:         make(map[string]ParseEntry),
+		Benchmarks:    make(map[string]ParseEntry),
 	}
 	if logger != nil {
 		eh.log = log.New(logger, "", log.LstdFlags)

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -72,12 +74,12 @@ func writeManyFilesTar(tw *tar.Writer) error {
 		return err
 	}
 	fileNum := 0
-	for dirIndex := 0; dirIndex < manyFileDirs; dirIndex++ {
+	for dirIndex := range manyFileDirs {
 		dirName := fmt.Sprintf("payload/dir-%03d", dirIndex)
 		if err := writeTarDir(tw, dirName); err != nil {
 			return err
 		}
-		for fileIndex := 0; fileIndex < manyFilesPerDir; fileIndex++ {
+		for fileIndex := range manyFilesPerDir {
 			fileName := manyFileName(dirIndex, fileIndex)
 			if err := writeTarFile(tw, fileName, sizes[fileNum], zeroReader{}); err != nil {
 				return err
@@ -91,16 +93,16 @@ func writeManyFilesTar(tw *tar.Writer) error {
 func manyFileSizes() ([]int64, error) {
 	totalFiles := manyFileDirs * manyFilesPerDir
 	if int64(totalFiles*manyFileMinSizeBytes) > int64(manyFileMaxTotalBytes) {
-		return nil, fmt.Errorf("minimum file sizes exceed total budget")
+		return nil, errors.Errorf("minimum file sizes exceed total budget")
 	}
 
 	sizes := make([]int64, 0, totalFiles)
 	remainingBudget := int64(manyFileMaxTotalBytes)
-	for fileNum := 0; fileNum < totalFiles; fileNum++ {
+	for fileNum := range totalFiles {
 		remainingFiles := totalFiles - fileNum
 		maxSize := remainingBudget - int64(remainingFiles-1)*manyFileMinSizeBytes
 		if maxSize < int64(manyFileMinSizeBytes) {
-			return nil, fmt.Errorf("remaining budget below minimum file size")
+			return nil, errors.Errorf("remaining budget below minimum file size")
 		}
 		maxSize = min(maxSize, int64(manyFileMaxSizeBytes))
 
@@ -110,7 +112,7 @@ func manyFileSizes() ([]int64, error) {
 		remainingBudget -= size
 	}
 	if sumInt64(sizes) > int64(manyFileMaxTotalBytes) {
-		return nil, fmt.Errorf("file sizes exceed total budget")
+		return nil, errors.Errorf("file sizes exceed total budget")
 	}
 	return sizes, nil
 }
@@ -120,7 +122,7 @@ func manyFileName(dirIndex, fileIndex int) string {
 }
 
 func manyFileSize(fileNum int) int64 {
-	hash := manyFileHash(uint64(fileNum))
+	hash := manyFileHash(uint64(fileNum)) //nolint:gosec // fileNum is a nonnegative index.
 	switch bucket := hash % 100; {
 	case bucket == 0:
 		return int64Range(hash>>8, 512*1024, manyFileMaxSizeBytes)
@@ -143,7 +145,7 @@ func int64Range(v uint64, minValue, maxValue int64) int64 {
 	if maxValue <= minValue {
 		return minValue
 	}
-	return minValue + int64(v%uint64(maxValue-minValue+1))
+	return minValue + int64(v%uint64(maxValue-minValue+1)) //nolint:gosec // Callers supply positive file sizes bounded by manyFileMaxSizeBytes.
 }
 
 func sumInt64(values []int64) int64 {

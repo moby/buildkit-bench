@@ -44,7 +44,7 @@ func parseTest(t string) (*Test, bool, error) {
 	tt := &Test{}
 
 	var attrs []string
-	for _, part := range strings.Split(t, "/") {
+	for part := range strings.SplitSeq(t, "/") {
 		if !strings.Contains(part, "=") {
 			if len(tt.Name) > 0 {
 				tt.Name += "/"

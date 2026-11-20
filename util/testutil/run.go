@@ -55,7 +55,7 @@ type Sandbox interface {
 	WriteLogs(testing.TB)
 	ClearLogs()
 	WriteLogFile(testing.TB, string, []byte)
-	Value(string) interface{} // chosen matrix value
+	Value(string) any // chosen matrix value
 	Name() string
 	BuildKitBinsDir() string
 }
@@ -158,10 +158,10 @@ func List() []Worker {
 // TestOpt is an option that can be used to configure a set of tests.
 type TestOpt func(*testConf)
 
-func WithMatrix(key string, m map[string]interface{}) TestOpt {
+func WithMatrix(key string, m map[string]any) TestOpt {
 	return func(tc *testConf) {
 		if tc.matrix == nil {
-			tc.matrix = map[string]map[string]interface{}{}
+			tc.matrix = map[string]map[string]any{}
 		}
 		tc.matrix[key] = m
 	}
@@ -177,7 +177,7 @@ func WithMirroredImages(m map[string]string) TestOpt {
 }
 
 type testConf struct {
-	matrix         map[string]map[string]interface{}
+	matrix         map[string]map[string]any
 	mirroredImages map[string]string
 }
 
@@ -198,8 +198,8 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 	var tc testConf
 
 	// set up buildx matrix
-	WithMatrix("buildx", func() map[string]interface{} {
-		var matrix map[string]interface{}
+	WithMatrix("buildx", func() map[string]any {
+		var matrix map[string]any
 		entries, err := os.ReadDir(buildxBinsDir)
 		if err != nil {
 			return matrix
@@ -209,7 +209,7 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 				continue
 			}
 			if matrix == nil {
-				matrix = make(map[string]interface{})
+				matrix = make(map[string]any)
 			}
 			matrix[entry.Name()] = path.Join(buildxBinsDir, entry.Name(), "buildx")
 		}
@@ -266,7 +266,7 @@ func Run(tb testing.TB, runners []Runner, opt ...TestOpt) {
 
 							runWithSandbox := func(tb testing.TB) {
 								sb, closer, err := newSandbox(ctx, br, mirror, mv)
-								require.NoError(tb, err, errors.Unwrap(err))
+								require.NoError(tb, err)
 								tb.Cleanup(func() { _ = closer() })
 								defer func() {
 									sb.WriteLogs(tb)
@@ -361,7 +361,7 @@ func runMirror(tb testing.TB, mirroredImages map[string]string) (host string, _ 
 
 	var lock *flock.Flock
 	if mirrorDir != "" {
-		if err := os.MkdirAll(mirrorDir, 0700); err != nil {
+		if err := os.MkdirAll(mirrorDir, 0700); err != nil { //nolint:gosec // REGISTRY_MIRROR_DIR intentionally selects the mirror directory.
 			return "", nil, err
 		}
 		lock = flock.New(filepath.Join(mirrorDir, "lock"))
@@ -419,10 +419,10 @@ func (mv matrixValue) functionSuffix() string {
 
 type matrixValueChoice struct {
 	name  string
-	value interface{}
+	value any
 }
 
-func newMatrixValue(key, name string, v interface{}) matrixValue {
+func newMatrixValue(key, name string, v any) matrixValue {
 	return matrixValue{
 		fn: []string{key},
 		values: map[string]matrixValueChoice{
@@ -538,7 +538,7 @@ func officialImages(names ...string) map[string]string {
 	return m
 }
 
-func getFunctionName(i interface{}) string {
+func getFunctionName(i any) string {
 	fullname := runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
 	dot := strings.LastIndex(fullname, ".") + 1
 	return strings.Title(fullname[dot:]) //nolint:staticcheck // ignoring "SA1019: strings.Title is deprecated", as for our use we don't need full unicode support

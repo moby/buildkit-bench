@@ -6,7 +6,7 @@ import (
 	"github.com/google/go-github/v93/github"
 )
 
-func ParseEventFile(name string, fp string) (interface{}, error) {
+func ParseEventFile(name string, fp string) (any, error) {
 	dt, err := os.ReadFile(fp)
 	if err != nil {
 		return nil, err
@@ -14,7 +14,7 @@ func ParseEventFile(name string, fp string) (interface{}, error) {
 	return ParseEvent(name, dt)
 }
 
-func ParseEvent(name string, dt []byte) (interface{}, error) {
+func ParseEvent(name string, dt []byte) (any, error) {
 	event, err := github.ParseWebHook(name, dt)
 	if err != nil {
 		return nil, err

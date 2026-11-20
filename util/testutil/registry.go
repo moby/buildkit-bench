@@ -38,7 +38,7 @@ func NewRegistry(dir string) (url string, cl func() error, err error) {
 		dir = tmpdir
 	}
 
-	if _, err := os.Stat(filepath.Join(dir, "config.yaml")); err != nil {
+	if _, err := os.Stat(filepath.Join(dir, "config.yaml")); err != nil { //nolint:gosec // dir is a caller-configured registry directory.
 		if !errors.Is(err, os.ErrNotExist) {
 			return "", nil, err
 		}
@@ -51,12 +51,12 @@ http:
     addr: 127.0.0.1:0
 `, filepath.Join(dir, "data"))
 
-		if err := os.WriteFile(filepath.Join(dir, "config.yaml"), []byte(template), 0600); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, "config.yaml"), []byte(template), 0600); err != nil { //nolint:gosec // dir is a caller-configured registry directory.
 			return "", nil, err
 		}
 	}
 
-	cmd := exec.Command("registry", "serve", filepath.Join(dir, "config.yaml")) //nolint:gosec // test utility
+	cmd := exec.CommandContext(context.Background(), "registry", "serve", filepath.Join(dir, "config.yaml")) //nolint:gosec // test utility
 	rc, err := cmd.StderrPipe()
 	if err != nil {
 		return "", nil, err
@@ -67,9 +67,8 @@ http:
 	}
 	deferF.Append(stop)
 
-	ctx, cancel := context.WithCancelCause(context.Background())
-	ctx, _ = context.WithTimeoutCause(ctx, 5*time.Second, errors.WithStack(context.DeadlineExceeded))
-	defer cancel(errors.WithStack(context.Canceled))
+	ctx, cancel := context.WithTimeoutCause(context.Background(), 5*time.Second, errors.WithStack(context.DeadlineExceeded))
+	defer cancel()
 	url, err = detectPort(ctx, rc)
 	if err != nil {
 		return "", nil, err

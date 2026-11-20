@@ -3,6 +3,7 @@ package candidates
 import (
 	"encoding/json"
 	"log"
+	"maps"
 	"os"
 	"regexp"
 	"sort"
@@ -77,15 +78,9 @@ func Load(f string) (*Candidates, error) {
 
 func (c *Candidates) List() map[string]Commit {
 	res := make(map[string]Commit)
-	for k, v := range c.Refs {
-		res[k] = v
-	}
-	for k, v := range c.Releases {
-		res[k] = v
-	}
-	for k, v := range c.Commits {
-		res[k] = v
-	}
+	maps.Copy(res, c.Refs)
+	maps.Copy(res, c.Releases)
+	maps.Copy(res, c.Commits)
 	return res
 }
 
@@ -233,7 +228,6 @@ func filterFeatureReleases(tags []*ggithub.RepositoryTag, last int) []*ggithub.R
 	latestReleases := make(map[string]*ggithub.RepositoryTag)
 	zeroReleases := make(map[string]*ggithub.RepositoryTag)
 	for _, tag := range tags {
-		tag := tag
 		if len(latestReleases) == last && len(zeroReleases) == last {
 			break
 		}
