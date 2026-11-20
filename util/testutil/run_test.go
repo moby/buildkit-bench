@@ -52,6 +52,88 @@ func TestRunContinuesAfterFailure(t *testing.T) {
 	}
 }
 
+type sandboxLifetimeWorker struct {
+	active, peak, created, closed int
+}
+
+func (w *sandboxLifetimeWorker) Name() string { return "lifetime" }
+func (w *sandboxLifetimeWorker) New(context.Context, *BackendConfig) (Backend, func() error, error) {
+	w.active++
+	w.created++
+	w.peak = max(w.peak, w.active)
+	return backend{}, func() error {
+		w.active--
+		w.closed++
+		return nil
+	}, nil
+}
+
+func TestRunBenchmarkSandboxCleanup(t *testing.T) {
+	cmd := exec.CommandContext(t.Context(), os.Args[0], "-test.run=^$", "-test.bench=^BenchmarkRunSandboxCleanup$", "-test.benchtime=3x") //nolint:gosec // Re-execute this test binary to run the benchmark with a fixed iteration count.
+	cmd.Env = append(os.Environ(), "BENCH_SANDBOX_CLEANUP_HELPER=1", "TEST_BENCH_RUN=1", "BUILDKIT_REF_RANDOM=")
+	output, err := cmd.CombinedOutput()
+	require.NoError(t, err, string(output))
+	require.Contains(t, string(output), "BenchmarkSandboxLifetime/ref=lifetime/buildx=probe/run=1")
+	require.Contains(t, string(output), "BenchmarkSandboxLifetimeWithIteration/ref=lifetime/buildx=probe/run=1")
+}
+
+func BenchmarkRunSandboxCleanup(b *testing.B) {
+	if os.Getenv("BENCH_SANDBOX_CLEANUP_HELPER") != "1" {
+		b.Skip("subprocess helper for TestRunBenchmarkSandboxCleanup")
+	}
+	workers, output, bins := defaultWorkers, outDir, buildxBinsDir
+	b.Cleanup(func() { defaultWorkers, outDir, buildxBinsDir = workers, output, bins })
+	outDir, buildxBinsDir = b.TempDir(), b.TempDir()
+	for _, tc := range []struct {
+		name string
+		fn   func(*testing.B, Sandbox)
+	}{
+		{
+			name: "ordinary",
+			fn:   benchmarkSandboxLifetime,
+		},
+		{
+			name: "WithIteration",
+			fn:   benchmarkSandboxLifetimeWithIteration,
+		},
+	} {
+		b.Run(tc.name, func(b *testing.B) {
+			w := &sandboxLifetimeWorker{}
+			defaultWorkers = []Worker{w}
+			Run(b, BenchFuncs(tc.fn), WithMatrix("buildx", map[string]any{"probe": "unused"}))
+			require.Equal(b, 1, w.peak)
+			require.Equal(b, w.created, w.closed)
+			require.Zero(b, w.active)
+		})
+	}
+}
+
+func benchmarkSandboxLifetime(b *testing.B, _ Sandbox) {
+	b.StartTimer()
+	b.StopTimer()
+}
+
+func benchmarkSandboxLifetimeWithIteration(b *testing.B, _ Sandbox) {
+	for range b.N {
+		b.StartTimer()
+		b.StopTimer()
+	}
+}
+
+func TestRunSandboxSurvivesTestCleanup(t *testing.T) {
+	workers, output, bins := defaultWorkers, outDir, buildxBinsDir
+	t.Cleanup(func() { defaultWorkers, outDir, buildxBinsDir = workers, output, bins })
+	outDir, buildxBinsDir = t.TempDir(), t.TempDir()
+	w := &sandboxLifetimeWorker{}
+	defaultWorkers = []Worker{w}
+	Run(t, TestFuncs(func(t *testing.T, _ Sandbox) {
+		t.Cleanup(func() { require.Equal(t, 1, w.active) })
+	}), WithMatrix("buildx", map[string]any{"probe": "unused"}))
+	require.Equal(t, 1, w.created)
+	require.Equal(t, w.created, w.closed)
+	require.Zero(t, w.active)
+}
+
 func TestOfficialImages(t *testing.T) {
 	namespace := runtime.GOARCH
 	if namespace == "arm64" {
