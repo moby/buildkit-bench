@@ -61,7 +61,7 @@ http:
 	if err != nil {
 		return "", nil, err
 	}
-	stop, err := startCmd(cmd, nil)
+	stop, _, err := startCmd(cmd, nil)
 	if err != nil {
 		return "", nil, err
 	}

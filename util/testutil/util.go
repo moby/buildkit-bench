@@ -63,20 +63,20 @@ func runBuildkitd(conf *BackendConfig, tmpdir string, args []string, logs map[st
 	cmd.Env = append(cmd.Env, extraEnv...)
 	cmd.SysProcAttr = getSysProcAttr()
 
-	stop, err := startCmd(cmd, logs)
+	stop, stopped, err := startCmd(cmd, logs)
 	if err != nil {
 		return "", "", nil, err
 	}
 	deferF.Append(stop)
 
-	if err := waitSocket(address, 15*time.Second, cmd); err != nil {
+	if err := waitSocket(address, 15*time.Second, cmd, stopped); err != nil {
 		return "", "", nil, err
 	}
 
 	return address, debugAddress, cl, err
 }
 
-func startCmd(cmd *exec.Cmd, logs map[string]*bytes.Buffer) (func() error, error) {
+func startCmd(cmd *exec.Cmd, logs map[string]*bytes.Buffer) (func() error, <-chan struct{}, error) {
 	if logs != nil {
 		setCmdLogs(cmd, logs)
 	}
@@ -84,7 +84,7 @@ func startCmd(cmd *exec.Cmd, logs map[string]*bytes.Buffer) (func() error, error
 	fmt.Fprintf(cmd.Stderr, "> StartCmd %v %+v\n", time.Now(), cmd.String())
 
 	if err := cmd.Start(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	eg, ctx := errgroup.WithContext(context.TODO())
 
@@ -126,17 +126,19 @@ func startCmd(cmd *exec.Cmd, logs map[string]*bytes.Buffer) (func() error, error
 	return func() error {
 		close(stop)
 		return eg.Wait()
-	}, nil
+	}, stopped, nil
 }
 
-// WaitSocket will dial a socket opened by a command passed in as cmd.
-func waitSocket(address string, d time.Duration, cmd *exec.Cmd) error {
+// waitSocket waits for a socket or for startCmd to signal that the command exited.
+func waitSocket(address string, d time.Duration, cmd *exec.Cmd, stopped <-chan struct{}) error {
 	address = strings.TrimPrefix(address, "unix://")
 	step := 50 * time.Millisecond
 	i := 0
 	for {
-		if cmd != nil && cmd.ProcessState != nil {
+		select {
+		case <-stopped:
 			return errors.Errorf("process exited: %s", cmd.String())
+		default:
 		}
 		if conn, err := dialPipe(address); err == nil {
 			conn.Close()
