@@ -3,7 +3,8 @@
   "extends": [
     "config:recommended",
     "helpers:pinGitHubActionDigestsToSemver",
-    "helpers:githubDigestChangelogs"
+    "helpers:githubDigestChangelogs",
+    ":gitSignOff"
   ],
   "enabledManagers": [
     "gomod",
@@ -32,6 +33,12 @@
     {
       "matchManagers": ["gomod"],
       "commitMessagePrefix": "deps(go):"
+    },
+    {
+      "matchManagers": ["gomod"],
+      "matchDepNames": ["github.com/google/pprof"],
+      "extends": ["schedule:monthly"],
+      "updateNotScheduled": false
     },
     {
       "matchFileNames": ["**/*Dockerfile*"],
