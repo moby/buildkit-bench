@@ -59,9 +59,9 @@ func WriteExecutionMetadata(filename string) error {
 		}
 	}
 	if dt, err := os.ReadFile("/proc/meminfo"); err == nil {
-		for _, line := range strings.Split(string(dt), "\n") {
-			if strings.HasPrefix(line, "MemTotal:") {
-				metadata.Environment["memory_total"] = strings.TrimSpace(strings.TrimPrefix(line, "MemTotal:"))
+		for line := range strings.SplitSeq(string(dt), "\n") {
+			if after, ok := strings.CutPrefix(line, "MemTotal:"); ok {
+				metadata.Environment["memory_total"] = strings.TrimSpace(after)
 			}
 		}
 	}
@@ -130,7 +130,7 @@ func WriteExecutionMetadata(filename string) error {
 
 // Version and OS details are optional; a missing tool must not invent metadata.
 func executionCommand(name string, args ...string) string {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeoutCause(context.Background(), 5*time.Second, context.DeadlineExceeded)
 	defer cancel()
 	out, err := exec.CommandContext(ctx, name, args...).Output()
 	if err != nil {

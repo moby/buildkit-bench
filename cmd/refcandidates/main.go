@@ -106,7 +106,7 @@ func setGhaOutput(name string, c *candidates.Candidates) error {
 	}
 
 	if gha.IsPullRequestEvent() {
-		r := rand.New(rand.NewSource(time.Now().UnixNano()))
+		r := rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec // Sampling CI candidates does not require cryptographic randomness.
 		if len(includes) > 2 {
 			s := make([]include, 0, 2)
 			si := make(map[int]struct{})

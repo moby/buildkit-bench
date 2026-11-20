@@ -3,6 +3,7 @@ package gotest
 import (
 	"encoding/json"
 	"log"
+	"maps"
 	"os"
 	"path/filepath"
 
@@ -50,9 +51,7 @@ func MergeBenchmarks(files []string) (map[string]Benchmark, error) {
 		if benchmarks == nil {
 			benchmarks = result.Benchmarks
 		} else {
-			for k, v := range result.Benchmarks {
-				benchmarks[k] = v
-			}
+			maps.Copy(benchmarks, result.Benchmarks)
 		}
 	}
 	return benchmarks, nil

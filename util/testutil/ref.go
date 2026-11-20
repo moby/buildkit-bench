@@ -124,7 +124,7 @@ func (c *Ref) New(ctx context.Context, cfg *BackendConfig) (b Backend, cl func()
 	// Create a remote buildx instance
 	builderName := "remote-" + identity.NewID()
 	buildxConfigDir := filepath.Join(tmpdir, "buildx")
-	cmd := exec.Command(cfg.BuildxBin, "create",
+	cmd := exec.CommandContext(context.Background(), cfg.BuildxBin, "create",
 		"--bootstrap",
 		"--name", builderName,
 		"--driver", "remote",
@@ -135,7 +135,7 @@ func (c *Ref) New(ctx context.Context, cfg *BackendConfig) (b Backend, cl func()
 		return nil, nil, errors.Wrapf(err, "failed to create buildx instance %s", builderName)
 	}
 	deferF.Append(func() error {
-		cmd := exec.Command(cfg.BuildxBin, "rm", "-f", builderName)
+		cmd := exec.CommandContext(context.Background(), cfg.BuildxBin, "rm", "-f", builderName)
 		cmd.Env = append(os.Environ(), "BUILDX_CONFIG="+buildxConfigDir)
 		return cmd.Run()
 	})
@@ -188,7 +188,7 @@ func getBinsDir(targetdir string, altdir string, env string) string {
 	if v := os.Getenv(env); v != "" {
 		targetdir = v
 	}
-	f, err := os.Open(targetdir)
+	f, err := os.Open(targetdir) //nolint:gosec // The environment intentionally selects the binaries directory.
 	if err != nil {
 		return altdir
 	}

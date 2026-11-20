@@ -88,7 +88,7 @@ func TestParsePreservesFailedResults(t *testing.T) {
 	outputEvent, err := json.Marshal(map[string]string{"Action": "output", "Package": "bench", "Output": fullOutput})
 	require.NoError(t, err)
 	events = []byte(strings.Replace(string(events), `{"Action":"fail"`, string(outputEvent)+"\n"+`{"Action":"fail"`, 1))
-	require.NoError(t, os.WriteFile(input, events, 0644))
+	require.NoError(t, os.WriteFile(input, events, 0644)) //nolint:gosec // input is a fixed filename inside t.TempDir().
 	f, err := os.Open(input)
 	require.NoError(t, err)
 	stdin := os.Stdin

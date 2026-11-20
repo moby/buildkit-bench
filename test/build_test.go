@@ -39,7 +39,7 @@ func BenchmarkBuild(b *testing.B) {
 		fstest.CreateFile("subdir1/subdir2/file3.txt", []byte("bar"), 0600),
 		fstest.CreateFile("subdir1/subdir2/file4.txt", make([]byte, 1024*1024*10), 0600), // 10MB file
 	)
-	for i := 0; i < 5000; i++ {
+	for i := range 5000 {
 		contextDirAppliers = append(contextDirAppliers, fstest.CreateFile(fmt.Sprintf("subdir1/file%d.txt", i+5), []byte("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."), 0600))
 	}
 	contextDirAppliers = append(contextDirAppliers,
@@ -69,7 +69,7 @@ func BenchmarkBuild(b *testing.B) {
 		benchmarkBuildExportUncompressed,
 		benchmarkBuildExportGzip,
 		benchmarkBuildExportEstargz,
-		//benchmarkBuildExportZstd, https://github.com/moby/buildkit-bench/pull/146#discussion_r1771519112
+		// Zstd export is disabled: https://github.com/moby/buildkit-bench/pull/146#discussion_r1771519112
 	),
 		testutil.WithMirroredImages(mirroredImages),
 	)
@@ -171,7 +171,7 @@ RUN cp /etc/foo /etc/bar
 `)
 
 	// warmup
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		dir := tmpdir(
 			b,
 			fstest.CreateFile("Dockerfile", dockerfile, 0600),
@@ -182,7 +182,7 @@ RUN cp /etc/foo /etc/bar
 	}
 
 	dirs := make([]string, n)
-	for i := 0; i < n; i++ {
+	for i := range n {
 		dirs[i] = tmpdir(
 			b,
 			fstest.CreateFile("Dockerfile", dockerfile, 0600),
@@ -313,7 +313,7 @@ COPY --from=build /cache-marker /cache-marker
 	// Solves release references asynchronously. Like upstream ensurePruneAll,
 	// retry pruning and require an empty daemon cache before measuring import.
 	var records []byte
-	for attempt := 0; attempt < 20; attempt++ {
+	for range 20 {
 		out, err := buildctlCmd(sb, withArgs("prune", "--all")).CombinedOutput()
 		require.NoError(b, err, string(out))
 		records, err = buildctlCmd(sb, withArgs("du", "--format={{len .}}")).Output()
@@ -354,7 +354,7 @@ func benchmarkBuildBakeSharedTargets(b *testing.B, sb testutil.Sandbox) {
 	const targets = 16
 	var bake strings.Builder
 	bake.WriteString("group \"default\" {\n  targets = [")
-	for i := 0; i < targets; i++ {
+	for i := range targets {
 		fmt.Fprintf(&bake, "\"leaf%d\",", i)
 	}
 	bake.WriteString("]\n}\n")
@@ -369,7 +369,7 @@ target "base" {
 		fstest.CreateFile("payload", payload, 0600),
 		fstest.CreateFile(".dockerignore", []byte("out\n"), 0600),
 	}
-	for i := 0; i < targets; i++ {
+	for i := range targets {
 		fmt.Fprintf(&bake, `
 target "leaf%d" {
   contexts = { base = "target:base" }
@@ -389,7 +389,7 @@ target "leaf%d" {
 		sb.WriteLogFile(b, "bake", out)
 		require.NoError(b, err, string(out))
 	})
-	for i := 0; i < targets; i++ {
+	for i := range targets {
 		dest := filepath.Join(dir, "out", fmt.Sprintf("leaf%d", i))
 		actual, err := os.ReadFile(filepath.Join(dest, "payload"))
 		require.NoError(b, err)
@@ -473,7 +473,7 @@ RUN set -eu; for file in chunks/*; do sha256sum "$file"; done > chunks.sha256; \
 `)
 	// Fixed pseudo-random bytes avoid measuring compression of an all-zero file.
 	payload := make([]byte, 8*1024*1024)
-	_, err := rand.New(rand.NewSource(0)).Read(payload)
+	_, err := rand.New(rand.NewSource(0)).Read(payload) //nolint:gosec // Fixed randomness keeps the benchmark payload reproducible.
 	require.NoError(b, err)
 	dir := tmpdir(b,
 		fstest.CreateFile("Dockerfile", dockerfile, 0600),
@@ -503,9 +503,6 @@ func benchmarkBuildExportGzip(b *testing.B, sb testutil.Sandbox) {
 }
 func benchmarkBuildExportEstargz(b *testing.B, sb testutil.Sandbox) {
 	benchmarkBuildExport(b, sb, "estargz")
-}
-func benchmarkBuildExportZstd(b *testing.B, sb testutil.Sandbox) {
-	benchmarkBuildExport(b, sb, "zstd")
 }
 func benchmarkBuildExport(b *testing.B, sb testutil.Sandbox, compression string) {
 	dockerfile := []byte(`

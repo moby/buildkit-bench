@@ -1,12 +1,13 @@
 package candidates
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
 	ggithub "github.com/google/go-github/v93/github"
 	"github.com/stretchr/testify/require"
+
+	"github.com/pkg/errors"
 )
 
 func TestSetRefsUsesPullRequestMergeCommitSHA(t *testing.T) {
@@ -99,7 +100,7 @@ func (c *fakeGithubClient) GetCommit(ref string) (*ggithub.RepositoryCommit, err
 	c.commitRefs = append(c.commitRefs, ref)
 	cm := c.commits[ref]
 	if cm == nil {
-		return nil, fmt.Errorf("missing commit for ref %q", ref)
+		return nil, errors.Errorf("missing commit for ref %q", ref)
 	}
 	return cm, nil
 }
@@ -111,7 +112,7 @@ func (c *fakeGithubClient) GetCommits(time.Time) ([]*ggithub.RepositoryCommit, e
 func (c *fakeGithubClient) GetPullRequest(number int) (*ggithub.PullRequest, error) {
 	pr := c.pulls[number]
 	if pr == nil {
-		return nil, fmt.Errorf("missing pull request %d", number)
+		return nil, errors.Errorf("missing pull request %d", number)
 	}
 	return pr, nil
 }

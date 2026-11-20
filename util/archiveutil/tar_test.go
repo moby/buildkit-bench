@@ -21,11 +21,11 @@ func manyFileManifestDigest(sizes []int64) string {
 	h := sha256.New()
 	var buf [8]byte
 	fileNum := 0
-	for dirIndex := 0; dirIndex < manyFileDirs; dirIndex++ {
-		for fileIndex := 0; fileIndex < manyFilesPerDir; fileIndex++ {
+	for dirIndex := range manyFileDirs {
+		for fileIndex := range manyFilesPerDir {
 			h.Write([]byte(manyFileName(dirIndex, fileIndex)))
 			h.Write([]byte{0})
-			binary.LittleEndian.PutUint64(buf[:], uint64(sizes[fileNum]))
+			binary.LittleEndian.PutUint64(buf[:], uint64(sizes[fileNum])) //nolint:gosec // The manifest contains positive file sizes.
 			h.Write(buf[:])
 			fileNum++
 		}

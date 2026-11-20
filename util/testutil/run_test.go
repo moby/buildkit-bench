@@ -9,6 +9,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/pkg/errors"
 )
 
 type failingWorker string
@@ -16,7 +18,7 @@ type failingWorker string
 func (w failingWorker) Name() string { return string(w) }
 func (w failingWorker) New(context.Context, *BackendConfig) (Backend, func() error, error) {
 	fmt.Println("attempted worker " + w.Name())
-	return nil, nil, fmt.Errorf("worker %s failed", w)
+	return nil, nil, errors.Errorf("worker %s failed", w)
 }
 
 func TestRunContinuesAfterFailure(t *testing.T) {
@@ -36,7 +38,7 @@ func TestRunContinuesAfterFailure(t *testing.T) {
 	}
 	for _, kind := range []string{"test", "benchmark"} {
 		t.Run(kind, func(t *testing.T) {
-			cmd := exec.Command(os.Args[0], "-test.run=^TestRunContinuesAfterFailure$", "-test.v")
+			cmd := exec.CommandContext(t.Context(), os.Args[0], "-test.run=^TestRunContinuesAfterFailure$", "-test.v") //nolint:gosec // Re-execute this test binary to isolate expected failures.
 			cmd.Env = append(os.Environ(), "BENCH_FAILURE_HELPER="+kind, "BUILDKIT_REF_RANDOM=", "TEST_BENCH_RUN=1")
 			output, err := cmd.CombinedOutput()
 			if kind == "test" {

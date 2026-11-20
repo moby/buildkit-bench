@@ -61,7 +61,7 @@ target "default" {
 	}
 	require.NoError(b, json.Unmarshal(out, &result))
 	require.Len(b, result.Target, 128)
-	for app := 0; app < 32; app++ {
+	for app := range 32 {
 		for _, mode := range []string{"debug", "release"} {
 			for _, arch := range []string{"amd64", "arm64"} {
 				target, ok := result.Target[fmt.Sprintf("app-%d-%s-%s", app, mode, arch)]
@@ -76,14 +76,14 @@ target "default" {
 }
 
 func testBuildxVersion(t *testing.T, sb testutil.Sandbox) {
-	output, err := exec.Command(sb.BuildxBin(), "version").Output()
+	output, err := exec.CommandContext(t.Context(), sb.BuildxBin(), "version").Output()
 	require.NoError(t, err)
 	t.Log(string(output))
 }
 
 func benchmarkBuildxVersion(b *testing.B, sb testutil.Sandbox) {
 	b.StartTimer()
-	err := exec.Command(sb.BuildxBin(), "version").Run()
+	err := exec.CommandContext(b.Context(), sb.BuildxBin(), "version").Run()
 	b.StopTimer()
 	require.NoError(b, err)
 }
